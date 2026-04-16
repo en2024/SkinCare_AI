@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home | AI SkinCare Safety Analyzer</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Jost:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet"
+    />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
+
+    <style>
+        :root {
+            --primary: #7f9a87;      /* sage */
+            --secondary: #d8c3b6;    /* beige */
+            --accent: #e6c5c1;       /* blush */
+            --bg: #f8f4ef;
+            --surface: #fffdf9;
+            --dark: #2f3a33;
+            --muted: #6d7a71;
+            --white: #ffffff;
+
+            --shadow-sm: 0 6px 18px rgba(47, 58, 51, 0.08);
+            --shadow-lg: 0 18px 40px rgba(47, 58, 51, 0.12);
+            --radius-xl: 28px;
+        }
+
+        body.dark-mode {
+            --bg: #1d2521;
+            --surface: #26312c;
+            --dark: #eef3ef;
+            --muted: #b3c0b7;
+            --white: #2e3933;
+            --primary: #99b19f;
+            --secondary: #7f8d84;
+            --accent: #caa7a2;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Jost", sans-serif;
+            background-color: var(--bg);
+            color: var(--dark);
+            overflow-x: hidden;
+            transition: background-color 0.35s ease, color 0.35s ease;
+        }
+
+        h1, h2, h3, .serif { font-family: "Cormorant Garamond", serif; }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(34px);
+            transition: 0.75s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 4%;
+            position: absolute;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #fff;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .nav-links { display: flex; gap: 34px; }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #fff;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: 0.25s;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+        .nav-links a:hover { color: var(--accent); }
+
+        .btn-nav {
+            background: rgba(255, 255, 255, 0.16);
+            color: #fff;
+            padding: 10px 24px;
+            border-radius: 999px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            transition: 0.3s;
+            backdrop-filter: blur(8px);
+        }
+        .btn-nav:hover {
+            background: var(--accent);
+            color: #3a2f2f;
+            transform: translateY(-2px);
+        }
+
+        .hero {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            padding: 1.2vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero-img-wrapper {
+            width: 100%;
+            height: 100%;
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            position: relative;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .main-background {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center center;
+            display: block;
+            transform: scale(1.04);
+            animation: slowZoom 20s infinite alternate linear;
+            filter: saturate(0.9) contrast(1.03);
+        }
+        @keyframes slowZoom { 100% { transform: scale(1); } }
+
+        /* polish 1: stronger readable overlay */
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(to bottom, rgba(31, 44, 37, 0.28), rgba(31, 44, 37, 0.64)),
+                linear-gradient(to right, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.16));
+            transition: background 0.35s;
+        }
+        body.dark-mode .hero-overlay {
+            background: linear-gradient(to bottom, rgba(12, 15, 13, 0.45), rgba(12, 15, 13, 0.8));
+        }
+
+        .massive-text {
+            position: absolute;
+            top: 44%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: "Jost", sans-serif;
+            font-size: 12.5vw;
+            font-weight: 700;
+            color: #fff;
+            line-height: 0.86;
+            text-align: center;
+            letter-spacing: -3px;
+            width: 100%;
+            z-index: 10;
+            animation: textPop 1.4s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+            text-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+        }
+        @keyframes textPop {
+            from { opacity: 0; transform: translate(-50%, -42%) scale(0.96); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* polish 2: more breathing room */
+        .hero-bottom-content {
+            position: absolute;
+            bottom: 48px;
+            left: 5%;
+            right: 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            z-index: 10;
+            animation: slideUpBottom 1.3s ease-out forwards;
+        }
+        @keyframes slideUpBottom {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero-desc {
+            color: #fff;
+            font-size: 1.08rem;
+            max-width: 430px;
+            font-weight: 300;
+            line-height: 1.62;
+            letter-spacing: 0.35px;
+        }
+
+        .btn-main {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 36px;
+            background-color: var(--white);
+            color: var(--dark);
+            font-size: 0.96rem;
+            border-radius: 999px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.35s;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.15);
+            text-transform: uppercase;
+            letter-spacing: 0.9px;
+            border: 1px solid transparent;
+        }
+
+        /* polish 3: unified accent hover */
+        .btn-main:hover {
+            transform: translateY(-4px);
+            background-color: var(--accent);
+            color: #3a2f2f;
+            border-color: rgba(58, 47, 47, 0.1);
+        }
+
+        .marquee-container {
+            width: 100%;
+            background-color: var(--primary);
+            color: #f6f2eb;
+            padding: 16px 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+
+        .marquee-track {
+            display: flex;
+            white-space: nowrap;
+            animation: marquee 24s linear infinite;
+        }
+        .marquee-track:hover { animation-play-state: paused; }
+
+        .marquee-track span {
+            font-size: 0.95rem;
+            font-weight: 500;
+            letter-spacing: 1.4px;
+            margin-right: 46px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .how-it-works {
+            padding: 110px 5% 80px;
+            background-color: var(--surface);
+            text-align: center;
+        }
+
+        .section-header { margin-bottom: 64px; }
+        .section-header h2 {
+            font-size: 3.2rem;
+            margin-bottom: 12px;
+            color: var(--dark);
+        }
+        .section-header p {
+            font-size: 1.1rem;
+            color: var(--muted);
+        }
+
+        .steps-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            max-width: 1100px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .steps-container::before {
+            content: "";
+            position: absolute;
+            top: 40px;
+            left: 15%;
+            right: 15%;
+            height: 2px;
+            background: repeating-linear-gradient(
+                90deg,
+                var(--secondary) 0,
+                var(--secondary) 10px,
+                transparent 10px,
+                transparent 20px
+            );
+            z-index: 1;
+        }
+
+        .step { flex: 1; position: relative; z-index: 2; }
+
+        .step-icon {
+            width: 82px;
+            height: 82px;
+            background: var(--bg);
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 32px;
+            box-shadow: 0 0 0 10px var(--surface);
+            transition: 0.35s;
+        }
+        .step:hover .step-icon {
+            background: var(--primary);
+            color: #f4f7f5;
+            transform: translateY(-8px);
+        }
+
+        .step h3 { font-size: 1.45rem; margin-bottom: 10px; }
+        .step p {
+            color: var(--muted);
+            font-size: 1rem;
+            width: 86%;
+            margin: 0 auto;
+            line-height: 1.55;
+        }
+
+        .features {
+            background: var(--bg);
+            padding: 110px 8%;
+            display: flex;
+            align-items: center;
+            gap: 56px;
+        }
+
+        .mf-text { flex: 1; }
+        .mf-text h2 {
+            font-size: 3.25rem;
+            margin-bottom: 18px;
+            line-height: 1.1;
+            color: var(--dark);
+        }
+        .mf-text p {
+            font-size: 1.12rem;
+            color: var(--muted);
+            line-height: 1.65;
+        }
+
+        .mf-grid {
+            flex: 1.5;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            align-items: stretch;
+        }
+
+        /* polish 4: equal card heights */
+        .mf-card {
+            background: var(--surface);
+            padding: 34px 26px;
+            border-radius: 18px;
+            transition: 0.35s ease;
+            border: 1px solid rgba(127, 154, 135, 0.15);
+            box-shadow: var(--shadow-sm);
+            min-height: 205px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        .mf-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .mf-card i {
+            font-size: 2.7rem;
+            color: var(--primary);
+            margin-bottom: 12px;
+            transition: transform 0.35s, color 0.35s;
+            display: inline-block;
+        }
+
+        .mf-card:hover i {
+            transform: scale(1.08) rotate(4deg);
+            color: var(--accent); /* polish 5: unified accent detail */
+        }
+
+        .mf-card h3 {
+            font-size: 1.35rem;
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+
+        .mf-card p {
+            font-size: 0.98rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        footer {
+            background-color: #2a342e;
+            color: #eaf0eb;
+            text-align: center;
+            padding: 45px 5%;
+        }
+
+        footer h2.serif { color: #f2f6f3; }
+        footer p {
+            color: #d5dfd8;
+            margin-top: 10px;
+            font-weight: 400;
+            line-height: 1.6;
+        }
+
+        #dark-mode-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 9999;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.25s ease, background 0.25s ease;
+        }
+
+        #dark-mode-btn:hover {
+            transform: translateY(-3px) scale(1.03);
+            background: var(--accent);
+            color: #3a2f2f;
+        }
+
+        @media (max-width: 900px) {
+            .hero { padding: 0; }
+            .hero-img-wrapper { border-radius: 0; }
+            .massive-text { font-size: 19vw; line-height: 0.9; }
+
+            .hero-bottom-content {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 18px;
+                bottom: 28px;
+            }
+
+            .steps-container { flex-direction: column; gap: 58px; }
+            .steps-container::before { display: none; }
+
+            .features {
+                flex-direction: column;
+                text-align: center;
+                padding: 72px 5%;
+            }
+
+            .nav-links { display: none; }
+            .mf-card { min-height: auto; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/" class="logo">AI SkinCare</a>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="{% url 'catalog' %}">Catalog</a>
+            <a href="{% url 'analyzer' %}">AI Analyzer</a>
+        </div>
+        <a href="{% url 'login' %}" class="btn-nav">Get Started</a>
+    </header>
+
+    <section class="hero">
+        <div class="hero-img-wrapper">
+            <!-- صورة أنسب للباليت -->
+            <img
+                src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?q=80&w=1600&auto=format&fit=crop">
+                class="main-background"
+                alt="Natural skincare routine"
+            />
+            <div class="hero-overlay"></div>
+
+            <div class="massive-text">
+                ai<br />skincare.
+            </div>
+
+            <div class="hero-bottom-content">
+                <p class="hero-desc">
+                    Upload a simple photo and let our advanced intelligence curate the perfect routine.
+                </p>
+                <a href="{% url 'analyzer' %}" class="btn-main">Analyze My Skin</a>
+            </div>
+        </div>
+    </section>
+
+    <div class="marquee-container">
+        <div class="marquee-track">
+            <span>✨ AI SKIN ANALYSIS</span>
+            <span>🌿 DERMATOLOGIST APPROVED</span>
+            <span>💧 PERSONALIZED ROUTINE</span>
+            <span>🤖 ADVANCED ML ALGORITHMS</span>
+            <span>✨ AI SKIN ANALYSIS</span>
+            <span>🌿 DERMATOLOGIST APPROVED</span>
+            <span>💧 PERSONALIZED ROUTINE</span>
+            <span>🤖 ADVANCED ML ALGORITHMS</span>
+            <span>✨ AI SKIN ANALYSIS</span>
+            <span>🌿 DERMATOLOGIST APPROVED</span>
+        </div>
+    </div>
+
+    <section class="how-it-works">
+        <div class="section-header reveal">
+            <h2 class="serif">How it works</h2>
+            <p>Three simple steps to unlock your perfect glow.</p>
+        </div>
+
+        <div class="steps-container">
+            <div class="step reveal" style="transition-delay: 0.1s;">
+                <div class="step-icon"><i class="material-icons-outlined">camera_enhance</i></div>
+                <h3 class="serif">1. Upload Photo</h3>
+                <p>Take or upload a clear, well-lit photo of your natural face.</p>
+            </div>
+            <div class="step reveal" style="transition-delay: 0.3s;">
+                <div class="step-icon"><i class="material-icons-outlined">memory</i></div>
+                <h3 class="serif">2. AI Scans Face</h3>
+                <p>Our machine learning model analyzes your skin type and specific conditions instantly.</p>
+            </div>
+            <div class="step reveal" style="transition-delay: 0.5s;">
+                <div class="step-icon"><i class="material-icons-outlined">card_giftcard</i></div>
+                <h3 class="serif">3. Get Routine</h3>
+                <p>Receive your completely personalized, safe, and beautiful daily product routine.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="mf-text reveal">
+            <h2 class="serif">Safety meets<br />smart beauty.</h2>
+            <p>We blend dermatological science with machine learning to perfectly protect and rejuvenate your skin.</p>
+        </div>
+
+        <div class="mf-grid">
+            <div class="mf-card reveal" style="transition-delay: 0.2s;">
+                <i class="material-icons-outlined">camera_front</i>
+                <h3 class="serif">Smart Scan</h3>
+                <p>Detect your true skin type in seconds from just one photo.</p>
+            </div>
+            <div class="mf-card reveal" style="transition-delay: 0.3s;">
+                <i class="material-icons-outlined">health_and_safety</i>
+                <h3 class="serif">Harm Detection</h3>
+                <p>Identify and avoid ingredients that might irritate your unique skin.</p>
+            </div>
+            <div class="mf-card reveal" style="transition-delay: 0.4s;">
+                <i class="material-icons-outlined">favorite_border</i>
+                <h3 class="serif">Perfect Matches</h3>
+                <p>Get personalized product recommendations you'll absolutely love.</p>
+            </div>
+            <div class="mf-card reveal" style="transition-delay: 0.5s;">
+                <i class="material-icons-outlined">spa</i>
+                <h3 class="serif">Daily Routine</h3>
+                <p>Step-by-step guidance tailored purely for your skin's needs.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <h2 class="serif">✦ AI SkinCare Safety Analyzer</h2>
+        <p>
+            Final Year Project - Arab Open University, Egypt <br />
+            &copy; 2026 Engy Nabil Safwat
+        </p>
+    </footer>
+
+    <button id="dark-mode-btn" onclick="toggleDarkMode()">🌙</button>
+
+    <script>
+        function reveal() {
+            var reveals = document.querySelectorAll(".reveal");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                if (elementTop < windowHeight - 80) {
+                    reveals[i].classList.add("active");
+                }
+            }
+        }
+
+        window.addEventListener("scroll", reveal);
+        setTimeout(reveal, 200);
+
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+            const btn = document.getElementById("dark-mode-btn");
+            if (document.body.classList.contains("dark-mode")) {
+                btn.innerText = "☀️";
+                localStorage.setItem("darkMode", "on");
+            } else {
+                btn.innerText = "🌙";
+                localStorage.setItem("darkMode", "off");
+            }
+        }
+
+        if (localStorage.getItem("darkMode") === "on") {
+            document.body.classList.add("dark-mode");
+            document.getElementById("dark-mode-btn").innerText = "☀️";
+        }
+    </script>
+</body>
+</html>

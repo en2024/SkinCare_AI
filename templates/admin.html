@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin dashboard | AI Skincare</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Jost:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #7f9a87;
+            --accent: #e6c5c1;
+            --gold: #c5a880;
+            --bg: #f8f4ef;
+            --surface: #fffdf9;
+            --dark: #2f3a33;
+            --muted: #6d7a71;
+            --danger: #b84a4a;
+            --r: 18px;
+            --shadow: 0 18px 48px rgba(47, 58, 51, 0.10);
+        }
+        body.dark-mode {
+            --bg: #1d2521;
+            --surface: #26312c;
+            --dark: #eef3ef;
+            --muted: #b3c0b7;
+            --primary: #99b19f;
+            --accent: #caa7a2;
+            --gold: #d4bc94;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Jost', sans-serif;
+            background: var(--bg);
+            color: var(--dark);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+        .serif { font-family: 'Cormorant Garamond', serif; }
+        a { color: var(--primary); font-weight: 600; }
+
+        .nav-wrap {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            padding: 12px 5%;
+            background: linear-gradient(to bottom, rgba(248, 244, 239, 0.95), transparent);
+            backdrop-filter: blur(8px);
+        }
+        body.dark-mode .nav-wrap {
+            background: linear-gradient(to bottom, rgba(29, 37, 33, 0.95), transparent);
+        }
+        .nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 10px 18px;
+            background: var(--surface);
+            border: 1px solid rgba(127, 154, 135, 0.2);
+            border-radius: 999px;
+            box-shadow: var(--shadow);
+        }
+        .nav a.home {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            font-size: 0.85rem;
+        }
+        .nav-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .btn-line {
+            background: transparent;
+            border: 1px solid rgba(127, 154, 135, 0.45);
+            color: var(--dark);
+        }
+        .btn-go {
+            background: linear-gradient(135deg, var(--primary), #93b39b);
+            color: #f7faf7;
+        }
+        .btn-danger {
+            background: rgba(184, 74, 74, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(184, 74, 74, 0.35);
+        }
+
+        .shell { max-width: 1200px; margin: 0 auto; padding: 8px 5% 48px; }
+
+        .head {
+            margin-bottom: 22px;
+        }
+        .head h1 {
+            font-size: clamp(1.75rem, 3vw, 2.25rem);
+            letter-spacing: -0.02em;
+        }
+        .head p { color: var(--muted); margin-top: 6px; max-width: 56ch; }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+        @media (max-width: 960px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid rgba(127, 154, 135, 0.18);
+            border-radius: calc(var(--r) + 6px);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        .card-bar {
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--accent), var(--gold));
+        }
+        .card-in { padding: 20px 22px 24px; }
+
+        .card h2 {
+            font-size: 1.15rem;
+            margin-bottom: 14px;
+            letter-spacing: -0.01em;
+        }
+
+        .field { margin-bottom: 12px; }
+        .field label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+        .input, .card select, .card textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(127, 154, 135, 0.3);
+            background: var(--bg);
+            font-family: inherit;
+            font-size: 0.92rem;
+            color: var(--dark);
+        }
+        body.dark-mode .input,
+        body.dark-mode .card select,
+        body.dark-mode .card textarea {
+            background: rgba(38, 49, 44, 0.65);
+        }
+        .card textarea { min-height: 72px; resize: vertical; }
+
+        .table-wrap {
+            margin-top: 24px;
+            overflow-x: auto;
+            border-radius: calc(var(--r) + 4px);
+            border: 1px solid rgba(127, 154, 135, 0.16);
+            background: var(--surface);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+        }
+        th, td {
+            padding: 12px 14px;
+            text-align: left;
+            border-bottom: 1px solid rgba(127, 154, 135, 0.12);
+        }
+        th {
+            font-size: 0.68rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--muted);
+            background: rgba(127, 154, 135, 0.08);
+        }
+        tr:last-child td { border-bottom: none; }
+        .thumb {
+            width: 52px;
+            height: 52px;
+            object-fit: cover;
+            border-radius: 12px;
+            background: rgba(127, 154, 135, 0.12);
+        }
+        .row-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        .edit-panel {
+            display: none;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px dashed rgba(127, 154, 135, 0.35);
+        }
+        .edit-panel.open { display: block; }
+
+        #dm {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, var(--primary), #93b39b);
+            color: #fff;
+            cursor: pointer;
+            z-index: 50;
+            box-shadow: var(--shadow);
+        }
+    </style>
+</head>
+<body>
+
+<div class="nav-wrap">
+    <nav class="nav">
+        <a class="home serif" href="/">✦ AI Skincare</a>
+        <div class="nav-actions">
+            <a class="btn btn-line" href="{% url 'catalog' %}">Catalog</a>
+            <a class="btn btn-line" href="{% url 'analyzer' %}">Analyzer</a>
+            <a class="btn btn-go" href="{% url 'logout' %}">Log out</a>
+        </div>
+    </nav>
+</div>
+
+<div class="shell">
+    <header class="head">
+        <h1 class="serif">Product admin</h1>
+        <p>Signed in as <strong>{{ user.username }}</strong>. Add or edit catalog items used by the AI analyzer recommendations.</p>
+    </header>
+
+    <div class="grid-2">
+        <section class="card">
+            <div class="card-bar"></div>
+            <div class="card-in">
+                <h2 class="serif">Add product</h2>
+                <form method="post" action="{% url 'add_product' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="field">
+                        <label for="add-name">Name</label>
+                        <input class="input" id="add-name" name="name" required>
+                    </div>
+                    <div class="field">
+                        <label for="add-cat">Category</label>
+                        <select class="input" id="add-cat" name="category">
+                            <option value="moisturizer">Moisturizer</option>
+                            <option value="cleanser">Cleanser</option>
+                            <option value="serum">Serum</option>
+                            <option value="sunscreen">Sunscreen</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="add-skin">Skin type</label>
+                        <select class="input" id="add-skin" name="skin_type">
+                            <option value="oily">Oily</option>
+                            <option value="dry">Dry</option>
+                            <option value="normal">Normal</option>
+                            <option value="combination">Combination</option>
+                            <option value="sensitive">Sensitive</option>
+                            <option value="all">All skin types</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="add-desc">Description</label>
+                        <textarea class="input" id="add-desc" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="field">
+                        <label for="add-how">How to use</label>
+                        <textarea class="input" id="add-how" name="how_to_use" rows="2"></textarea>
+                    </div>
+                    <div class="field">
+                        <label for="add-img">Image</label>
+                        <input class="input" id="add-img" type="file" name="image" accept="image/*">
+                    </div>
+                    <button type="submit" class="btn btn-go" style="width:100%;margin-top:8px;padding:12px;">Save product</button>
+                </form>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="card-bar"></div>
+            <div class="card-in">
+                <h2 class="serif">Edit product</h2>
+                <p style="color:var(--muted);font-size:0.9rem;margin-bottom:14px;">Choose <strong>Edit</strong> on a row below to load fields, then save.</p>
+                <div id="edit-panel" class="edit-panel">
+                    <form id="edit-form" method="post" action="{% url 'edit_product' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="product_id" id="edit-product-id">
+                        <div class="field">
+                            <label for="edit-name">Name</label>
+                            <input class="input" id="edit-name" name="name" required>
+                        </div>
+                        <div class="field">
+                            <label for="edit-cat">Category</label>
+                            <select class="input" id="edit-cat" name="category">
+                                <option value="moisturizer">Moisturizer</option>
+                                <option value="cleanser">Cleanser</option>
+                                <option value="serum">Serum</option>
+                                <option value="sunscreen">Sunscreen</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="edit-skin">Skin type</label>
+                            <select class="input" id="edit-skin" name="skin_type">
+                                <option value="oily">Oily</option>
+                                <option value="dry">Dry</option>
+                                <option value="normal">Normal</option>
+                                <option value="combination">Combination</option>
+                                <option value="sensitive">Sensitive</option>
+                                <option value="all">All skin types</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="edit-desc">Description</label>
+                            <textarea class="input" id="edit-desc" name="description" rows="3"></textarea>
+                        </div>
+                        <div class="field">
+                            <label for="edit-how">How to use</label>
+                            <textarea class="input" id="edit-how" name="how_to_use" rows="2"></textarea>
+                        </div>
+                        <div class="field">
+                            <label for="edit-img">New image (optional)</label>
+                            <input class="input" id="edit-img" type="file" name="image" accept="image/*">
+                        </div>
+                        <button type="submit" class="btn btn-go" style="width:100%;padding:12px;">Update product</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Skin</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in products %}
+                <tr data-id="{{ p.id }}">
+                    <td>
+                        {% if p.image %}
+                        <img class="thumb" src="{{ p.image.url }}" alt="">
+                        {% else %}
+                        <span style="color:var(--muted);">—</span>
+                        {% endif %}
+                    </td>
+                    <td><strong>{{ p.name }}</strong></td>
+                    <td>{{ p.get_category_display }}</td>
+                    <td>{{ p.get_skin_type_display }}</td>
+                    <td>
+                        <div class="row-actions">
+                            <button type="button" class="btn btn-line edit-btn">Edit</button>
+                            <form method="post" action="{% url 'delete_product' %}" style="display:inline;" onsubmit="return confirm('Delete this product?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="product_id" value="{{ p.id }}">
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:28px;">No products yet — add one on the left.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<button type="button" id="dm" onclick="document.body.classList.toggle('dark-mode'); localStorage.setItem('admDm', document.body.classList.contains('dark-mode')?'1':''); this.textContent=document.body.classList.contains('dark-mode')?'☀️':'🌙';">🌙</button>
+
+{{ catalog|json_script:"catalog-data" }}
+<script>
+(function () {
+    if (localStorage.getItem('admDm')) {
+        document.body.classList.add('dark-mode');
+        document.getElementById('dm').textContent = '☀️';
+    }
+    var byId = {};
+    try {
+        JSON.parse(document.getElementById('catalog-data').textContent).forEach(function (row) {
+            byId[String(row.id)] = row;
+        });
+    } catch (e) {}
+    var panel = document.getElementById('edit-panel');
+    document.querySelectorAll('.edit-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var tr = btn.closest('tr');
+            if (!tr || !tr.dataset.id) return;
+            var row = byId[tr.dataset.id];
+            if (!row) return;
+            document.getElementById('edit-product-id').value = row.id;
+            document.getElementById('edit-name').value = row.name || '';
+            document.getElementById('edit-cat').value = row.category || 'moisturizer';
+            document.getElementById('edit-skin').value = row.skin_type || 'normal';
+            document.getElementById('edit-desc').value = row.description || '';
+            document.getElementById('edit-how').value = row.how_to_use || '';
+            panel.classList.add('open');
+            panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+    });
+})();
+</script>
+</body>
+</html>
