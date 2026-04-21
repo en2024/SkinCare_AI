@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Catalog | AI Skincare Safety Analyzer</title>
+    <title>Catalog | AI Skin Care Assistant Analyzer</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -16,36 +16,53 @@
 
     <style>
         :root {
-            --primary: #7f9a87;
-            --secondary: #d8c3b6;
-            --accent: #e6c5c1;
-            --bg: #f8f4ef;
-            --surface: #fffdf9;
-            --dark: #2f3a33;
-            --muted: #6d7a71;
-            --white: #ffffff;
+            --cream: #FBFCFB;
+            --beige-light: #F0F4F1;
+            --beige: #DCE5DF;
+            --sand: #A3B8AD;
+            --brown: #6B8E7C;
+            --deep-brown: #3C4F45;
+            --rose-nude: #8FA89A;
+            --blush: #E8EFEA;
+            --white: #FFFFFF;
+            --text-dark: #2A362F;
+            --text-muted: #5C7365;
 
-            --shadow-sm: 0 8px 22px rgba(47, 58, 51, 0.08);
-            --shadow-md: 0 14px 34px rgba(47, 58, 51, 0.12);
-            --shadow-lg: 0 22px 50px rgba(47, 58, 51, 0.16);
+            --primary: var(--brown);
+            --secondary: var(--sand);
+            --accent: var(--rose-nude);
+            --bg: var(--cream);
+            --surface: var(--white);
+            --dark: var(--deep-brown);
+            --muted: var(--text-muted);
+
+            --shadow-sm: 0 4px 14px rgba(42, 54, 47, 0.05);
+            --shadow-md: 0 8px 24px rgba(42, 54, 47, 0.08);
+            --shadow-lg: 0 16px 48px rgba(42, 54, 47, 0.12);
             --radius-xl: 24px;
             --radius-lg: 16px;
             --radius-pill: 999px;
         }
 
         body.dark-mode {
-            --bg: #1d2521;
-            --surface: #26312c;
-            --dark: #edf2ee;
-            --muted: #b5c1b8;
-            --white: #2e3933;
-            --primary: #99b19f;
-            --secondary: #7f8d84;
-            --accent: #caa7a2;
-
-            --shadow-sm: 0 8px 24px rgba(0, 0, 0, 0.24);
-            --shadow-md: 0 16px 38px rgba(0, 0, 0, 0.28);
-            --shadow-lg: 0 26px 56px rgba(0, 0, 0, 0.32);
+            --bg: #1A1F1C;
+            --surface: #242B27;
+            --dark: #FBFCFB;
+            --text-dark: #FBFCFB;
+            --muted: #A3B8AD;
+            --text-muted: #A3B8AD;
+            --white: #242B27;
+            --cream: #1A1F1C;
+            --beige-light: #242B27;
+            --beige: #2E3631;
+            --sand: #5C7365;
+            --brown: #8FA89A;
+            --deep-brown: #FBFCFB;
+        }
+        body.dark-mode .safe-pill {
+            color: #A6D6BA;
+            background: rgba(166, 214, 186, 0.1);
+            border-color: rgba(108, 168, 132, 0.3);
         }
 
         * {
@@ -385,11 +402,6 @@
             flex-grow: 1;
         }
 
-        .product-desc strong {
-            color: var(--dark);
-            font-weight: 600;
-        }
-
         .empty-state {
             grid-column: 1 / -1;
             text-align: center;
@@ -422,86 +434,117 @@
             font-size: 0.95rem;
         }
 
-        /* DARK MODE BUTTON */
-        #dark-mode-btn {
+        /* Expanding Settings FAB (الديزاين الرقيق) */
+        .fab-container {
             position: fixed;
-            bottom: 24px;
-            right: 24px;
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            background: var(--primary);
-            color: #fff;
-            border: none;
-            font-size: 1.2rem;
-            cursor: pointer;
-            z-index: 1200;
-            box-shadow: var(--shadow-md);
-            transition: transform 0.25s ease, background 0.25s ease;
+            bottom: 32px;
+            right: 32px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
         }
 
-        #dark-mode-btn:hover {
-            transform: translateY(-3px) scale(1.03);
-            background: var(--accent);
-            color: #3a2f2f;
+        #fab-main {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+
+        #fab-main:hover { 
+            transform: scale(1.05) rotate(90deg); 
+            box-shadow: 0 10px 28px rgba(0,0,0,0.1);
+        }
+
+        .fab-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px) scale(0.8);
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .fab-menu.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        .fab-item {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+            color: var(--dark);
+        }
+
+        .fab-item:hover { 
+            transform: scale(1.1); 
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+            background: var(--bg);
+        }
+
+        /* تنسيقات اللغة العربية لضمان الشكل المنظم */
+        body.rtl { direction: rtl; text-align: right; }
+        body.rtl .fab-container { left: 32px; right: auto; }
+        body.rtl .product-grid { direction: rtl; }
+        body.rtl .meta-row { flex-direction: row-reverse; }
+        body.rtl .nav-links { flex-direction: row-reverse; }
+        body.rtl .hover-action-btn { left: 12px; right: auto; }
+        body.rtl .category-badge { right: 12px; left: auto; }
+        body.rtl .shop-hero-content { margin-right: 5%; margin-left: 0; }
 
         @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(12px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @media (max-width: 980px) {
             .nav-links { display: none; }
-            .shop-hero {
-                min-height: 300px;
-                border-radius: 22px;
-            }
-            .shop-hero-content {
-                margin-left: 6%;
-            }
+            .shop-hero { min-height: 300px; border-radius: 22px; }
+            .shop-hero-content { margin-left: 6%; }
+            body.rtl .shop-hero-content { margin-right: 6%; margin-left: 0; }
         }
 
         @media (max-width: 640px) {
             .main-nav-wrap { padding-top: 10px; }
-            .main-nav {
-                border-radius: 16px;
-                padding: 10px 12px;
-            }
+            .main-nav { border-radius: 16px; padding: 10px 12px; }
             .logo { font-size: 0.92rem; letter-spacing: 1.1px; }
             .btn-nav { padding: 8px 12px; font-size: 0.8rem; }
-
-            .shop-hero {
-                min-height: 260px;
-                border-radius: 18px;
-            }
-
-            .product-grid {
-                grid-template-columns: 1fr;
-                gap: 18px;
-            }
-            .product-card {
-                min-height: auto;
-            }
+            .shop-hero { min-height: 260px; border-radius: 18px; }
+            .product-grid { grid-template-columns: 1fr; gap: 18px; }
+            .product-card { min-height: auto; }
         }
     </style>
 </head>
 <body>
     <div class="main-nav-wrap">
         <header class="main-nav container">
-            <a href="/" class="logo">AI SkinCare</a>
+            <a href="/" class="logo">AI SkinCare Safety Analyzer</a>
             <div class="nav-links">
                 <a href="/">Home</a>
                 <a href="{% url 'catalog' %}" class="active">Catalog</a>
                 <a href="{% url 'analyzer' %}">AI Analyzer</a>
             </div>
-            <a href="{% url 'login' %}" class="btn-nav">Get Started</a>
+            <a href="{% url 'login' %}" class="btn-nav">Login</a>
         </header>
     </div>
 
@@ -510,22 +553,22 @@
             <div class="shop-hero-content">
                 <span class="shop-kicker">
                     <i class="material-icons-outlined" style="font-size: 16px;">spa</i>
-                    Personalized Safe Beauty
+                    <span id="kicker-text">Personalized Safe Beauty</span>
                 </span>
-                <h1 class="massive-title serif">catalog.</h1>
-                <p class="shop-subtitle">
-                    Explore dermatologist-friendly recommendations tailored to your skin type, routine, and daily glow goals.
+                <h1 class="massive-title serif" id="main-title">catalog.</h1>
+                <p class="shop-subtitle" id="main-subtitle">
+                Explore a curated collection of skincare products, intelligently filtered by our AI to ensure ingredient safety for your specific skin type.
                 </p>
             </div>
         </section>
 
         <section class="filter-wrap">
             <div class="filter-tabs">
-                <button class="filter-tab active" data-category="all">✨ All Products</button>
-                <button class="filter-tab" data-category="moisturizers">💧 Moisturizers</button>
-                <button class="filter-tab" data-category="cleansers">🧴 Cleansers</button>
-                <button class="filter-tab" data-category="serums">🧪 Serums</button>
-                <button class="filter-tab" data-category="sunscreens">☀️ Sunscreens</button>
+                <button class="filter-tab active" data-category="all">✨ <span class="filter-text">All Products</span></button>
+                <button class="filter-tab" data-category="moisturizers">💧 <span class="filter-text">Moisturizers</span></button>
+                <button class="filter-tab" data-category="cleansers">🧴 <span class="filter-text">Cleansers</span></button>
+                <button class="filter-tab" data-category="serums">🧪 <span class="filter-text">Serums</span></button>
+                <button class="filter-tab" data-category="sunscreens">☀️ <span class="filter-text">Sunscreens</span></button>
             </div>
         </section>
 
@@ -539,56 +582,148 @@
                     {% else %}
                     <i class="material-icons-outlined" style="font-size: 52px; color: var(--secondary);">spa</i>
                     {% endif %}
-                    <div class="hover-action-btn">View Details ✦</div>
+                    <div class="hover-action-btn view-details">View Details ✦</div>
                 </div>
 
                 <h3 class="product-name serif">{{ product.name }}</h3>
 
                 <div class="meta-row">
                     <span class="skin-type-tag">✓ {{ product.get_skin_type_display }}</span>
-                    <span class="safe-pill">SAFE PICK</span>
+                    <span class="safe-pill safe-pick">SAFE PICK</span>
                 </div>
 
                 <div class="product-desc">
-                    <p style="margin-bottom: 8px;"><strong>Benefits:</strong> {{ product.description }}</p>
-                    <p><strong>How to use:</strong> {{ product.how_to_use }}</p>
+                    <p style="margin-bottom: 8px;"><strong class="benefits-label">Benefits:</strong> {{ product.description }}</p>
+                    <p><strong class="how-to-use-label">How to use:</strong> {{ product.how_to_use }}</p>
                 </div>
             </article>
             {% empty %}
             <div class="empty-state">
-                <h3 class="serif" style="font-size: 1.7rem; margin-bottom: 8px;">No products yet</h3>
-                <p>Products will appear here once the catalog is updated.</p>
+                <h3 class="serif" style="font-size: 1.7rem; margin-bottom: 8px;" id="empty-title">No products yet</h3>
+                <p id="empty-desc">Products will appear here once the catalog is updated.</p>
             </div>
             {% endfor %}
         </section>
     </main>
 
     <footer>
-        <h2 class="serif">✦ AI Skincare Safety Analyzer</h2>
+        <h2 class="serif">✦ AI SkinCare Safety Analyzer</h2>
         <p>
             Final Year Project — Arab Open University, Egypt <br />
             &copy; 2026 Engy Nabil Safwat
         </p>
     </footer>
 
-    <button id="dark-mode-btn" onclick="toggleDarkMode()">🌙</button>
+    <div class="fab-container">
+        <div class="fab-menu" id="fab-menu">
+            <button class="fab-item" onclick="toggleDarkMode()" title="Toggle Dark Mode">
+                <span id="fab-dm-icon" style="font-size: 15px;">🌙</span>
+            </button>
+            <button class="fab-item" onclick="toggleTextSize()" title="Accessibility">
+                <span style="font-size: 15px; font-family: 'Jost', sans-serif; font-weight: 600; color: #7b8d84;">A</span>
+            </button>
+            <button class="fab-item" onclick="toggleLanguage()" title="Switch Language (EN/AR)">
+                <span style="font-size: 16px;">🌐</span>
+            </button>
+        </div>
+        <button id="fab-main" onclick="toggleFab()" title="Settings">
+            <i class="material-icons-outlined" style="font-size: 22px; color: #5C7365;">settings</i>
+        </button>
+    </div>
 
     <script>
+        window.toggleFab = function() {
+            document.getElementById('fab-menu').classList.toggle('active');
+        };
+
+        let fontSizeState = 1;
+        window.toggleTextSize = function() {
+            const sizes = ['14px', '16px', '18px'];
+            fontSizeState = (fontSizeState + 1) % 3;
+            document.documentElement.style.fontSize = sizes[fontSizeState];
+        };
+
+        // دالة الترجمة الشاملة لصفحة الكتالوج
+        window.toggleLanguage = function() {
+            document.body.classList.toggle('rtl');
+            const isRtl = document.body.classList.contains('rtl');
+            
+            // Navbar
+            const logo = document.querySelector('.logo');
+            if(logo) logo.innerText = isRtl ? "مساعد العناية بالبشرة الذكي" : "AI Skin Care Assistant Analyzer";
+            
+            const navLinks = document.querySelectorAll('.nav-links a');
+            if(navLinks.length >= 3) {
+                navLinks[0].innerText = isRtl ? "الرئيسية" : "Home";
+                navLinks[1].innerText = isRtl ? "الكتالوج" : "Catalog";
+                navLinks[2].innerText = isRtl ? "المحلل الذكي" : "AI Analyzer";
+            }
+            const btnNav = document.querySelector('.btn-nav');
+            if(btnNav) btnNav.innerText = isRtl ? "دخول" : "Login";
+
+            // Hero Section
+            const kickerText = document.getElementById('kicker-text');
+            if(kickerText) kickerText.innerText = isRtl ? "جمال آمن ومخصص" : "Personalized Safe Beauty";
+            
+            const mainTitle = document.getElementById('main-title');
+            if(mainTitle) mainTitle.innerText = isRtl ? "الكتالوج." : "catalog.";
+            
+            const mainSubtitle = document.getElementById('main-subtitle');
+            if(mainSubtitle) mainSubtitle.innerText = isRtl ? "استكشفي مجموعة منتقاة من منتجات العناية بالبشرة، مفلترة بذكاء لضمان أمان المكونات لنوع بشرتك." : "Explore a curated collection of skincare products, intelligently filtered by our AI to ensure ingredient safety for your specific skin type.";
+
+            // Filters
+            const filterTexts = document.querySelectorAll('.filter-text');
+            if(filterTexts.length >= 5) {
+                filterTexts[0].innerText = isRtl ? "الكل" : "All Products";
+                filterTexts[1].innerText = isRtl ? "مرطبات" : "Moisturizers";
+                filterTexts[2].innerText = isRtl ? "منظفات" : "Cleansers";
+                filterTexts[3].innerText = isRtl ? "سيروم" : "Serums";
+                filterTexts[4].innerText = isRtl ? "واقي شمس" : "Sunscreens";
+            }
+
+            // Products Grid
+            document.querySelectorAll('.view-details').forEach(el => {
+                el.innerText = isRtl ? "عرض التفاصيل ✦" : "View Details ✦";
+            });
+            document.querySelectorAll('.safe-pick').forEach(el => {
+                el.innerText = isRtl ? "اختيار آمن" : "SAFE PICK";
+            });
+            document.querySelectorAll('.benefits-label').forEach(el => {
+                el.innerText = isRtl ? "الفوائد:" : "Benefits:";
+            });
+            document.querySelectorAll('.how-to-use-label').forEach(el => {
+                el.innerText = isRtl ? "طريقة الاستخدام:" : "How to use:";
+            });
+
+            // Empty State
+            const emptyTitle = document.getElementById('empty-title');
+            const emptyDesc = document.getElementById('empty-desc');
+            if(emptyTitle) emptyTitle.innerText = isRtl ? "لا توجد منتجات حتى الآن" : "No products yet";
+            if(emptyDesc) emptyDesc.innerText = isRtl ? "ستظهر المنتجات هنا بمجرد تحديث الكتالوج." : "Products will appear here once the catalog is updated.";
+
+            // Footer
+            const footerH2 = document.querySelector('footer h2');
+            const footerP = document.querySelector('footer p');
+            if(footerH2) footerH2.innerText = isRtl ? "✦ محلل سلامة العناية بالبشرة" : "✦ AI SkinCare Safety Analyzer";
+            if(footerP) footerP.innerHTML = isRtl ? "مشروع التخرج - الجامعة العربية المفتوحة، مصر <br /> &copy; 2026 إنجي نبيل صفوت" : "Final Year Project — Arab Open University, Egypt <br /> &copy; 2026 Engy Nabil Safwat";
+        };
+
         function toggleDarkMode() {
             document.body.classList.toggle("dark-mode");
-            const btn = document.getElementById("dark-mode-btn");
+            const icon = document.getElementById("fab-dm-icon");
             if (document.body.classList.contains("dark-mode")) {
-                btn.innerText = "☀️";
+                if(icon) icon.innerText = "☀️";
                 localStorage.setItem("darkMode", "on");
             } else {
-                btn.innerText = "🌙";
+                if(icon) icon.innerText = "🌙";
                 localStorage.setItem("darkMode", "off");
             }
         }
 
         if (localStorage.getItem("darkMode") === "on") {
             document.body.classList.add("dark-mode");
-            document.getElementById("dark-mode-btn").innerText = "☀️";
+            const icon = document.getElementById("fab-dm-icon");
+            if(icon) icon.innerText = "☀️";
         }
 
         function animateCardsStaggered(cards) {

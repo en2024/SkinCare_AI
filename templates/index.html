@@ -1,9 +1,10 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Home | AI SkinCare Safety Analyzer</title>
+    <title>Home | AI Skin Care Assistant Analyzer</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,29 +16,47 @@
 
     <style>
         :root {
-            --primary: #7f9a87;      /* sage */
-            --secondary: #d8c3b6;    /* beige */
-            --accent: #e6c5c1;       /* blush */
-            --bg: #f8f4ef;
-            --surface: #fffdf9;
-            --dark: #2f3a33;
-            --muted: #6d7a71;
-            --white: #ffffff;
+            --cream: #FBFCFB;
+            --beige-light: #F0F4F1;
+            --beige: #DCE5DF;
+            --sand: #A3B8AD;
+            --brown: #6B8E7C;
+            --deep-brown: #3C4F45;
+            --rose-nude: #8FA89A;
+            --blush: #E8EFEA;
+            --white: #FFFFFF;
+            --text-dark: #2A362F;
+            --text-muted: #5C7365;
 
-            --shadow-sm: 0 6px 18px rgba(47, 58, 51, 0.08);
-            --shadow-lg: 0 18px 40px rgba(47, 58, 51, 0.12);
+            /* Legacy mapping for layout stability */
+            --primary: var(--brown);
+            --secondary: var(--sand);
+            --accent: var(--rose-nude);
+            --bg: var(--cream);
+            --surface: var(--white);
+            --dark: var(--deep-brown);
+            --muted: var(--text-muted);
+
+            --shadow-sm: 0 4px 14px rgba(42, 54, 47, 0.06);
+            --shadow-md: 0 8px 24px rgba(42, 54, 47, 0.08);
+            --shadow-lg: 0 16px 40px rgba(42, 54, 47, 0.12);
             --radius-xl: 28px;
         }
 
         body.dark-mode {
-            --bg: #1d2521;
-            --surface: #26312c;
-            --dark: #eef3ef;
-            --muted: #b3c0b7;
-            --white: #2e3933;
-            --primary: #99b19f;
-            --secondary: #7f8d84;
-            --accent: #caa7a2;
+            --bg: #1A1F1C;
+            --surface: #242B27;
+            --dark: #FBFCFB;
+            --text-dark: #FBFCFB;
+            --muted: #A3B8AD;
+            --text-muted: #A3B8AD;
+            --white: #242B27;
+            --cream: #1A1F1C;
+            --beige-light: #242B27;
+            --beige: #2E3631;
+            --sand: #5C7365;
+            --brown: #8FA89A;
+            --deep-brown: #FBFCFB;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -143,7 +162,6 @@
         }
         @keyframes slowZoom { 100% { transform: scale(1); } }
 
-        /* polish 1: stronger readable overlay */
         .hero-overlay {
             position: absolute;
             inset: 0;
@@ -178,7 +196,6 @@
             to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
         }
 
-        /* polish 2: more breathing room */
         .hero-bottom-content {
             position: absolute;
             bottom: 48px;
@@ -222,7 +239,6 @@
             border: 1px solid transparent;
         }
 
-        /* polish 3: unified accent hover */
         .btn-main:hover {
             transform: translateY(-4px);
             background-color: var(--accent);
@@ -277,6 +293,8 @@
         .section-header p {
             font-size: 1.1rem;
             color: var(--muted);
+            max-width: 600px;
+            margin: 0 auto;
         }
 
         .steps-container {
@@ -366,7 +384,6 @@
             align-items: stretch;
         }
 
-        /* polish 4: equal card heights */
         .mf-card {
             background: var(--surface);
             padding: 34px 26px;
@@ -396,7 +413,7 @@
 
         .mf-card:hover i {
             transform: scale(1.08) rotate(4deg);
-            color: var(--accent); /* polish 5: unified accent detail */
+            color: var(--accent);
         }
 
         .mf-card h3 {
@@ -410,6 +427,82 @@
             color: var(--muted);
             line-height: 1.5;
         }
+
+        /* Skincare Education & Tips Styles */
+        .education-tips {
+            padding: 120px 5% 140px;
+            background: linear-gradient(180deg, var(--surface) 0%, var(--bg) 100%);
+            text-align: center;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .education-banner {
+            max-width: 900px;
+            margin: 50px auto 60px;
+            padding: 0 20px;
+        }
+
+        .education-banner img {
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+            object-position: center 40%;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            display: block;
+            border: 1px solid rgba(127, 154, 135, 0.15);
+            transition: 0.5s ease;
+        }
+
+        .education-banner:hover img {
+            box-shadow: var(--shadow-lg);
+            transform: scale(1.01);
+        }
+
+        .video-card {
+            background: var(--white);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: 0.4s;
+            border: 1px solid var(--beige-light);
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            height: fit-content; 
+        }
+        .video-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); }
+
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%;
+            background: #000;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(127, 154, 135, 0.1);
+        }
+
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            transition: filter 0.3s ease;
+        }
+
+        .video-content { padding: 24px; } 
+        .video-content h3 { font-size: 1.25rem; margin-bottom: 12px; color: var(--text-dark); letter-spacing: -0.2px; }
+        .video-content p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.55; font-weight: 400; margin-bottom: 0; } 
 
         footer {
             background-color: #2a342e;
@@ -426,31 +519,81 @@
             line-height: 1.6;
         }
 
-        #dark-mode-btn {
+        /* Expanding Settings FAB */
+        .fab-container {
             position: fixed;
-            bottom: 24px;
-            right: 24px;
+            bottom: 32px;
+            right: 32px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        #fab-main {
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            background: var(--primary);
-            color: #fff;
+            background: var(--surface);
             border: none;
-            font-size: 1.2rem;
             cursor: pointer;
-            z-index: 9999;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
             display: flex;
-            justify-content: center;
             align-items: center;
-            transition: transform 0.25s ease, background 0.25s ease;
+            justify-content: center;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        #dark-mode-btn:hover {
-            transform: translateY(-3px) scale(1.03);
-            background: var(--accent);
-            color: #3a2f2f;
+        #fab-main:hover { 
+            transform: scale(1.05) rotate(90deg); 
+            box-shadow: 0 10px 28px rgba(0,0,0,0.1);
         }
+
+        .fab-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px) scale(0.8);
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .fab-menu.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        .fab-item {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+            color: var(--dark);
+        }
+
+        .fab-item:hover { 
+            transform: scale(1.1); 
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+            background: var(--bg);
+        }
+
+        /* تنسيقات اللغة العربية لضمان الشكل المنظم */
+        body.rtl { direction: rtl; text-align: right; }
+        body.rtl .fab-container { left: 32px; right: auto; }
+        body.rtl .video-card { text-align: right; }
+        body.rtl .mf-card { text-align: right; }
+        body.rtl .step p { text-align: center; }
+        body.rtl .nav-links { flex-direction: row-reverse; }
 
         @media (max-width: 900px) {
             .hero { padding: 0; }
@@ -477,24 +620,29 @@
             .nav-links { display: none; }
             .mf-card { min-height: auto; }
         }
+        
+        @media (max-width: 768px) {
+            .video-grid { grid-template-columns: 1fr; gap: 32px; }
+            .education-tips { padding: 80px 5% 90px; }
+        }
     </style>
 </head>
 <body>
     <header>
-        <a href="/" class="logo">AI SkinCare</a>
+        <a href="/" class="logo">AI SkinCare Safety Analyzer</a>
         <div class="nav-links">
             <a href="/">Home</a>
             <a href="{% url 'catalog' %}">Catalog</a>
             <a href="{% url 'analyzer' %}">AI Analyzer</a>
         </div>
-        <a href="{% url 'login' %}" class="btn-nav">Get Started</a>
+        <a href="{% url 'login' %}" class="btn-nav">Login</a>
     </header>
 
     <section class="hero">
         <div class="hero-img-wrapper">
-            <!-- صورة أنسب للباليت -->
+            
             <img
-                src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?q=80&w=1600&auto=format&fit=crop">
+                src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?q=80&w=1600&auto=format&fit=crop"
                 class="main-background"
                 alt="Natural skincare routine"
             />
@@ -506,7 +654,7 @@
 
             <div class="hero-bottom-content">
                 <p class="hero-desc">
-                    Upload a simple photo and let our advanced intelligence curate the perfect routine.
+                Analyze skincare ingredients for ultimate safety. Not sure of your skin type? Upload a photo for an instant AI scan and get personalized recommendations.
                 </p>
                 <a href="{% url 'analyzer' %}" class="btn-main">Analyze My Skin</a>
             </div>
@@ -516,39 +664,39 @@
     <div class="marquee-container">
         <div class="marquee-track">
             <span>✨ AI SKIN ANALYSIS</span>
-            <span>🌿 DERMATOLOGIST APPROVED</span>
+            <span>🌿 INGREDIENT SAFETY</span>
             <span>💧 PERSONALIZED ROUTINE</span>
             <span>🤖 ADVANCED ML ALGORITHMS</span>
             <span>✨ AI SKIN ANALYSIS</span>
-            <span>🌿 DERMATOLOGIST APPROVED</span>
+            <span>🌿 INGREDIENT SAFETY</span>
             <span>💧 PERSONALIZED ROUTINE</span>
             <span>🤖 ADVANCED ML ALGORITHMS</span>
             <span>✨ AI SKIN ANALYSIS</span>
-            <span>🌿 DERMATOLOGIST APPROVED</span>
+            <span>🌿 INGREDIENT SAFETY</span>
         </div>
     </div>
 
     <section class="how-it-works">
         <div class="section-header reveal">
             <h2 class="serif">How it works</h2>
-            <p>Three simple steps to unlock your perfect glow.</p>
+            <p>Three simple steps to smarter, safer skincare</p>
         </div>
 
         <div class="steps-container">
             <div class="step reveal" style="transition-delay: 0.1s;">
                 <div class="step-icon"><i class="material-icons-outlined">camera_enhance</i></div>
-                <h3 class="serif">1. Upload Photo</h3>
-                <p>Take or upload a clear, well-lit photo of your natural face.</p>
+                <h3 class="serif">1. Set Your Profile</h3>
+                <p>Select your skin type manually, or upload a photo for an instant AI scan to detect it automatically.</p>
             </div>
             <div class="step reveal" style="transition-delay: 0.3s;">
                 <div class="step-icon"><i class="material-icons-outlined">memory</i></div>
-                <h3 class="serif">2. AI Scans Face</h3>
-                <p>Our machine learning model analyzes your skin type and specific conditions instantly.</p>
+                <h3 class="serif">2. Ingredient Analysis</h3>
+                <p>Our advanced system screens cosmetic ingredients to detect potential irritants and safety risks.</p>
             </div>
             <div class="step reveal" style="transition-delay: 0.5s;">
                 <div class="step-icon"><i class="material-icons-outlined">card_giftcard</i></div>
-                <h3 class="serif">3. Get Routine</h3>
-                <p>Receive your completely personalized, safe, and beautiful daily product routine.</p>
+                <h3 class="serif">3. Safe Recommendations</h3>
+                <p>Get a clear safety verdict and discover perfectly matched, harmless products from our catalog.</p>
             </div>
         </div>
     </section>
@@ -556,7 +704,7 @@
     <section class="features">
         <div class="mf-text reveal">
             <h2 class="serif">Safety meets<br />smart beauty.</h2>
-            <p>We blend dermatological science with machine learning to perfectly protect and rejuvenate your skin.</p>
+            <p>We blend advanced machine learning with ingredient analysis to ensure your skincare is perfectly safe and suited to your unique profile.</p>
         </div>
 
         <div class="mf-grid">
@@ -577,8 +725,52 @@
             </div>
             <div class="mf-card reveal" style="transition-delay: 0.5s;">
                 <i class="material-icons-outlined">spa</i>
-                <h3 class="serif">Daily Routine</h3>
-                <p>Step-by-step guidance tailored purely for your skin's needs.</p>
+                <h3 class="serif">Safe Catalog</h3>
+                <p>Explore a comprehensive database of skincare products, instantly filtered to guarantee safety for your specific skin type.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="education-tips">
+        <div class="section-header reveal">
+            <h2 class="serif">Skincare Education & Tips</h2>
+            <p>From identifying your skin type to decoding ingredients, master every step of your personal care routine.</p>
+        </div>
+
+        <div class="education-banner reveal" style="transition-delay: 0.1s;">
+            <img src="{% static 'image/banner.jpg' %}" alt="Premium Skincare Setup">
+            
+        </div>
+
+        <div class="video-grid">
+            <div class="video-card reveal" style="transition-delay: 0.1s;">
+                <div class="video-wrapper">
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/h5bQiVNkUkM?si=2UCxOzoVuiKLUTdg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                </div>
+                <div class="video-content">
+                    <h3 class="serif">Simple Skincare Routine for Teens</h3>
+                    <p>A beginner-friendly guide to the essential steps of a daily skincare routine. Hosted by beauty experts, it breaks down how to layer products correctly for the best results.</p>
+                </div>
+            </div>
+
+            <div class="video-card reveal" style="transition-delay: 0.2s;">
+                <div class="video-wrapper">
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/gyCA2Mbfdos?si=qwP-pn8Y-aU4AjbR" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                </div>
+                <div class="video-content">
+                    <h3 class="serif">Know Your Skin Type</h3>
+                    <p>A practical guide to identifying your skin type from home. This video explains the main differences between oily, dry, and combination skin to help you choose what fits you best.</p>
+                </div>
+            </div>
+
+            <div class="video-card reveal" style="transition-delay: 0.3s;">
+                <div class="video-wrapper">
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/7Or2e2yAei0?si=U1rPGHDy3FtPyrpI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                </div>
+                <div class="video-content">
+                    <h3 class="serif">Essential Skincare Ingredients Explained</h3>
+                    <p>A beginner-friendly guide to the most popular ingredients in the skincare world. Hosted by a cosmetic chemist, it breaks down what common buzzwords actually do for your skin.</p>
+                </div>
             </div>
         </div>
     </section>
@@ -591,7 +783,22 @@
         </p>
     </footer>
 
-    <button id="dark-mode-btn" onclick="toggleDarkMode()">🌙</button>
+    <div class="fab-container">
+        <div class="fab-menu" id="fab-menu">
+            <button class="fab-item" onclick="toggleDarkMode()" title="Toggle Dark Mode">
+                <span id="fab-dm-icon" style="font-size: 15px;">🌙</span>
+            </button>
+            <button class="fab-item" onclick="toggleTextSize()" title="Accessibility">
+                <span style="font-size: 15px; font-family: 'Jost', sans-serif; font-weight: 600; color: #7b8d84;">A</span>
+            </button>
+            <button class="fab-item" onclick="toggleLanguage()" title="Switch Language (EN/AR)">
+                <span style="font-size: 16px;">🌐</span>
+            </button>
+        </div>
+        <button id="fab-main" onclick="toggleFab()" title="Settings">
+            <i class="material-icons-outlined" style="font-size: 22px; color: #5C7365;">settings</i>
+        </button>
+    </div>
 
     <script>
         function reveal() {
@@ -608,21 +815,137 @@
         window.addEventListener("scroll", reveal);
         setTimeout(reveal, 200);
 
+        function toggleFab() {
+            document.getElementById('fab-menu').classList.toggle('active');
+        }
+
+        // دالة الترجمة الشاملة لكل الصفحة
+        function toggleLanguage() {
+            document.body.classList.toggle('rtl');
+            const isRtl = document.body.classList.contains('rtl');
+            
+            // Navbar
+            const logo = document.querySelector('.logo');
+            if(logo) logo.innerText = isRtl ? "مساعد العناية بالبشرة الذكي" : "AI Skin Care Assistant Analyzer";
+            
+            const navLinks = document.querySelectorAll('.nav-links a');
+            if(navLinks.length >= 3) {
+                navLinks[0].innerText = isRtl ? "الرئيسية" : "Home";
+                navLinks[1].innerText = isRtl ? "الكتالوج" : "Catalog";
+                navLinks[2].innerText = isRtl ? "المحلل الذكي" : "AI Analyzer";
+            }
+            const btnNav = document.querySelector('.btn-nav');
+            if(btnNav) btnNav.innerText = isRtl ? "دخول" : "Login";
+
+            // Hero Section
+            const massiveText = document.querySelector('.massive-text');
+            if(massiveText) massiveText.innerHTML = isRtl ? "ذكاء<br />العناية." : "ai<br />skincare.";
+            
+            const heroDesc = document.querySelector('.hero-desc');
+            if(heroDesc) heroDesc.innerText = isRtl ? "حللي مكونات العناية بالبشرة لضمان الأمان التام. لست متأكدة من نوع بشرتك؟ ارفعي صورة لفحص فوري بالذكاء الاصطناعي واحصلي على توصيات مخصصة." : "Analyze skincare ingredients for ultimate safety. Not sure of your skin type? Upload a photo for an instant AI scan and get personalized recommendations.";
+            
+            const btnMain = document.querySelector('.btn-main');
+            if(btnMain) btnMain.innerText = isRtl ? "حللي بشرتي" : "Analyze My Skin";
+
+            // Marquee (الشريط المتحرك)
+            const marqueeSpans = document.querySelectorAll('.marquee-track span');
+            const arMarquee = ["✨ تحليل البشرة بالذكاء الاصطناعي", "🌿 أمان المكونات", "💧 روتين مخصص", "🤖 خوارزميات متقدمة"];
+            const enMarquee = ["✨ AI SKIN ANALYSIS", "🌿 INGREDIENT SAFETY", "💧 PERSONALIZED ROUTINE", "🤖 ADVANCED ML ALGORITHMS"];
+            marqueeSpans.forEach((span, index) => {
+                span.innerText = isRtl ? arMarquee[index % 4] : enMarquee[index % 4];
+            });
+
+            // How it works
+            const sectionHeaders = document.querySelectorAll('.section-header');
+            if(sectionHeaders.length >= 1) {
+                sectionHeaders[0].querySelector('h2').innerText = isRtl ? "كيف يعمل" : "How it works";
+                sectionHeaders[0].querySelector('p').innerText = isRtl ? "ثلاث خطوات بسيطة لروتين عناية أذكى وأكثر أماناً" : "Three simple steps to smarter, safer skincare";
+            }
+
+            const stepH3s = document.querySelectorAll('.step h3');
+            const stepPs = document.querySelectorAll('.step p');
+            if(stepH3s.length >= 3) {
+                stepH3s[0].innerText = isRtl ? "1. ملفك الشخصي" : "1. Set Your Profile";
+                stepPs[0].innerText = isRtl ? "اختاري نوع بشرتك يدوياً، أو ارفعي صورة لفحص الذكاء الاصطناعي." : "Select your skin type manually, or upload a photo for an instant AI scan to detect it automatically.";
+                
+                stepH3s[1].innerText = isRtl ? "2. تحليل المكونات" : "2. Ingredient Analysis";
+                stepPs[1].innerText = isRtl ? "نظامنا المتقدم يفحص المكونات لاكتشاف أي مهيجات أو مخاطر." : "Our advanced system screens cosmetic ingredients to detect potential irritants and safety risks.";
+                
+                stepH3s[2].innerText = isRtl ? "3. توصيات آمنة" : "3. Safe Recommendations";
+                stepPs[2].innerText = isRtl ? "احصلي على نتيجة واضحة واكتشفي منتجات آمنة ومناسبة لك." : "Get a clear safety verdict and discover perfectly matched, harmless products from our catalog.";
+            }
+
+            // Features (Safety meets smart beauty)
+            const mfTextH2 = document.querySelector('.mf-text h2');
+            const mfTextP = document.querySelector('.mf-text p');
+            if(mfTextH2) mfTextH2.innerHTML = isRtl ? "الأمان يلتقي<br />بالجمال الذكي." : "Safety meets<br />smart beauty.";
+            if(mfTextP) mfTextP.innerText = isRtl ? "ندمج التعلم الآلي المتقدم مع تحليل المكونات لضمان أمان منتجاتك وملاءمتها لبشرتك." : "We blend advanced machine learning with ingredient analysis to ensure your skincare is perfectly safe and suited to your unique profile.";
+
+            const mfCardH3s = document.querySelectorAll('.mf-card h3');
+            const mfCardPs = document.querySelectorAll('.mf-card p');
+            if(mfCardH3s.length >= 4) {
+                mfCardH3s[0].innerText = isRtl ? "فحص ذكي" : "Smart Scan";
+                mfCardPs[0].innerText = isRtl ? "اكتشفي نوع بشرتك الحقيقي في ثوانٍ." : "Detect your true skin type in seconds from just one photo.";
+                
+                mfCardH3s[1].innerText = isRtl ? "اكتشاف الأضرار" : "Harm Detection";
+                mfCardPs[1].innerText = isRtl ? "تجنبي المكونات التي قد تهيج بشرتك." : "Identify and avoid ingredients that might irritate your unique skin.";
+                
+                mfCardH3s[2].innerText = isRtl ? "تطابق مثالي" : "Perfect Matches";
+                mfCardPs[2].innerText = isRtl ? "احصلي على توصيات منتجات ستحبينها." : "Get personalized product recommendations you'll absolutely love.";
+                
+                mfCardH3s[3].innerText = isRtl ? "كتالوج آمن" : "Safe Catalog";
+                mfCardPs[3].innerText = isRtl ? "تصفحي قاعدة بيانات شاملة للمنتجات الآمنة لبشرتك." : "Explore a comprehensive database of skincare products, instantly filtered to guarantee safety for your specific skin type.";
+            }
+
+            // Education & Videos
+            if(sectionHeaders.length >= 2) {
+                sectionHeaders[1].querySelector('h2').innerText = isRtl ? "نصائح وتعليمات العناية بالبشرة" : "Skincare Education & Tips";
+                sectionHeaders[1].querySelector('p').innerText = isRtl ? "من تحديد نوع بشرتك إلى فهم المكونات، أتقني كل خطوة في روتين عنايتك الشخصي." : "From identifying your skin type to decoding ingredients, master every step of your personal care routine.";
+            }
+
+            const vidH3s = document.querySelectorAll('.video-content h3');
+            const vidPs = document.querySelectorAll('.video-content p');
+            if(vidH3s.length >= 3) {
+                vidH3s[0].innerText = isRtl ? "روتين بسيط للمراهقين" : "Simple Skincare Routine for Teens";
+                vidPs[0].innerText = isRtl ? "دليل مبسط للخطوات الأساسية لروتين العناية اليومي." : "A beginner-friendly guide to the essential steps of a daily skincare routine. Hosted by beauty experts, it breaks down how to layer products correctly for the best results.";
+
+                vidH3s[1].innerText = isRtl ? "اعرفي نوع بشرتك" : "Know Your Skin Type";
+                vidPs[1].innerText = isRtl ? "دليل عملي لتحديد نوع بشرتك من المنزل لتبدأي الروتين الصح." : "A practical guide to identifying your skin type from home. This video explains the main differences between oily, dry, and combination skin to help you choose what fits you best.";
+
+                vidH3s[2].innerText = isRtl ? "أهم مكونات العناية بالبشرة" : "Essential Skincare Ingredients Explained";
+                vidPs[2].innerText = isRtl ? "دليل مبسط لأشهر المكونات في عالم العناية بالبشرة وفوائدها." : "A beginner-friendly guide to the most popular ingredients in the skincare world. Hosted by a cosmetic chemist, it breaks down what common buzzwords actually do for your skin.";
+            }
+
+            // Footer
+            const footerH2 = document.querySelector('footer h2');
+            const footerP = document.querySelector('footer p');
+            if(footerH2) footerH2.innerText = isRtl ? "✦ محلل سلامة العناية بالبشرة" : "✦ AI SkinCare Safety Analyzer";
+            if(footerP) footerP.innerHTML = isRtl ? "مشروع التخرج - الجامعة العربية المفتوحة، مصر <br /> &copy; 2026 إنجي نبيل صفوت" : "Final Year Project - Arab Open University, Egypt <br /> &copy; 2026 Engy Nabil Safwat";
+        }
+
         function toggleDarkMode() {
             document.body.classList.toggle("dark-mode");
-            const btn = document.getElementById("dark-mode-btn");
+            const icon = document.getElementById("fab-dm-icon");
             if (document.body.classList.contains("dark-mode")) {
-                btn.innerText = "☀️";
+                icon.innerText = "☀️";
                 localStorage.setItem("darkMode", "on");
             } else {
-                btn.innerText = "🌙";
+                icon.innerText = "🌙";
                 localStorage.setItem("darkMode", "off");
             }
         }
 
         if (localStorage.getItem("darkMode") === "on") {
             document.body.classList.add("dark-mode");
-            document.getElementById("dark-mode-btn").innerText = "☀️";
+            const icon = document.getElementById("fab-dm-icon");
+            if(icon) icon.innerText = "☀️";
+        }
+        
+        let fontSizeState = 1;
+        function toggleTextSize() {
+            const sizes = ['14px', '16px', '18px'];
+            fontSizeState = (fontSizeState + 1) % 3;
+            document.documentElement.style.fontSize = sizes[fontSizeState];
         }
     </script>
 </body>
