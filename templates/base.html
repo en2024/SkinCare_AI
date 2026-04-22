@@ -1,0 +1,204 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}AI SkinCare Safety Analyzer{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}AI-powered skincare ingredient safety analyzer with face skin type detection and personalized product recommendations.{% endblock %}" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Jost:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet"
+    />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
+
+    <style>
+        /* ─── Shared Design Tokens ──────────────────────────────────────────── */
+        :root {
+            --cream: #FBFCFB;
+            --beige-light: #F0F4F1;
+            --beige: #DCE5DF;
+            --sand: #A3B8AD;
+            --brown: #6B8E7C;
+            --deep-brown: #3C4F45;
+            --rose-nude: #8FA89A;
+            --blush: #E8EFEA;
+            --white: #FFFFFF;
+            --text-dark: #2A362F;
+            --text-muted: #5C7365;
+
+            --primary: var(--brown);
+            --secondary: var(--sand);
+            --accent: var(--rose-nude);
+            --bg: var(--cream);
+            --surface: var(--white);
+            --dark: var(--deep-brown);
+            --muted: var(--text-muted);
+
+            --shadow-sm: 0 4px 14px rgba(42, 54, 47, 0.06);
+            --shadow-md: 0 8px 24px rgba(42, 54, 47, 0.08);
+            --shadow-lg: 0 16px 40px rgba(42, 54, 47, 0.12);
+            --radius-xl: 28px;
+            --border: rgba(107, 142, 124, 0.2);
+        }
+
+        body.dark-mode {
+            --bg: #1A1F1C;
+            --surface: #242B27;
+            --dark: #FBFCFB;
+            --text-dark: #FBFCFB;
+            --muted: #A3B8AD;
+            --text-muted: #A3B8AD;
+            --white: #242B27;
+            --cream: #1A1F1C;
+            --beige-light: #242B27;
+            --beige: #2E3631;
+            --sand: #5C7365;
+            --brown: #8FA89A;
+            --deep-brown: #FBFCFB;
+            --border: rgba(255, 255, 255, 0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Jost", sans-serif;
+            background-color: var(--bg);
+            color: var(--dark);
+            overflow-x: hidden;
+            transition: background-color 0.35s ease, color 0.35s ease;
+        }
+
+        h1, h2, h3, .serif { font-family: "Cormorant Garamond", serif; }
+
+        /* ─── RTL Support ───────────────────────────────────────────────────── */
+        body.rtl { direction: rtl; text-align: right; }
+        body.rtl .fab-container { left: 32px; right: auto; }
+
+        /* ─── Shared FAB Styles ─────────────────────────────────────────────── */
+        .fab-container {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        #fab-main {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #fab-main:hover {
+            transform: scale(1.05) rotate(90deg);
+            box-shadow: 0 10px 28px rgba(0,0,0,0.1);
+        }
+
+        .fab-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px) scale(0.8);
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .fab-menu.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        .fab-item {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+            color: var(--dark);
+        }
+
+        .fab-item:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+            background: var(--bg);
+        }
+    </style>
+    {% block extra_styles %}{% endblock %}
+</head>
+<body>
+    {% block body %}{% endblock %}
+
+    <!-- Shared FAB Menu -->
+    <div class="fab-container">
+        <div class="fab-menu" id="fab-menu">
+            <button class="fab-item" onclick="toggleDarkMode()" title="Toggle Dark Mode">
+                <span id="fab-dm-icon" style="font-size: 15px;">🌙</span>
+            </button>
+            <button class="fab-item" onclick="toggleTextSize()" title="Accessibility">
+                <span style="font-size: 15px; font-family: 'Jost', sans-serif; font-weight: 600; color: #7b8d84;">A</span>
+            </button>
+            <button class="fab-item" onclick="toggleLanguage()" title="Switch Language (EN/AR)">
+                <span style="font-size: 16px;">🌐</span>
+            </button>
+        </div>
+        <button id="fab-main" onclick="toggleFab()" title="Settings">
+            <i class="material-icons-outlined" style="font-size: 22px; color: #5C7365;">settings</i>
+        </button>
+    </div>
+
+    <!-- Shared JS Utilities -->
+    <script>
+        function toggleFab() {
+            document.getElementById('fab-menu').classList.toggle('active');
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+            const isDark = document.body.classList.contains("dark-mode");
+            const icon = document.getElementById("fab-dm-icon");
+            if (icon) icon.innerText = isDark ? "☀️" : "🌙";
+            localStorage.setItem("darkMode", isDark ? "on" : "off");
+        }
+
+        // Restore dark mode preference
+        if (localStorage.getItem("darkMode") === "on") {
+            document.body.classList.add("dark-mode");
+            const icon = document.getElementById("fab-dm-icon");
+            if (icon) icon.innerText = "☀️";
+        }
+
+        let fontSizeState = 1;
+        function toggleTextSize() {
+            const sizes = ['14px', '16px', '18px'];
+            fontSizeState = (fontSizeState + 1) % 3;
+            document.documentElement.style.fontSize = sizes[fontSizeState];
+        }
+
+        // toggleLanguage is page-specific — defined in each page's block
+    </script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
