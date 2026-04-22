@@ -3,9 +3,11 @@ import os
 import re
 import pickle
 
+import json
 import numpy as np
 import pytesseract
 import torch
+import torch.nn.functional as F
 import torch.nn as nn
 from django.conf import settings
 from django.http import JsonResponse
@@ -101,17 +103,34 @@ def extract_text_from_image(pil_image):
 
 @require_POST
 def analyze_skin(request):
-    """تحليل صورة الوجه لتحديد نوع البشرة"""
+    """تحليل صورة الوجه لتحديد نوع البشرة مع نسبة الثقة"""
     if request.FILES.get('image'):
         try:
             img = Image.open(request.FILES.get('image')).convert('RGB')
             output = face_model(transform(img).unsqueeze(0))
-            predicted = torch.argmax(output, dim=1).item()
-            skin_type = CLASS_NAMES[predicted]
+
+            # Compute confidence using softmax probabilities
+            probabilities = F.softmax(output, dim=1)
+            confidence, predicted = torch.max(probabilities, dim=1)
+            confidence_pct = round(confidence.item() * 100, 1)
+            skin_type = CLASS_NAMES[predicted.item()]
+
+            # Confidence threshold check
+            if confidence_pct < 75.0:
+                logger.info(f'Low confidence scan: {confidence_pct}% for {skin_type}')
+                return JsonResponse({
+                    'low_confidence': True,
+                    'confidence': confidence_pct,
+                    'error': 'Upload a clearer photo following the guidelines.'
+                }, status=200)
 
             recs = Product.objects.filter(skin_type__in=[skin_type, 'all'])[:4]
             products_list = [{'name': p.name, 'category': p.category, 'image': p.image.url if p.image else None} for p in recs]
-            return JsonResponse({'skin_type': skin_type, 'products': products_list})
+            return JsonResponse({
+                'skin_type': skin_type,
+                'confidence': confidence_pct,
+                'products': products_list
+            })
         except Exception as e:
             logger.error(f'Skin analysis error: {e}')
             return JsonResponse({'error': str(e)}, status=500)
@@ -178,4 +197,100 @@ def analyze_product(request):
         'skin_type': skin_type,
         'recommendations': recommendations,
         'ocr_text': ingredients_text[:300]
+    })
+
+
+# ─── 5. Hybrid Skin Analysis (AI + Questionnaire) ────────────────────────────
+
+# Questionnaire answer → skin-type point mapping
+QUIZ_SCORING = {
+    # Q1: How does your skin feel 30 min after washing?
+    'q1': {'a': 'oily', 'b': 'dry', 'c': 'normal'},
+    # Q2: How often does your face get shiny by midday?
+    'q2': {'a': 'oily', 'b': 'dry', 'c': 'normal'},
+    # Q3: How does your skin react to new products?
+    'q3': {'a': 'oily', 'b': 'dry', 'c': 'normal'},
+}
+
+SKIN_DESCRIPTIONS = {
+    'oily': 'Your skin produces excess sebum, especially in the T-zone. Lightweight, oil-free products are ideal.',
+    'dry': 'Your skin tends to feel tight and may flake. Rich, hydrating products with ceramides work best.',
+    'normal': 'Your skin is well-balanced. A simple, consistent routine will keep it healthy.',
+}
+
+
+@require_POST
+def analyze_skin_hybrid(request):
+    """الجمع بين نتيجة الذكاء الاصطناعي وإجابات الاستبيان للحصول على نتيجة نهائية"""
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+    ai_skin_type = data.get('ai_skin_type', '').lower()
+    ai_confidence = float(data.get('ai_confidence', 0))
+    answers = data.get('answers', {})  # {'q1': 'a', 'q2': 'b', 'q3': 'c'}
+
+    if not ai_skin_type or not answers:
+        return JsonResponse({'error': 'Missing AI result or questionnaire answers.'}, status=400)
+
+    # ── Questionnaire scoring ────────────────────────────────────────────
+    quiz_scores = {'oily': 0, 'dry': 0, 'normal': 0}
+    for q_key, mapping in QUIZ_SCORING.items():
+        answer = answers.get(q_key, '')
+        skin_type_vote = mapping.get(answer, '')
+        if skin_type_vote:
+            quiz_scores[skin_type_vote] += 2  # Each answer worth 2 points
+
+    quiz_winner = max(quiz_scores, key=quiz_scores.get)
+    quiz_max_score = quiz_scores[quiz_winner]
+
+    # ── Hybrid combination logic ─────────────────────────────────────────
+    # High AI confidence (>85%): AI wins unless quiz is unanimous against
+    # Medium AI confidence (75-85%): quiz wins on disagreement
+    if ai_confidence >= 85.0:
+        # AI is very confident — trust it unless quiz unanimously disagrees
+        if quiz_winner != ai_skin_type and quiz_max_score == 6:
+            # All 3 answers point to a different type — quiz overrides
+            final_type = quiz_winner
+            method = 'questionnaire_override'
+        else:
+            final_type = ai_skin_type
+            method = 'ai_dominant'
+    else:
+        # AI is moderately confident (75-84%) — quiz has more influence
+        if quiz_winner != ai_skin_type:
+            final_type = quiz_winner
+            method = 'questionnaire_preferred'
+        else:
+            final_type = ai_skin_type
+            method = 'consensus'
+
+    # Final confidence = weighted average (AI weight based on its confidence)
+    ai_weight = ai_confidence / 100.0
+    quiz_confidence = (quiz_max_score / 6.0) * 100
+    final_confidence = round((ai_weight * ai_confidence) + ((1 - ai_weight) * quiz_confidence), 1)
+    final_confidence = min(99.0, max(50.0, final_confidence))
+
+    logger.info(
+        f'Hybrid analysis: AI={ai_skin_type}({ai_confidence}%) '
+        f'Quiz={quiz_winner}({quiz_confidence}%) → Final={final_type} via {method}'
+    )
+
+    # Recommendations
+    recs = Product.objects.filter(skin_type__in=[final_type, 'all'])[:4]
+    products_list = [{
+        'name': p.name, 'category': p.category,
+        'image': p.image.url if p.image else None
+    } for p in recs]
+
+    return JsonResponse({
+        'skin_type': final_type,
+        'confidence': final_confidence,
+        'method': method,
+        'ai_result': ai_skin_type,
+        'quiz_result': quiz_winner,
+        'quiz_scores': quiz_scores,
+        'description': SKIN_DESCRIPTIONS.get(final_type, ''),
+        'products': products_list,
     })

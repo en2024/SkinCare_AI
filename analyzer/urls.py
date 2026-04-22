@@ -7,6 +7,7 @@ urlpatterns = [
     path('analyzer/', views.analyzer_page, name='analyzer'),
     path('catalog/', views.catalog, name='catalog'),
     path('analyze/', views.analyze_skin, name='analyze'),
+    path('analyze-hybrid/', views.analyze_skin_hybrid, name='analyze_hybrid'),
     path('analyze-product/', views.analyze_product, name='analyze_product'),
     # login & sign up
     path('login/', views.user_login, name='login'),
