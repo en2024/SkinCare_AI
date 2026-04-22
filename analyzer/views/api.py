@@ -23,10 +23,10 @@ logger = logging.getLogger('analyzer')
 pytesseract.pytesseract.tesseract_cmd = getattr(settings, 'TESSERACT_CMD', r'C:\Program Files\Tesseract-OCR\tesseract.exe')
 
 # ─── 1. Face Analysis Model (Vision AI) ──────────────────────────────────────
-CLASS_NAMES = ['dry', 'normal', 'oily']
+CLASS_NAMES = ['combination', 'dry', 'normal', 'oily', 'sensitive']
 face_model = models.resnet50(weights=None)
-face_model.fc = nn.Linear(face_model.fc.in_features, 3)
-face_model_path = os.path.join(settings.BASE_DIR, 'analyzer', 'model.pth')
+face_model.fc = nn.Linear(face_model.fc.in_features, 5)
+face_model_path = os.path.join(settings.BASE_DIR, 'analyzer', 'ml_models', 'model_resnet50_5class.pth')
 
 try:
     face_model.load_state_dict(torch.load(face_model_path, map_location=torch.device('cpu')), strict=False)
