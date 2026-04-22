@@ -1,0 +1,16 @@
+# Graduation Project: AI Skin Care Assistant Analyzer
+# Core Framework
+django>=4.2.0
+
+# Image Processing & AI (For Skin Analysis)
+pillow>=10.0.0
+numpy>=1.19.0
+opencv-python>=4.5.0
+pytesseract>=0.3.10
+
+# Database & Helpers
+python-dotenv>=1.0.0
+
+# AI/Deep Learning
+torch>=2.0.0
+torchvision>=0.15.0
