@@ -718,7 +718,7 @@
                     <div class="confidence-badge" id="rs-confidence-badge" style="margin-bottom:12px;">
                         <span class="dot"></span> <span id="rs-conf-text">Confidence: --</span>
                     </div>
-                    <div id="rs-method-tag-wrap" style="margin-bottom:12px;"></div>
+
                     <div class="result-box" id="rs-skin-desc">--</div>
                 </div>
                 
@@ -1103,20 +1103,7 @@
             const confText = document.getElementById('rs-conf-text');
             if(confText) confText.innerText = (isRtl ? 'الثقة: ' : 'Confidence: ') + data.confidence + '%';
 
-            // Method tag (hybrid result indicator)
-            const methodWrap = document.getElementById('rs-method-tag-wrap');
-            if(methodWrap && data.method) {
-                const labels = {
-                    'consensus': isRtl ? '✓ إجماع الذكاء الاصطناعي والاستبيان' : '✓ AI & Quiz Consensus',
-                    'ai_dominant': isRtl ? '🤖 بناءً على تحليل الذكاء الاصطناعي' : '🤖 AI-Dominant Result',
-                    'questionnaire_preferred': isRtl ? '📋 بناءً على إجاباتك' : '📋 Questionnaire-Based Result',
-                    'questionnaire_override': isRtl ? '📋 تم تعديل النتيجة بناءً على إجاباتك' : '📋 Quiz Override'
-                };
-                const isOverride = data.method.includes('override') || data.method.includes('preferred');
-                methodWrap.innerHTML = `<span class="method-tag ${isOverride ? 'override' : 'consensus'}">${labels[data.method] || data.method}</span>`;
-            } else if(methodWrap) {
-                methodWrap.innerHTML = '';
-            }
+
 
             // Description
             const desc = data.description ||
