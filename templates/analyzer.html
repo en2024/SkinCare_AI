@@ -741,6 +741,12 @@
         setProgress(2);
     }
 
+    // CSRF token helper for Django
+    function getCsrfToken() {
+        const cookie = document.cookie.split(';').find(c => c.trim().startsWith('csrftoken='));
+        return cookie ? cookie.split('=')[1] : '';
+    }
+
     async function runSkinAnalysis() {
         const file = document.getElementById('skin-file').files[0];
         if(!file) return alert("Please upload a photo.");
@@ -749,7 +755,11 @@
         const fd = new FormData();
         fd.append('image', file);
         try {
-            const res = await fetch('/analyze/', { method: 'POST', body: fd });
+            const res = await fetch('/analyze/', {
+                method: 'POST',
+                body: fd,
+                headers: { 'X-CSRFToken': getCsrfToken() }
+            });
             const data = await res.json();
             displayResults('skin', data);
         } catch(e) { alert('Failed.'); }
@@ -767,7 +777,11 @@
         fd.append('skin_type', selectedSkinType);
         if(file) fd.append('image', file); else fd.append('ingredients_text', txt);
         try {
-            const res = await fetch('/analyze-product/', { method: 'POST', body: fd });
+            const res = await fetch('/analyze-product/', {
+                method: 'POST',
+                body: fd,
+                headers: { 'X-CSRFToken': getCsrfToken() }
+            });
             const data = await res.json();
             displayResults('product', data);
         } catch(e) { alert('Failed.'); }
