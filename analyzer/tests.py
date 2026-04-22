@@ -188,3 +188,94 @@ class APIEndpointTests(TestCase):
             'skin_type': 'oily'
         })
         self.assertEqual(response.status_code, 400)
+
+
+class HybridAnalysisTests(TestCase):
+    """Tests for the hybrid skin analysis (AI + questionnaire) endpoint."""
+
+    def test_hybrid_requires_post(self):
+        response = self.client.get('/analyze-hybrid/')
+        self.assertEqual(response.status_code, 405)
+
+    def test_hybrid_requires_json_body(self):
+        response = self.client.post('/analyze-hybrid/',
+            data='not json',
+            content_type='text/plain')
+        self.assertEqual(response.status_code, 400)
+
+    def test_hybrid_requires_ai_result(self):
+        import json
+        response = self.client.post('/analyze-hybrid/',
+            data=json.dumps({'answers': {'q1': 'a', 'q2': 'a', 'q3': 'a'}}),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+
+    def test_hybrid_requires_answers(self):
+        import json
+        response = self.client.post('/analyze-hybrid/',
+            data=json.dumps({'ai_skin_type': 'oily', 'ai_confidence': 90}),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+
+    def test_hybrid_consensus(self):
+        """When AI and questionnaire agree, result should match."""
+        import json
+        response = self.client.post('/analyze-hybrid/',
+            data=json.dumps({
+                'ai_skin_type': 'oily',
+                'ai_confidence': 90,
+                'answers': {'q1': 'a', 'q2': 'a', 'q3': 'a'}  # all oily
+            }),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['skin_type'], 'oily')
+        self.assertEqual(data['method'], 'ai_dominant')  # high confidence + agreement
+        self.assertIn('confidence', data)
+        self.assertIn('description', data)
+        self.assertIn('products', data)
+
+    def test_hybrid_questionnaire_preferred(self):
+        """When AI confidence is moderate and quiz disagrees, quiz wins."""
+        import json
+        response = self.client.post('/analyze-hybrid/',
+            data=json.dumps({
+                'ai_skin_type': 'oily',
+                'ai_confidence': 80,  # moderate confidence
+                'answers': {'q1': 'b', 'q2': 'b', 'q3': 'b'}  # all dry
+            }),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['skin_type'], 'dry')
+        self.assertEqual(data['method'], 'questionnaire_preferred')
+
+    def test_hybrid_ai_dominant_high_confidence(self):
+        """When AI confidence is high and quiz doesn't unanimously disagree, AI wins."""
+        import json
+        response = self.client.post('/analyze-hybrid/',
+            data=json.dumps({
+                'ai_skin_type': 'oily',
+                'ai_confidence': 92,
+                'answers': {'q1': 'b', 'q2': 'a', 'q3': 'c'}  # mixed answers
+            }),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['skin_type'], 'oily')
+        self.assertEqual(data['method'], 'ai_dominant')
+
+    def test_hybrid_quiz_override_at_high_confidence(self):
+        """When quiz is unanimous and AI confidence is high, quiz overrides."""
+        import json
+        response = self.client.post('/analyze-hybrid/',
+            data=json.dumps({
+                'ai_skin_type': 'oily',
+                'ai_confidence': 90,
+                'answers': {'q1': 'b', 'q2': 'b', 'q3': 'b'}  # all dry
+            }),
+            content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['skin_type'], 'dry')
+        self.assertEqual(data['method'], 'questionnaire_override')

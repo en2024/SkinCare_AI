@@ -407,6 +407,115 @@
         body.rtl .steps-container::before { left: auto; right: 20px; }
         body.rtl .upload-area { text-align: center; }
 
+        /* ─── Photo Guidelines Alert ──────────────────────────────────── */
+        .photo-guidelines {
+            background: linear-gradient(135deg, rgba(107,142,124,0.08), rgba(143,168,154,0.12));
+            border: 1px solid rgba(107,142,124,0.25);
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+        }
+        .photo-guidelines h4 {
+            font-size: 0.8rem; font-weight: 700; color: var(--primary);
+            margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+        }
+        .photo-guidelines ul {
+            list-style: none; padding: 0; margin: 0;
+            display: flex; flex-direction: column; gap: 6px;
+        }
+        .photo-guidelines li {
+            font-size: 0.82rem; color: var(--dark); display: flex; align-items: center; gap: 8px;
+            opacity: 0.85;
+        }
+        .photo-guidelines li::before {
+            content: '✓'; font-size: 0.7rem; font-weight: 700;
+            color: var(--ok); flex-shrink: 0;
+        }
+
+        /* ─── Low Confidence Error ────────────────────────────────────── */
+        .low-confidence-box {
+            background: linear-gradient(135deg, rgba(184,74,74,0.06), rgba(199,123,43,0.08));
+            border: 1px solid rgba(184,74,74,0.25);
+            border-radius: 14px;
+            padding: 24px; text-align: center;
+            margin-bottom: 20px;
+            animation: subtleUp 0.4s ease;
+        }
+        .low-confidence-box .lc-icon {
+            font-size: 2.4rem; margin-bottom: 8px;
+        }
+        .low-confidence-box h4 {
+            font-size: 1.1rem; color: var(--danger); font-weight: 600; margin-bottom: 6px;
+        }
+        .low-confidence-box p {
+            font-size: 0.88rem; color: var(--muted); line-height: 1.6; margin-bottom: 16px;
+        }
+        .low-confidence-box .lc-score {
+            display: inline-block; background: rgba(184,74,74,0.12); padding: 4px 14px;
+            border-radius: 20px; font-size: 0.75rem; font-weight: 700; color: var(--danger);
+            margin-bottom: 12px;
+        }
+
+        /* ─── Confidence Badge ────────────────────────────────────────── */
+        .confidence-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(61,122,92,0.1); padding: 5px 14px;
+            border-radius: 20px; font-size: 0.72rem; font-weight: 700;
+            color: var(--ok); text-transform: uppercase; letter-spacing: 0.05em;
+            margin-top: 8px;
+        }
+        .confidence-badge .dot {
+            width: 6px; height: 6px; border-radius: 50%; background: var(--ok);
+        }
+
+        /* ─── Quiz Section ────────────────────────────────────────────── */
+        .quiz-section {
+            margin-top: 24px; animation: subtleUp 0.4s ease;
+        }
+        .quiz-section h3 {
+            font-size: 1.3rem; color: var(--dark); margin-bottom: 6px;
+        }
+        .quiz-section .quiz-subtitle {
+            font-size: 0.88rem; color: var(--muted); margin-bottom: 24px; line-height: 1.6;
+        }
+        .quiz-q {
+            margin-bottom: 22px; padding: 16px 20px;
+            background: rgba(255,255,255,0.4); border: 1px solid var(--border);
+            border-radius: 14px; transition: 0.3s;
+        }
+        body.dark-mode .quiz-q { background: rgba(0,0,0,0.1); }
+        .quiz-q .q-label {
+            font-size: 0.88rem; font-weight: 600; color: var(--dark); margin-bottom: 12px;
+            display: flex; align-items: flex-start; gap: 8px;
+        }
+        .quiz-q .q-num {
+            font-size: 0.7rem; font-weight: 700; color: var(--primary);
+            background: rgba(107,142,124,0.12); padding: 2px 8px;
+            border-radius: 8px; flex-shrink: 0;
+        }
+        .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+        .quiz-option {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 14px; border: 1px solid var(--border);
+            border-radius: 10px; cursor: pointer; transition: 0.25s;
+            font-size: 0.85rem; color: var(--dark);
+        }
+        .quiz-option:hover { border-color: var(--primary); background: rgba(107,142,124,0.04); }
+        .quiz-option input[type='radio'] {
+            accent-color: var(--primary); width: 16px; height: 16px; flex-shrink: 0; cursor: pointer;
+        }
+        .quiz-option.selected {
+            border-color: var(--primary); background: rgba(107,142,124,0.08);
+        }
+
+        /* ─── Method Tag ──────────────────────────────────────────────── */
+        .method-tag {
+            display: inline-block; font-size: 0.6rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.1em; padding: 3px 10px; border-radius: 12px; margin-top: 6px;
+        }
+        .method-tag.consensus { background: rgba(61,122,92,0.12); color: var(--ok); }
+        .method-tag.override { background: rgba(199,123,43,0.12); color: var(--warn); }
+
         @media (max-width: 900px) {
             .main-layout { grid-template-columns: 1fr; margin-top: 20px; }
             .steps-container { flex-direction: row; justify-content: center; }
@@ -487,6 +596,16 @@
             </div>
 
             <div class="pane active" id="pane-skin">
+                <!-- Photo Guidelines -->
+                <div class="photo-guidelines" id="photo-guidelines">
+                    <h4><span>📋</span> <span id="guidelines-title">For best results</span></h4>
+                    <ul>
+                        <li id="guide-1">Wash your face and wait 15 minutes</li>
+                        <li id="guide-2">Use natural daylight — no flash or filters</li>
+                        <li id="guide-3">Remove any makeup before the photo</li>
+                    </ul>
+                </div>
+
                 <label class="input-label"><span id="l-01">01</span> <span id="skin-upload-label">Portrait Upload</span></label>
                 <div class="upload-area" id="skin-dz">
                     <div class="upload-icon">⚲</div>
@@ -495,7 +614,79 @@
                     <img src="" class="img-preview" id="skin-img">
                     <input type="file" id="skin-file" accept="image/*">
                 </div>
+
+                <!-- Low confidence error (hidden by default) -->
+                <div class="low-confidence-box" id="low-confidence-box" style="display:none;">
+                    <div class="lc-icon">📸</div>
+                    <div class="lc-score" id="lc-score-badge">Confidence: --</div>
+                    <h4 id="lc-title">Photo quality too low</h4>
+                    <p id="lc-desc">Please upload a clearer photo following the guidelines above for accurate results.</p>
+                </div>
+
                 <button type="button" class="submit-btn" id="skin-submit-btn" onclick="runSkinAnalysis()">Analyze My Skin</button>
+            </div>
+
+            <!-- Questionnaire Pane (shown after successful AI scan) -->
+            <div class="pane" id="pane-quiz">
+                <div id="ai-preview" style="text-align:center; margin-bottom: 20px;">
+                    <span class="result-tag" id="ai-preview-tag">AI Preliminary Result</span>
+                    <h2 class="serif" id="ai-preview-type" style="font-size:2.2rem; margin:6px 0; color:var(--dark);">--</h2>
+                    <div class="confidence-badge" id="ai-confidence-badge">
+                        <span class="dot"></span> <span id="ai-conf-text">Confidence: --</span>
+                    </div>
+                </div>
+
+                <div class="quiz-section">
+                    <h3 class="serif" id="quiz-main-title">Confirm Your Skin Type</h3>
+                    <p class="quiz-subtitle" id="quiz-subtitle">Answer 3 quick questions so our hybrid system can give you a definitive result.</p>
+
+                    <div class="quiz-q">
+                        <div class="q-label"><span class="q-num">Q1</span> <span id="q1-label">How does your skin feel 30 minutes after washing?</span></div>
+                        <div class="quiz-options">
+                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                <input type="radio" name="q1" value="a"> <span id="q1a">Shiny or greasy</span>
+                            </label>
+                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                <input type="radio" name="q1" value="b"> <span id="q1b">Tight or flaky</span>
+                            </label>
+                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                <input type="radio" name="q1" value="c"> <span id="q1c">Comfortable and balanced</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-q">
+                        <div class="q-label"><span class="q-num">Q2</span> <span id="q2-label">How often does your face get shiny by midday?</span></div>
+                        <div class="quiz-options">
+                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                <input type="radio" name="q2" value="a"> <span id="q2a">Always — very oily</span>
+                            </label>
+                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                <input type="radio" name="q2" value="b"> <span id="q2b">Never — stays matte or dry</span>
+                            </label>
+                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                <input type="radio" name="q2" value="c"> <span id="q2c">Sometimes — only T-zone</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="quiz-q">
+                        <div class="q-label"><span class="q-num">Q3</span> <span id="q3-label">How does your skin react to new products?</span></div>
+                        <div class="quiz-options">
+                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                <input type="radio" name="q3" value="a"> <span id="q3a">Breakouts or excess oil</span>
+                            </label>
+                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                <input type="radio" name="q3" value="b"> <span id="q3b">Burning, redness, or dryness</span>
+                            </label>
+                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                <input type="radio" name="q3" value="c"> <span id="q3c">No noticeable reaction</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="button" class="submit-btn" id="quiz-submit-btn" onclick="submitQuiz()">Get Final Result</button>
+                </div>
             </div>
 
             <div class="pane" id="pane-product">
@@ -524,6 +715,10 @@
                 <div id="res-skin-content" style="display:none; text-align:center;">
                     <span class="result-tag" id="bio-profile-tag">Biological Profile</span>
                     <h2 class="serif" id="rs-skin-type" style="font-size:3rem; margin:8px 0; color:var(--dark);">--</h2>
+                    <div class="confidence-badge" id="rs-confidence-badge" style="margin-bottom:12px;">
+                        <span class="dot"></span> <span id="rs-conf-text">Confidence: --</span>
+                    </div>
+                    <div id="rs-method-tag-wrap" style="margin-bottom:12px;"></div>
                     <div class="result-box" id="rs-skin-desc">--</div>
                 </div>
                 
@@ -643,6 +838,36 @@
         document.getElementById('skin-dz-title').innerText = isRtl ? "انقري أو اسحبي الصورة هنا" : "Tap or drop photo here";
         document.getElementById('skin-submit-btn').innerText = isRtl ? "حللي بشرتي" : "Analyze My Skin";
 
+        // Photo guidelines
+        const gt = document.getElementById('guidelines-title');
+        if(gt) gt.innerText = isRtl ? "للحصول على أفضل النتائج" : "For best results";
+        const g1 = document.getElementById('guide-1');
+        if(g1) g1.innerText = isRtl ? "اغسلي وجهك وانتظري 15 دقيقة" : "Wash your face and wait 15 minutes";
+        const g2 = document.getElementById('guide-2');
+        if(g2) g2.innerText = isRtl ? "استخدمي إضاءة طبيعية — بدون فلاش أو فلاتر" : "Use natural daylight — no flash or filters";
+        const g3 = document.getElementById('guide-3');
+        if(g3) g3.innerText = isRtl ? "أزيلي المكياج قبل التصوير" : "Remove any makeup before the photo";
+
+        // Low confidence
+        const lcTitle = document.getElementById('lc-title');
+        if(lcTitle) lcTitle.innerText = isRtl ? "جودة الصورة منخفضة" : "Photo quality too low";
+        const lcDesc = document.getElementById('lc-desc');
+        if(lcDesc) lcDesc.innerText = isRtl ? "يرجى رفع صورة أوضح مع اتباع الإرشادات أعلاه." : "Please upload a clearer photo following the guidelines above for accurate results.";
+
+        // Quiz
+        const qmt = document.getElementById('quiz-main-title');
+        if(qmt) qmt.innerText = isRtl ? "أكدي نوع بشرتك" : "Confirm Your Skin Type";
+        const qs = document.getElementById('quiz-subtitle');
+        if(qs) qs.innerText = isRtl ? "أجيبي على 3 أسئلة سريعة ليعطيك نظامنا الهجين نتيجة نهائية." : "Answer 3 quick questions so our hybrid system can give you a definitive result.";
+        const q1l = document.getElementById('q1-label');
+        if(q1l) q1l.innerText = isRtl ? "كيف تشعرين ببشرتك بعد 30 دقيقة من الغسل؟" : "How does your skin feel 30 minutes after washing?";
+        const q2l = document.getElementById('q2-label');
+        if(q2l) q2l.innerText = isRtl ? "كم مرة يصبح وجهك لامعاً بحلول الظهيرة؟" : "How often does your face get shiny by midday?";
+        const q3l = document.getElementById('q3-label');
+        if(q3l) q3l.innerText = isRtl ? "كيف تتفاعل بشرتك مع المنتجات الجديدة؟" : "How does your skin react to new products?";
+        const qsb = document.getElementById('quiz-submit-btn');
+        if(qsb) qsb.innerText = isRtl ? "احصلي على النتيجة النهائية" : "Get Final Result";
+
         document.getElementById('skin-pills-label').innerText = isRtl ? "إعداد الملف الشخصي" : "Profile Setup";
         const pills = document.querySelectorAll('.type-pill');
         if(pills.length >= 4) {
@@ -709,11 +934,21 @@
         document.getElementById('res-skin-content').style.display = 'none';
         document.getElementById('res-prod-content').style.display = 'none';
         document.getElementById('rs-recs-wrapper').style.display = 'none';
+        document.getElementById('low-confidence-box').style.display = 'none';
         document.getElementById('skin-img').classList.remove('show');
         document.getElementById('prod-img').classList.remove('show');
         document.getElementById('skin-file').value = '';
         document.getElementById('prod-file').value = '';
         document.getElementById('prod-text').value = '';
+        // Reset quiz selections
+        document.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
+        document.querySelectorAll('#pane-quiz input[type=radio]').forEach(r => r.checked = false);
+        aiResultCache = null;
+    }
+
+    function highlightOption(el) {
+        el.closest('.quiz-options').querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
+        el.classList.add('selected');
     }
 
     function setupDZ(dzId, fileId, imgId) {
@@ -747,11 +982,17 @@
         return cookie ? cookie.split('=')[1] : '';
     }
 
+    // Cache the AI result for the hybrid endpoint
+    let aiResultCache = null;
+
     async function runSkinAnalysis() {
         const file = document.getElementById('skin-file').files[0];
         if(!file) return alert("Please upload a photo.");
+        const isRtl = document.body.classList.contains('rtl');
         const ov = document.getElementById('scan-overlay');
         ov.style.display = 'flex';
+        document.getElementById('low-confidence-box').style.display = 'none';
+
         const fd = new FormData();
         fd.append('image', file);
         try {
@@ -761,8 +1002,67 @@
                 headers: { 'X-CSRFToken': getCsrfToken() }
             });
             const data = await res.json();
+
+            // Handle low confidence
+            if (data.low_confidence) {
+                ov.style.display = 'none';
+                const lcBox = document.getElementById('low-confidence-box');
+                lcBox.style.display = 'block';
+                document.getElementById('lc-score-badge').innerText =
+                    (isRtl ? 'الثقة: ' : 'Confidence: ') + data.confidence + '%';
+                return;
+            }
+
+            // AI scan successful → show questionnaire
+            aiResultCache = { skin_type: data.skin_type, confidence: data.confidence };
+            document.getElementById('ai-preview-type').innerText = data.skin_type.toUpperCase();
+            document.getElementById('ai-conf-text').innerText =
+                (isRtl ? 'الثقة: ' : 'Confidence: ') + data.confidence + '%';
+            document.getElementById('ai-preview-tag').innerText =
+                isRtl ? 'نتيجة الذكاء الاصطناعي الأولية' : 'AI Preliminary Result';
+
+            // Switch to quiz pane
+            setProgress(2);
+            document.querySelectorAll('.pane').forEach(el => el.classList.remove('active'));
+            document.getElementById('pane-quiz').classList.add('active');
+
+        } catch(e) { alert('Analysis failed. Please try again.'); }
+        ov.style.display = 'none';
+    }
+
+    async function submitQuiz() {
+        const isRtl = document.body.classList.contains('rtl');
+        // Collect answers
+        const q1 = document.querySelector('input[name="q1"]:checked');
+        const q2 = document.querySelector('input[name="q2"]:checked');
+        const q3 = document.querySelector('input[name="q3"]:checked');
+
+        if (!q1 || !q2 || !q3) {
+            return alert(isRtl ? 'يرجى الإجابة على جميع الأسئلة.' : 'Please answer all 3 questions.');
+        }
+        if (!aiResultCache) {
+            return alert(isRtl ? 'يرجى تحليل صورتك أولاً.' : 'Please analyze your photo first.');
+        }
+
+        const ov = document.getElementById('scan-overlay');
+        ov.style.display = 'flex';
+
+        try {
+            const res = await fetch('/analyze-hybrid/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({
+                    ai_skin_type: aiResultCache.skin_type,
+                    ai_confidence: aiResultCache.confidence,
+                    answers: { q1: q1.value, q2: q2.value, q3: q3.value }
+                })
+            });
+            const data = await res.json();
             displayResults('skin', data);
-        } catch(e) { alert('Failed.'); }
+        } catch(e) { alert('Failed. Please try again.'); }
         ov.style.display = 'none';
     }
 
@@ -798,14 +1098,38 @@
             document.getElementById('res-skin-content').style.display = 'block';
             document.getElementById('res-prod-content').style.display = 'none';
             document.getElementById('rs-skin-type').innerText = data.skin_type.toUpperCase();
-            document.getElementById('rs-skin-desc').innerText = isRtl ? "بشرتك تم تحليلها كـ " + data.skin_type : "Skin type identified as " + data.skin_type;
+
+            // Confidence badge
+            const confText = document.getElementById('rs-conf-text');
+            if(confText) confText.innerText = (isRtl ? 'الثقة: ' : 'Confidence: ') + data.confidence + '%';
+
+            // Method tag (hybrid result indicator)
+            const methodWrap = document.getElementById('rs-method-tag-wrap');
+            if(methodWrap && data.method) {
+                const labels = {
+                    'consensus': isRtl ? '✓ إجماع الذكاء الاصطناعي والاستبيان' : '✓ AI & Quiz Consensus',
+                    'ai_dominant': isRtl ? '🤖 بناءً على تحليل الذكاء الاصطناعي' : '🤖 AI-Dominant Result',
+                    'questionnaire_preferred': isRtl ? '📋 بناءً على إجاباتك' : '📋 Questionnaire-Based Result',
+                    'questionnaire_override': isRtl ? '📋 تم تعديل النتيجة بناءً على إجاباتك' : '📋 Quiz Override'
+                };
+                const isOverride = data.method.includes('override') || data.method.includes('preferred');
+                methodWrap.innerHTML = `<span class="method-tag ${isOverride ? 'override' : 'consensus'}">${labels[data.method] || data.method}</span>`;
+            } else if(methodWrap) {
+                methodWrap.innerHTML = '';
+            }
+
+            // Description
+            const desc = data.description ||
+                (isRtl ? "بشرتك تم تحليلها كـ " + data.skin_type : "Skin type identified as " + data.skin_type);
+            document.getElementById('rs-skin-desc').innerText = desc;
+
         } else {
             document.getElementById('res-skin-content').style.display = 'none';
             document.getElementById('res-prod-content').style.display = 'block';
             document.getElementById('rs-prod-score').innerText = data.safety_score + "%";
             document.getElementById('rs-prod-title').innerText = data.safety_score > 70 ? (isRtl ? "آمن" : "Optimal Match") : (isRtl ? "خطر" : "High Risk");
             document.getElementById('rs-score-circ').style.borderColor = data.safety_score > 70 ? "var(--ok)" : "var(--danger)";
-            
+
             let desc = isRtl ? "تحليل المكونات اكتمل." : "Analysis finished.";
             if(data.harmful_ingredients && data.harmful_ingredients.length > 0) {
                 desc += `<br><span style="color:var(--danger)">Sensitisers: ${data.harmful_ingredients.join(', ')}</span>`;
