@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Analyzer | AI Skin Care Assistant Analyzer</title>
+    <title>AI Analyzer | AI SkinCare Safety Analyzer</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -331,7 +331,7 @@
 
         footer { text-align: center; padding: 20px 0; margin-top: auto; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--muted); width: 100%;}
 
-        /* Expanding Settings FAB (الديزاين الرقيق الجديد) */
+        /* Expanding Settings FAB */
         .fab-container {
             position: fixed;
             bottom: 32px;
@@ -428,12 +428,12 @@
     <nav class="navbar">
         <a href="/" class="brand">
             <div class="brand-dot"></div>
-            <span class="serif">AI SkinCare Safety Analyzer</span>
+            <span class="serif" id="nav-logo">AI SkinCare Safety Analyzer</span>
         </a>
         <div class="links">
-            <a href="/">Home</a>
-            <a href="{% url 'catalog' %}">Catalog</a>
-            <a href="{% url 'analyzer' %}" class="active" style="color: var(--dark);">Analyzer</a>
+            <a href="/" id="link-home">Home</a>
+            <a href="{% url 'catalog' %}" id="link-catalog">Catalog</a>
+            <a href="{% url 'analyzer' %}" class="active" id="link-analyzer">Analyzer</a>
         </div>
     </nav>
 </div>
@@ -583,19 +583,23 @@
 
     window.toggleLanguage = function() {
         document.body.classList.toggle('rtl');
-        const isRtl = document.body.classList.contains('rtl');
-        
-        // Navbar
-        const logo = document.querySelector('.brand .serif');
-        if(logo) logo.innerText = isRtl ? "مساعد العناية بالبشرة الذكي" : "AI Skin Care Assistant Analyzer";
-        const navLinks = document.querySelectorAll('.links a');
-        if(navLinks.length >= 3) {
-            navLinks[0].innerText = isRtl ? "الرئيسية" : "Home";
-            navLinks[1].innerText = isRtl ? "الكتالوج" : "Catalog";
-            navLinks[2].innerText = isRtl ? "المحلل" : "Analyzer";
-        }
+        updateTexts();
+    };
 
-        // Hero Left
+    function updateTexts() {
+        const isRtl = document.body.classList.contains('rtl');
+        document.body.dir = isRtl ? "rtl" : "ltr";
+        
+        const logo = document.getElementById('nav-logo');
+        if(logo) logo.innerText = isRtl ? "مساعد العناية بالبشرة الذكي" : "AI SkinCare Safety Analyzer";
+        
+        const linkHome = document.getElementById('link-home');
+        const linkCatalog = document.getElementById('link-catalog');
+        const linkAnalyzer = document.getElementById('link-analyzer');
+        if(linkHome) linkHome.innerText = isRtl ? "الرئيسية" : "Home";
+        if(linkCatalog) linkCatalog.innerText = isRtl ? "الكتالوج" : "Catalog";
+        if(linkAnalyzer) linkAnalyzer.innerText = isRtl ? "المحلل" : "Analyzer";
+
         const pill = document.getElementById('how-works-pill');
         if(pill) pill.innerText = isRtl ? "كيف يعمل" : "How it works";
         const mTitle = document.getElementById('main-title');
@@ -603,7 +607,6 @@
         const mDesc = document.getElementById('main-desc');
         if(mDesc) mDesc.innerHTML = isRtl ? "لست متأكدة من نوع بشرتك؟ استخدمي <strong>فحص الوجه</strong> ليدع الذكاء الاصطناعي يكتشف ذلك. <br><br> تعرفين نوعها بالفعل؟ استخدمي <strong>فحص التركيبة</strong> لمعرفة ما إذا كان المنتج آمناً لكِ." : "Not sure about your skin type? Use <strong>Face Scan</strong> to let the AI find out. <br><br> Already know it? Use <strong>Formula Check</strong> to see if a product is safe for you.";
 
-        // Steps
         const s1t = document.getElementById('step1-title');
         const s1s = document.getElementById('st-1-sub');
         const s2t = document.getElementById('step2-title');
@@ -627,48 +630,42 @@
             if(s3s) s3s.innerText = isRtl ? "تأكدي إذا كان المنتج آمناً لبشرتك." : "See if the product is safe for you.";
         }
 
-        // Tabs
         const btnSkin = document.getElementById('skin-tab-btn');
         const btnProd = document.getElementById('product-tab-btn');
         if(btnSkin) btnSkin.innerText = isRtl ? "فحص الوجه" : "Face Scan";
         if(btnProd) btnProd.innerText = isRtl ? "فحص التركيبة" : "Formula Check";
 
-        // Dashboard Panes
         document.getElementById('l-01').innerText = isRtl ? "٠١" : "01";
         document.getElementById('l-01b').innerText = isRtl ? "٠١" : "01";
         document.getElementById('l-02').innerText = isRtl ? "٠٢" : "02";
         
         document.getElementById('skin-upload-label').innerText = isRtl ? "رفع الصورة الشخصية" : "Portrait Upload";
         document.getElementById('skin-dz-title').innerText = isRtl ? "انقري أو اسحبي الصورة هنا" : "Tap or drop photo here";
-        document.getElementById('skin-dz-sub').innerText = isRtl ? "للحصول على أفضل النتائج، استخدمي إضاءة طبيعية بدون مكياج." : "For best results, use natural lighting without makeup.";
         document.getElementById('skin-submit-btn').innerText = isRtl ? "حللي بشرتي" : "Analyze My Skin";
 
         document.getElementById('skin-pills-label').innerText = isRtl ? "إعداد الملف الشخصي" : "Profile Setup";
         const pills = document.querySelectorAll('.type-pill');
-        if(pills.length >= 5) {
+        if(pills.length >= 4) {
             pills[0].innerText = isRtl ? "دهنية" : "Oily";
             pills[1].innerText = isRtl ? "جافة" : "Dry";
             pills[2].innerText = isRtl ? "عادية" : "Normal";
             pills[3].innerText = isRtl ? "حساسة" : "Sensitive";
-            pills[4].innerText = isRtl ? "مختلطة" : "Combo";
         }
         document.getElementById('prod-upload-label').innerText = isRtl ? "بيانات المكونات" : "Ingredient Data";
         document.getElementById('prod-dz-title').innerText = isRtl ? "التقطي ملصق المنتج" : "Snap Product Label";
         document.getElementById('prod-text').placeholder = isRtl ? "أو الصقي المكونات يدوياً هنا..." : "Or manually paste formula here...";
         document.getElementById('prod-submit-btn').innerText = isRtl ? "حللي بشرتي" : "Analyze My Skin";
 
-        // Loading
         document.getElementById('loading-title').innerText = isRtl ? "جاري التحليل..." : "Analyzing...";
         document.getElementById('loading-desc').innerText = isRtl ? "الذكاء الاصطناعي يقوم بمراجعة بياناتك" : "Our AI is reviewing your data";
 
-        // Results
         document.getElementById('bio-profile-tag').innerText = isRtl ? "الملف الحيوي" : "Biological Profile";
         document.getElementById('safety-idx-label').innerText = isRtl ? "مؤشر الأمان" : "Safety Index";
         document.getElementById('restart-btn').innerText = isRtl ? "إعادة البدء" : "Restart Process";
-
-        // Footer
-        document.querySelector('footer').innerHTML = isRtl ? "مشروع التخرج — الجامعة العربية المفتوحة · © ٢٠٢٦ إنجي نبيل صفوت · مساعد العناية بالبشرة الذكي" : "Final Year Project — Arab Open University · © 2026 Engy Nabil Safwat · AI SkinCare Safety Analyzer";
-    };
+        
+        const recLabel = document.getElementById('rs-recs-title');
+        if(recLabel) recLabel.innerHTML = isRtl ? "<span>✓</span> روتين مقترح لك" : "<span>✓</span> Recommended Products";
+    }
 
     function toggleDarkMode() {
         document.body.classList.toggle("dark-mode");
@@ -690,11 +687,9 @@
         document.getElementById('skin-tab-btn').classList.remove('active');
         document.getElementById('product-tab-btn').classList.remove('active');
         document.getElementById(`${mode}-tab-btn`).classList.add('active');
-        
         document.querySelectorAll('.pane').forEach(el => el.classList.remove('active'));
         document.getElementById(`pane-${mode}`).classList.add('active');
-
-        toggleLanguage(); // Refresh texts for current tab
+        updateTexts();
         resetProgress();
     }
 
@@ -725,21 +720,13 @@
         const dz = document.getElementById(dzId);
         const fi = document.getElementById(fileId);
         const ig = document.getElementById(imgId);
+        if(!dz || !fi || !ig) return;
         dz.onclick = () => fi.click();
         fi.onchange = (e) => {
             if(e.target.files && e.target.files[0]) {
                 ig.src = URL.createObjectURL(e.target.files[0]);
                 ig.classList.add('show');
-            }
-        };
-        dz.ondragover = (e) => { e.preventDefault(); dz.style.borderColor = "var(--primary)"; };
-        dz.ondragleave = () => { dz.style.borderColor = ""; };
-        dz.ondrop = (e) => {
-            e.preventDefault(); dz.style.borderColor = "";
-            if(e.dataTransfer.files && e.dataTransfer.files[0]) {
-                fi.files = e.dataTransfer.files;
-                ig.src = URL.createObjectURL(e.dataTransfer.files[0]);
-                ig.classList.add('show');
+                setProgress(2);
             }
         };
     }
@@ -751,12 +738,12 @@
         document.querySelectorAll('.type-pill').forEach(p => p.classList.remove('active'));
         el.classList.add('active');
         selectedSkinType = type;
+        setProgress(2);
     }
 
     async function runSkinAnalysis() {
         const file = document.getElementById('skin-file').files[0];
-        if(!file) return alert(document.body.classList.contains('rtl') ? 'برجاء اختيار صورة' : 'Please provide an image.');
-        setProgress(2);
+        if(!file) return alert("Please upload a photo.");
         const ov = document.getElementById('scan-overlay');
         ov.style.display = 'flex';
         const fd = new FormData();
@@ -764,86 +751,74 @@
         try {
             const res = await fetch('/analyze/', { method: 'POST', body: fd });
             const data = await res.json();
-            const isRtl = document.body.classList.contains('rtl');
-            document.getElementById('rs-skin-type').innerText = isRtl ? (translateSkinType(data.skin_type)) : data.skin_type.charAt(0).toUpperCase() + data.skin_type.slice(1);
-            document.getElementById('rs-skin-desc').innerHTML = isRtl ? `تم تحديد ملفك الشخصي كبشرة <strong>${translateSkinType(data.skin_type)}</strong> غالباً.` : `Your profile is identified as predominantly <strong>${data.skin_type}</strong>.`;
-            if(data.products && data.products.length) {
-                document.getElementById('rs-recs-wrapper').style.display = 'block';
-                document.getElementById('rs-recs-title').innerHTML = isRtl ? '<span>✓</span> منتجات مقترحة' : '<span>✓</span> Recommended Products';
-                document.getElementById('rs-recs').innerHTML = data.products.map(p => `
-                    <div class="product-card">
-                        <div class="product-img"><img src="${p.image || ''}" onerror="this.style.display='none'"></div>
-                        <h4>${p.name}</h4>
-                        <a href="{% url 'catalog' %}" class="product-link">${isRtl ? 'التفاصيل' : 'Details'}</a>
-                    </div>
-                `).join('');
-            }
-            ov.style.display = 'none';
-            setProgress(3);
-            document.querySelectorAll('.pane').forEach(el => el.classList.remove('active'));
-            document.getElementById('pane-result').classList.add('active');
-            document.getElementById('res-skin-content').style.display = 'block';
-            document.getElementById('res-prod-content').style.display = 'none';
-        } catch(e) {
-            alert('Analysis failed.');
-            setProgress(1);
-            ov.style.display = 'none';
-        }
+            displayResults('skin', data);
+        } catch(e) { alert('Failed.'); }
+        ov.style.display = 'none';
     }
 
     async function runProductAnalysis() {
-        const isRtl = document.body.classList.contains('rtl');
-        if(!selectedSkinType) return alert(isRtl ? 'برجاء اختيار نوع البشرة' : 'Please select a skin profile.');
+        if(!selectedSkinType) return alert("Select skin type.");
         const file = document.getElementById('prod-file').files[0];
         const txt = document.getElementById('prod-text').value;
-        if(!file && !txt.trim()) return alert(isRtl ? 'برجاء تزويد بيانات المكونات' : 'Please provide ingredients data.');
-        setProgress(2);
+        if(!file && !txt.trim()) return alert("Provide ingredients.");
         const ov = document.getElementById('scan-overlay');
         ov.style.display = 'flex';
         const fd = new FormData();
         fd.append('skin_type', selectedSkinType);
-        if(file) fd.append('image', file);
-        else fd.append('ingredients_text', txt);
+        if(file) fd.append('image', file); else fd.append('ingredients_text', txt);
         try {
             const res = await fetch('/analyze-product/', { method: 'POST', body: fd });
             const data = await res.json();
-            const score = data.safety_score;
-            document.getElementById('rs-prod-score').innerHTML = `${score}<small style="font-size:1.2rem">%</small>`;
-            const circ = document.getElementById('rs-score-circ');
-            const pTitle = document.getElementById('rs-prod-title');
-            const pDesc = document.getElementById('rs-prod-desc');
-            if(score >= 70) {
-                circ.style.borderColor = "var(--ok)";
-                pTitle.innerText = isRtl ? "توافق مثالي" : "Optimal Match";
-                pDesc.innerHTML = isRtl ? `هذه التركيبة متوافقة مع البشرة <strong>${translateSkinType(selectedSkinType)}</strong>.` : `This formulation is compatible with <strong>${selectedSkinType}</strong> skin.`;
-            } else if (score >= 40) {
-                circ.style.borderColor = "var(--warn)";
-                pTitle.innerText = isRtl ? "استخدميه بحذر" : "Use Restraint";
-                pDesc.innerHTML = isRtl ? `يحتوي على مهيجات محتملة للبشرة <strong>${translateSkinType(selectedSkinType)}</strong>.` : `Contains potential sensitisers for <strong>${selectedSkinType}</strong> skin.`;
-            } else {
-                circ.style.borderColor = "var(--danger)";
-                pTitle.innerText = isRtl ? "خطر مرتفع" : "High Risk";
-                pDesc.innerHTML = isRtl ? `غير متوافق مع البشرة <strong>${translateSkinType(selectedSkinType)}</strong>.` : `Incompatible with <strong>${selectedSkinType}</strong> skin.`;
-            }
-            if(data.harmful_ingredients && data.harmful_ingredients.length) {
-                pDesc.innerHTML += `<br><div style="color:var(--danger); font-weight:500; margin-top:10px; font-size:0.9rem;">${isRtl ? 'مهيجات:' : 'Sensitisers:'} ${data.harmful_ingredients.join(', ')}</div>`;
-            }
-            ov.style.display = 'none';
-            setProgress(3);
-            document.querySelectorAll('.pane').forEach(el => el.classList.remove('active'));
-            document.getElementById('pane-result').classList.add('active');
+            displayResults('product', data);
+        } catch(e) { alert('Failed.'); }
+        ov.style.display = 'none';
+    }
+
+    function displayResults(type, data) {
+        const isRtl = document.body.classList.contains('rtl');
+        setProgress(3);
+        document.querySelectorAll('.pane').forEach(el => el.classList.remove('active'));
+        document.getElementById('pane-result').classList.add('active');
+
+        if(type === 'skin') {
+            document.getElementById('res-skin-content').style.display = 'block';
+            document.getElementById('res-prod-content').style.display = 'none';
+            document.getElementById('rs-skin-type').innerText = data.skin_type.toUpperCase();
+            document.getElementById('rs-skin-desc').innerText = isRtl ? "بشرتك تم تحليلها كـ " + data.skin_type : "Skin type identified as " + data.skin_type;
+        } else {
+            document.getElementById('res-skin-content').style.display = 'none';
             document.getElementById('res-prod-content').style.display = 'block';
-        } catch(e) {
-            alert('Failed.');
-            ov.style.display = 'none';
+            document.getElementById('rs-prod-score').innerText = data.safety_score + "%";
+            document.getElementById('rs-prod-title').innerText = data.safety_score > 70 ? (isRtl ? "آمن" : "Optimal Match") : (isRtl ? "خطر" : "High Risk");
+            document.getElementById('rs-score-circ').style.borderColor = data.safety_score > 70 ? "var(--ok)" : "var(--danger)";
+            
+            let desc = isRtl ? "تحليل المكونات اكتمل." : "Analysis finished.";
+            if(data.harmful_ingredients && data.harmful_ingredients.length > 0) {
+                desc += `<br><span style="color:var(--danger)">Sensitisers: ${data.harmful_ingredients.join(', ')}</span>`;
+            }
+            document.getElementById('rs-prod-desc').innerHTML = desc;
+        }
+
+        // Recommendations Injection
+        const products = data.products || data.recommendations || [];
+        const recsArea = document.getElementById('rs-recs-wrapper');
+        const recsGrid = document.getElementById('rs-recs');
+
+        if(products.length > 0) {
+            recsArea.style.display = 'block';
+            recsGrid.innerHTML = products.map(p => `
+                <div class="product-card">
+                    <div class="product-img"><img src="${p.image}" onerror="this.src='https://via.placeholder.com/150'"></div>
+                    <h4>${p.name}</h4>
+                    <a href="/catalog/" class="product-link">${isRtl ? 'التفاصيل' : 'Details'}</a>
+                </div>
+            `).join('');
+        } else {
+            recsArea.style.display = 'none';
         }
     }
 
-    function translateSkinType(type) {
-        const map = { 'oily': 'الدهنية', 'dry': 'الجافة', 'normal': 'العادية', 'sensitive': 'الحساسة', 'combination': 'المختلطة' };
-        return map[type.toLowerCase()] || type;
-    }
+    document.addEventListener('DOMContentLoaded', updateTexts);
 </script>
-
 </body>
-</html>
+</html
