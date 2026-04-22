@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 
 from ..models import Product
 
@@ -28,7 +28,7 @@ def add_product(request):
 @login_required(login_url='login')
 def edit_product(request):
     if request.method == 'POST' and request.user.is_staff:
-        p = Product.objects.get(id=request.POST.get('product_id'))
+        p = get_object_or_404(Product, id=request.POST.get('product_id'))
         p.name = request.POST.get('name')
         p.category = request.POST.get('category')
         p.skin_type = request.POST.get('skin_type')

@@ -156,3 +156,25 @@ LOGGING = {
         },
     },
 }
+
+# ─── Security Hardening (auto-enabled in production when DEBUG=False) ────────
+if not DEBUG:
+    # HTTPS / SSL
+    SECURE_SSL_REDIRECT = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+    # HSTS — tell browsers to only use HTTPS for 1 year
+    SECURE_HSTS_SECONDS = 31536000        # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
+    # Cookie Security
+    SESSION_COOKIE_SECURE = True          # Session cookie over HTTPS only
+    CSRF_COOKIE_SECURE = True             # CSRF cookie over HTTPS only
+    SESSION_COOKIE_HTTPONLY = True         # Prevent JS access to session cookie
+    SESSION_COOKIE_AGE = 3600             # 1 hour session timeout
+
+    # Additional headers
+    SECURE_CONTENT_TYPE_NOSNIFF = True     # Prevent MIME-type sniffing
+    SECURE_BROWSER_XSS_FILTER = True      # Enable browser XSS filter
+    X_FRAME_OPTIONS = 'DENY'              # Prevent clickjacking
