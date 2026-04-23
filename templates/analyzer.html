@@ -718,7 +718,6 @@
                     <div class="confidence-badge" id="rs-confidence-badge" style="margin-bottom:12px;">
                         <span class="dot"></span> <span id="rs-conf-text">Confidence: --</span>
                     </div>
-                    <div id="rs-method-tag-wrap" style="margin-bottom:12px;"></div>
                     <div class="result-box" id="rs-skin-desc">--</div>
                 </div>
                 
@@ -1003,6 +1002,20 @@
             });
             const data = await res.json();
 
+            // Handle no face detected
+            if (data.no_face) {
+                ov.style.display = 'none';
+                const lcBox = document.getElementById('low-confidence-box');
+                lcBox.style.display = 'block';
+                document.getElementById('lc-score-badge').innerText =
+                    isRtl ? 'لم يتم اكتشاف وجه' : 'No face detected';
+                document.getElementById('lc-title').innerText =
+                    isRtl ? 'لم يتم العثور على وجه' : 'No face found';
+                document.getElementById('lc-desc').innerText =
+                    isRtl ? 'يرجى رفع صورة واضحة لوجهك.' : 'Please upload a clear photo of your face.';
+                return;
+            }
+
             // Handle low confidence
             if (data.low_confidence) {
                 ov.style.display = 'none';
@@ -1010,6 +1023,10 @@
                 lcBox.style.display = 'block';
                 document.getElementById('lc-score-badge').innerText =
                     (isRtl ? 'الثقة: ' : 'Confidence: ') + data.confidence + '%';
+                document.getElementById('lc-title').innerText =
+                    isRtl ? 'جودة الصورة منخفضة' : 'Photo quality too low';
+                document.getElementById('lc-desc').innerText =
+                    isRtl ? 'يرجى رفع صورة أوضح مع اتباع الإرشادات أعلاه.' : 'Please upload a clearer photo following the guidelines above for accurate results.';
                 return;
             }
 
@@ -1103,20 +1120,6 @@
             const confText = document.getElementById('rs-conf-text');
             if(confText) confText.innerText = (isRtl ? 'الثقة: ' : 'Confidence: ') + data.confidence + '%';
 
-            // Method tag (hybrid result indicator)
-            const methodWrap = document.getElementById('rs-method-tag-wrap');
-            if(methodWrap && data.method) {
-                const labels = {
-                    'consensus': isRtl ? '✓ إجماع الذكاء الاصطناعي والاستبيان' : '✓ AI & Quiz Consensus',
-                    'ai_dominant': isRtl ? '🤖 بناءً على تحليل الذكاء الاصطناعي' : '🤖 AI-Dominant Result',
-                    'questionnaire_preferred': isRtl ? '📋 بناءً على إجاباتك' : '📋 Questionnaire-Based Result',
-                    'questionnaire_override': isRtl ? '📋 تم تعديل النتيجة بناءً على إجاباتك' : '📋 Quiz Override'
-                };
-                const isOverride = data.method.includes('override') || data.method.includes('preferred');
-                methodWrap.innerHTML = `<span class="method-tag ${isOverride ? 'override' : 'consensus'}">${labels[data.method] || data.method}</span>`;
-            } else if(methodWrap) {
-                methodWrap.innerHTML = '';
-            }
 
             // Description
             const desc = data.description ||

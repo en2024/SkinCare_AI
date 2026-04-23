@@ -4,6 +4,7 @@ import re
 import pickle
 
 import json
+import cv2
 import numpy as np
 import pytesseract
 import torch
@@ -23,10 +24,10 @@ logger = logging.getLogger('analyzer')
 pytesseract.pytesseract.tesseract_cmd = getattr(settings, 'TESSERACT_CMD', r'C:\Program Files\Tesseract-OCR\tesseract.exe')
 
 # ─── 1. Face Analysis Model (Vision AI) ──────────────────────────────────────
-CLASS_NAMES = ['dry', 'normal', 'oily']
+CLASS_NAMES = ['combination', 'dry', 'normal', 'oily', 'sensitive']
 face_model = models.resnet50(weights=None)
-face_model.fc = nn.Linear(face_model.fc.in_features, 3)
-face_model_path = os.path.join(settings.BASE_DIR, 'analyzer', 'model.pth')
+face_model.fc = nn.Linear(face_model.fc.in_features, 5)
+face_model_path = os.path.join(settings.BASE_DIR, 'analyzer', 'ml_models', 'model_resnet50_5class.pth')
 
 try:
     face_model.load_state_dict(torch.load(face_model_path, map_location=torch.device('cpu')), strict=False)
@@ -34,6 +35,22 @@ try:
     logger.info('Face analysis model loaded successfully.')
 except Exception as e:
     logger.error(f'Face Model Loading Error: {e}')
+
+# ─── Load YOLOv8 Acne Detection Model ───
+try:
+    from ultralytics import YOLO
+    yolo_model_path = os.path.join(settings.BASE_DIR, 'analyzer', 'ml_models', 'acne_yolov8.pt')
+    if os.path.exists(yolo_model_path):
+        acne_model = YOLO(yolo_model_path)
+        logger.info('YOLO acne detection model loaded.')
+    else:
+        acne_model = None
+except ImportError:
+    acne_model = None
+    logger.warning("Ultralytics not installed. YOLO detection disabled.")
+
+# ─── Face Detection Gate (OpenCV Haar Cascade) ───────────────────────────────
+face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
 transform = transforms.Compose([
     transforms.Resize((224, 224)),
@@ -103,17 +120,98 @@ def extract_text_from_image(pil_image):
 
 @require_POST
 def analyze_skin(request):
-    """تحليل صورة الوجه لتحديد نوع البشرة مع نسبة الثقة"""
+    """
+    Multi-stage skin analysis pipeline:
+      1. YOLO detects acne bounding boxes
+      2. Acne regions are blurred out → ResNet sees clean skin texture
+      3. ResNet classifies skin type from the cleaned image
+      4. Acne count applies a minor secondary adjustment
+    """
     if request.FILES.get('image'):
         try:
             img = Image.open(request.FILES.get('image')).convert('RGB')
-            output = face_model(transform(img).unsqueeze(0))
 
-            # Compute confidence using softmax probabilities
-            probabilities = F.softmax(output, dim=1)
-            confidence, predicted = torch.max(probabilities, dim=1)
-            confidence_pct = round(confidence.item() * 100, 1)
-            skin_type = CLASS_NAMES[predicted.item()]
+            # ── Step 0: Face Detection Gate ──────────────────────────────
+            # Reject non-face images before any AI processing
+            img_cv = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+            gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
+            faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(60, 60))
+
+            if len(faces) == 0:
+                logger.info('Face detection gate: no face found in image.')
+                return JsonResponse({
+                    'error': 'No face detected. Please upload a clear photo of your face.',
+                    'no_face': True
+                }, status=200)
+
+            # Crop to the largest detected face for more accurate analysis
+            (x, y, w, h) = max(faces, key=lambda f: f[2] * f[3])
+            # Add padding around the face (20% on each side)
+            pad = int(0.2 * max(w, h))
+            fx1 = max(0, x - pad)
+            fy1 = max(0, y - pad)
+            fx2 = min(img.width, x + w + pad)
+            fy2 = min(img.height, y + h + pad)
+            img = img.crop((fx1, fy1, fx2, fy2))
+            logger.info(f'Face detected and cropped: ({fx1},{fy1}) to ({fx2},{fy2}).')
+
+            # ── Step 1: YOLO detects acne locations ──────────────────────
+            acne_count = 0
+            acne_boxes = []
+            if acne_model is not None:
+                results = acne_model(img, verbose=False)
+                for r in results:
+                    for box, cls_id in zip(r.boxes.xyxy, r.boxes.cls):
+                        if acne_model.names[int(cls_id)] == 'acne':
+                            acne_count += 1
+                            # Store bounding box as (x1, y1, x2, y2)
+                            acne_boxes.append(box.cpu().numpy().astype(int))
+                logger.info(f'YOLO detected {acne_count} acne spot(s).')
+
+            # ── Step 2: Create a "clean" image for ResNet ────────────────
+            # Blur out every acne region so ResNet classifies pure skin
+            # texture without acne spots confusing it
+            clean_img = img.copy()
+            if acne_boxes:
+                from PIL import ImageFilter
+                # Create a heavily blurred version of the entire image
+                blurred = img.filter(ImageFilter.GaussianBlur(radius=15))
+                for (x1, y1, x2, y2) in acne_boxes:
+                    # Paste the blurred patch over each acne region
+                    patch = blurred.crop((x1, y1, x2, y2))
+                    clean_img.paste(patch, (x1, y1, x2, y2))
+                logger.info(f'Masked {len(acne_boxes)} acne region(s) for clean skin analysis.')
+
+            # ── Step 3: ResNet classifies the CLEANED image ──────────────
+            output = face_model(transform(clean_img).unsqueeze(0))
+            probabilities = F.softmax(output, dim=1).squeeze()  # shape: [5]
+
+            # ── Step 4: Minor secondary adjustment from acne evidence ────
+            # This is a SMALL nudge, NOT the main factor.
+            # The main classification already happened on clean skin above.
+            # CLASS_NAMES = ['combination', 'dry', 'normal', 'oily', 'sensitive']
+            # Indices:        0               1      2         3       4
+            if acne_model is not None and acne_count > 0:
+                adjusted = probabilities.clone().detach()
+
+                if acne_count >= 3:
+                    # Noticeable acne presence → small boost to oily/sensitive
+                    adjusted[3] *= 1.08  # oily
+                    adjusted[4] *= 1.06  # sensitive
+                    adjusted[0] *= 1.04  # combination
+                elif acne_count >= 1:
+                    # Minimal acne → very slight nudge
+                    adjusted[3] *= 1.04  # oily
+                    adjusted[4] *= 1.03  # sensitive
+
+                # Re-normalize
+                adjusted = adjusted / adjusted.sum()
+                probabilities = adjusted
+
+            # ── Pick the final winner ────────────────────────────────────
+            confidence_val, predicted_idx = torch.max(probabilities, dim=0)
+            confidence_pct = round(confidence_val.item() * 100, 1)
+            skin_type = CLASS_NAMES[predicted_idx.item()]
 
             # Confidence threshold check
             if confidence_pct < 75.0:
@@ -129,6 +227,7 @@ def analyze_skin(request):
             return JsonResponse({
                 'skin_type': skin_type,
                 'confidence': confidence_pct,
+                'acne_detected': acne_count,
                 'products': products_list
             })
         except Exception as e:
