@@ -34,12 +34,14 @@
         /* ─── Header ─────────────────────────────────── */
         .profile-header {
             background: var(--surface); border-bottom: 1px solid var(--border);
-            padding: 24px 5%; display: flex; align-items: center; justify-content: space-between;
+            padding: 24px 5%; padding-right: 100px; display: flex; align-items: center; justify-content: space-between;
         }
+        body.rtl .profile-header { padding-left: 100px; padding-right: 5%; flex-direction: row-reverse; }
         .profile-header .brand { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 600; letter-spacing: 0.1em; color: var(--dark); display: flex; align-items: center; gap: 8px; }
         .brand-dot { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; }
         .back-link { font-size: 0.85rem; color: var(--muted); display: flex; align-items: center; gap: 4px; transition: 0.2s; }
         .back-link:hover { color: var(--dark); }
+        body.rtl .back-link { flex-direction: row-reverse; }
 
         /* ─── Layout ─────────────────────────────────── */
         .profile-container { max-width: 800px; margin: 40px auto; padding: 0 5%; }
@@ -142,10 +144,10 @@
     </style>
 </head>
 <body>
-
+{% include '_floating_menu.html' %}
 <div class="profile-header">
-    <a href="/" class="brand"><div class="brand-dot"></div> AI SkinCare Safety Analyzer</a>
-    <a href="/" class="back-link"><i class="material-icons-outlined" style="font-size:18px;">arrow_back</i> Back to Home</a>
+    <a href="/" class="brand"><div class="brand-dot"></div> <span id="prof-brand">AI SkinCare Safety Analyzer</span></a>
+    <a href="/" class="back-link"><i class="material-icons-outlined" style="font-size:18px;">arrow_back</i> <span id="prof-back">Back to Home</span></a>
 </div>
 
 {% if message %}
@@ -160,55 +162,55 @@
 
     <!-- 1. Account Info -->
     <div class="section-card">
-        <div class="section-title"><i class="material-icons-outlined">person</i> Account Information</div>
+        <div class="section-title"><i class="material-icons-outlined">person</i> <span id="prof-sec1">Account Information</span></div>
         <form method="POST">
             {% csrf_token %}
             <input type="hidden" name="action" value="update_info">
             <div class="form-row">
                 <div class="form-group">
-                    <label>Full Name</label>
-                    <input class="form-input" name="full_name" value="{{ request.user.get_full_name }}" placeholder="Your full name">
+                    <label id="prof-label-fname">Full Name</label>
+                    <input class="form-input" name="full_name" value="{{ request.user.get_full_name }}" placeholder="Your full name" id="prof-ph-fname">
                 </div>
                 <div class="form-group">
-                    <label>Username</label>
+                    <label id="prof-label-uname">Username</label>
                     <input class="form-input" value="{{ request.user.username }}" disabled>
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary"><i class="material-icons-outlined" style="font-size:16px;">save</i> Save Changes</button>
+            <button type="submit" class="btn btn-primary"><i class="material-icons-outlined" style="font-size:16px;">save</i> <span id="prof-btn-save1">Save Changes</span></button>
         </form>
     </div>
 
     <!-- 2. Skin Type -->
     <div class="section-card">
-        <div class="section-title"><i class="material-icons-outlined">spa</i> My Skin Type</div>
+        <div class="section-title"><i class="material-icons-outlined">spa</i> <span id="prof-sec2">My Skin Type</span></div>
         <form method="POST" id="skinTypeForm">
             {% csrf_token %}
             <input type="hidden" name="action" value="update_skin_type">
             <input type="hidden" name="skin_type" id="skinTypeInput" value="{{ profile.skin_type }}">
             <div class="skin-type-grid">
                 <div class="skin-type-option {% if profile.skin_type == 'oily' %}selected{% endif %}" onclick="selectSkinType('oily', this)">
-                    <span class="type-icon">💧</span> Oily
+                    <span class="type-icon">💧</span> <span id="prof-skin-oily">Oily</span>
                 </div>
                 <div class="skin-type-option {% if profile.skin_type == 'dry' %}selected{% endif %}" onclick="selectSkinType('dry', this)">
-                    <span class="type-icon">🏜️</span> Dry
+                    <span class="type-icon">🏜️</span> <span id="prof-skin-dry">Dry</span>
                 </div>
                 <div class="skin-type-option {% if profile.skin_type == 'normal' %}selected{% endif %}" onclick="selectSkinType('normal', this)">
-                    <span class="type-icon">✨</span> Normal
+                    <span class="type-icon">✨</span> <span id="prof-skin-normal">Normal</span>
                 </div>
                 <div class="skin-type-option {% if profile.skin_type == 'combination' %}selected{% endif %}" onclick="selectSkinType('combination', this)">
-                    <span class="type-icon">🔀</span> Combination
+                    <span class="type-icon">🔀</span> <span id="prof-skin-comb">Combination</span>
                 </div>
                 <div class="skin-type-option {% if profile.skin_type == 'sensitive' %}selected{% endif %}" onclick="selectSkinType('sensitive', this)">
-                    <span class="type-icon">🌸</span> Sensitive
+                    <span class="type-icon">🌸</span> <span id="prof-skin-sens">Sensitive</span>
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary"><i class="material-icons-outlined" style="font-size:16px;">save</i> Update Skin Type</button>
+            <button type="submit" class="btn btn-primary"><i class="material-icons-outlined" style="font-size:16px;">save</i> <span id="prof-btn-save2">Update Skin Type</span></button>
         </form>
     </div>
 
     <!-- 3. Favorite Products -->
     <div class="section-card">
-        <div class="section-title"><i class="material-icons-outlined">favorite</i> Favorite Products</div>
+        <div class="section-title"><i class="material-icons-outlined">favorite</i> <span id="prof-sec3">Favorite Products</span></div>
         {% if favorites %}
         <div class="fav-grid">
             {% for product in favorites %}
@@ -225,7 +227,7 @@
                         {% csrf_token %}
                         <input type="hidden" name="action" value="remove_favorite">
                         <input type="hidden" name="product_id" value="{{ product.id }}">
-                        <button type="submit" class="fav-remove"><i class="material-icons-outlined" style="font-size:14px;">close</i> Remove</button>
+                        <button type="submit" class="fav-remove"><i class="material-icons-outlined" style="font-size:14px;">close</i> <span class="prof-remove">Remove</span></button>
                     </form>
                 </div>
             </div>
@@ -234,44 +236,87 @@
         {% else %}
         <div class="empty-state">
             <i class="material-icons-outlined">favorite_border</i>
-            <p>No favorites yet. Browse the <a href="{% url 'catalog' %}" style="color:var(--primary); text-decoration: underline;">Catalog</a> to add products!</p>
+            <p id="prof-no-fav">No favorites yet. Browse the <a href="{% url 'catalog' %}" style="color:var(--primary); text-decoration: underline;">Catalog</a> to add products!</p>
         </div>
         {% endif %}
     </div>
 
     <!-- 4. Change Password -->
     <div class="section-card">
-        <div class="section-title"><i class="material-icons-outlined">lock</i> Change Password</div>
+        <div class="section-title"><i class="material-icons-outlined">lock</i> <span id="prof-sec4">Change Password</span></div>
         <form method="POST">
             {% csrf_token %}
             <input type="hidden" name="action" value="change_password">
             <div class="form-group">
-                <label>Current Password</label>
+                <label id="prof-label-curr">Current Password</label>
                 <input type="password" class="form-input" name="current_password" required>
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label>New Password</label>
+                    <label id="prof-label-new">New Password</label>
                     <input type="password" class="form-input" name="new_password" required minlength="6">
                 </div>
                 <div class="form-group">
-                    <label>Confirm New Password</label>
+                    <label id="prof-label-conf">Confirm New Password</label>
                     <input type="password" class="form-input" name="confirm_password" required minlength="6">
                 </div>
             </div>
-            <button type="submit" class="btn btn-outline"><i class="material-icons-outlined" style="font-size:16px;">vpn_key</i> Update Password</button>
+            <button type="submit" class="btn btn-outline"><i class="material-icons-outlined" style="font-size:16px;">vpn_key</i> <span id="prof-btn-save3">Update Password</span></button>
         </form>
     </div>
 
     <!-- 5. Sign Out -->
     <div class="section-card" style="text-align:center;">
         <button class="btn btn-danger" onclick="if(confirm('Are you sure you want to sign out?')){window.location.href='{% url 'logout' %}'}">
-            <i class="material-icons-outlined" style="font-size:16px;">logout</i> Sign Out
+            <i class="material-icons-outlined" style="font-size:16px;">logout</i> <span id="prof-btn-signout">Sign Out</span>
         </button>
     </div>
 </div>
 
 <script>
+    function applyLanguage(lang) {
+        const isRtl = (lang === 'ar');
+        if (isRtl) {
+            document.body.classList.add('rtl');
+            document.documentElement.setAttribute('dir', 'rtl');
+        } else {
+            document.body.classList.remove('rtl');
+            document.documentElement.setAttribute('dir', 'ltr');
+        }
+        
+        const setHtml = (id, text) => { const el = document.getElementById(id); if (el) el.innerHTML = text; };
+        
+        setHtml('prof-brand', isRtl ? 'مساعد العناية بالبشرة الذكي' : 'AI SkinCare Safety Analyzer');
+        setHtml('prof-back', isRtl ? 'العودة للرئيسية' : 'Back to Home');
+        
+        setHtml('prof-sec1', isRtl ? 'معلومات الحساب' : 'Account Information');
+        setHtml('prof-label-fname', isRtl ? 'الاسم الكامل' : 'Full Name');
+        setHtml('prof-label-uname', isRtl ? 'اسم المستخدم' : 'Username');
+        const fnameInput = document.getElementById('prof-ph-fname');
+        if(fnameInput) fnameInput.placeholder = isRtl ? 'الاسم الكامل' : 'Your full name';
+        setHtml('prof-btn-save1', isRtl ? 'حفظ التغييرات' : 'Save Changes');
+        
+        setHtml('prof-sec2', isRtl ? 'نوع بشرتي' : 'My Skin Type');
+        setHtml('prof-skin-oily', isRtl ? 'دهنية' : 'Oily');
+        setHtml('prof-skin-dry', isRtl ? 'جافة' : 'Dry');
+        setHtml('prof-skin-normal', isRtl ? 'عادية' : 'Normal');
+        setHtml('prof-skin-comb', isRtl ? 'مختلطة' : 'Combination');
+        setHtml('prof-skin-sens', isRtl ? 'حساسة' : 'Sensitive');
+        setHtml('prof-btn-save2', isRtl ? 'تحديث نوع البشرة' : 'Update Skin Type');
+        
+        setHtml('prof-sec3', isRtl ? 'المنتجات المفضلة' : 'Favorite Products');
+        document.querySelectorAll('.prof-remove').forEach(el => el.innerText = isRtl ? 'إزالة' : 'Remove');
+        setHtml('prof-no-fav', isRtl ? 'لا توجد مفضلة بعد. تصفحي <a href="{% url 'catalog' %}" style="color:var(--primary); text-decoration: underline;">الكتالوج</a> لإضافة منتجات!' : 'No favorites yet. Browse the <a href="{% url 'catalog' %}" style="color:var(--primary); text-decoration: underline;">Catalog</a> to add products!');
+        
+        setHtml('prof-sec4', isRtl ? 'تغيير كلمة المرور' : 'Change Password');
+        setHtml('prof-label-curr', isRtl ? 'كلمة المرور الحالية' : 'Current Password');
+        setHtml('prof-label-new', isRtl ? 'كلمة المرور الجديدة' : 'New Password');
+        setHtml('prof-label-conf', isRtl ? 'تأكيد كلمة المرور الجديدة' : 'Confirm New Password');
+        setHtml('prof-btn-save3', isRtl ? 'تحديث كلمة المرور' : 'Update Password');
+        
+        setHtml('prof-btn-signout', isRtl ? 'تسجيل خروج' : 'Sign Out');
+    }
+
     function selectSkinType(type, el) {
         document.querySelectorAll('.skin-type-option').forEach(o => o.classList.remove('selected'));
         el.classList.add('selected');

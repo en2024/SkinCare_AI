@@ -1,15 +1,18 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Analyzer | AI SkinCare Safety Analyzer</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
-    
+
     <style>
         /* colors */
         :root {
@@ -35,7 +38,7 @@
             --dark: var(--deep-brown);
             --muted: var(--text-muted);
             --border: rgba(107, 142, 124, 0.2);
-            
+
             --danger: #b84a4a;
             --warn: #c77b2b;
             --ok: #3d7a5c;
@@ -60,8 +63,16 @@
         }
 
         /* reset */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             font-family: 'Jost', sans-serif;
             background: var(--bg);
@@ -74,262 +85,700 @@
             flex-direction: column;
         }
 
-        .serif { font-family: 'Cormorant Garamond', serif; }
-        a { text-decoration: none; color: inherit; }
+        .serif {
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
 
         /* background animation */
         .bg-fluid {
-            position: fixed; inset: 0; z-index: -1;
+            position: fixed;
+            inset: 0;
+            z-index: -1;
             background: var(--bg);
             transition: 0.5s ease;
         }
+
         .bg-fluid::before,
         .bg-fluid::after {
-            content: ''; position: absolute; border-radius: 50%;
-            filter: blur(80px); opacity: 0.8;
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.8;
             animation: bgDrift 25s ease-in-out infinite alternate;
         }
+
         .bg-fluid::before {
-            top: -15%; left: -10%; width: 60vw; height: 60vw;
-            background: radial-gradient(circle, rgba(143,184,154,0.18) 0%, transparent 60%);
+            top: -15%;
+            left: -10%;
+            width: 60vw;
+            height: 60vw;
+            background: radial-gradient(circle, rgba(143, 184, 154, 0.18) 0%, transparent 60%);
         }
+
         .bg-fluid::after {
-            bottom: -10%; right: -15%; width: 50vw; height: 50vw;
-            background: radial-gradient(circle, rgba(232,180,184,0.18) 0%, transparent 60%);
+            bottom: -10%;
+            right: -15%;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, rgba(232, 180, 184, 0.18) 0%, transparent 60%);
             animation-delay: -10s;
         }
 
         @keyframes bgDrift {
-            0% { transform: scale(1) translate(0, 0) rotate(0deg); }
-            100% { transform: scale(1.1) translate(3vw, -2vh) rotate(5deg); }
+            0% {
+                transform: scale(1) translate(0, 0) rotate(0deg);
+            }
+
+            100% {
+                transform: scale(1.1) translate(3vw, -2vh) rotate(5deg);
+            }
         }
 
         /* navbar */
         .nav-wrap {
-            position: sticky; top: 0; z-index: 100;
+            position: sticky;
+            top: 0;
+            z-index: 100;
             background: linear-gradient(to bottom, var(--bg) 0%, transparent 100%);
         }
+
         .navbar {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 24px 5%; max-width: 1400px; margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 24px 5%;
+            padding-right: 100px;
+            max-width: 1400px;
+            margin: 0 auto;
         }
+
         .brand {
-            display: flex; align-items: center; gap: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
+
         .brand-dot {
-            width: 8px; height: 8px; background: var(--primary); border-radius: 50%;
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
         }
+
         .brand .serif {
-            font-size: 1.25rem; font-weight: 600; letter-spacing: 0.15em; color: var(--dark);
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            color: var(--dark);
         }
-        .links { display: flex; gap: 32px; }
+
+        .links {
+            display: flex;
+            gap: 32px;
+        }
+
         .links a {
-            font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.15em;
-            color: var(--muted); position: relative; transition: 0.3s;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--muted);
+            position: relative;
+            transition: 0.3s;
         }
-        .links a:hover, .links a.active { color: var(--dark); }
+
+        .links a:hover,
+        .links a.active {
+            color: var(--dark);
+        }
+
         .links a.active::after {
-            content: ''; position: absolute; bottom: -4px; left: 0; width: 100%; height: 1px; background: var(--dark);
-            transform-origin: left; animation: lineFade 0.4s ease;
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: var(--dark);
+            transform-origin: left;
+            animation: lineFade 0.4s ease;
         }
-        @keyframes lineFade { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+        @keyframes lineFade {
+            from {
+                transform: scaleX(0);
+            }
+
+            to {
+                transform: scaleX(1);
+            }
+        }
 
         /* main layout */
         .main-layout {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 6vw;
-            max-width: 1300px; margin: 40px auto 100px; padding: 0 5%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6vw;
+            max-width: 1300px;
+            margin: 40px auto 100px;
+            padding: 0 5%;
             align-items: flex-start;
             flex-grow: 1;
         }
 
         /* left section */
-        .text-section { animation: fadeRight 0.8s ease forwards; padding-top: 20px; }
-        .section-pill {
-            display: inline-block; padding: 6px 16px; border: 1px solid var(--border);
-            border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em;
-            color: var(--primary); margin-bottom: 24px; background: rgba(255,255,255,0.4);
+        .text-section {
+            animation: fadeRight 0.8s ease forwards;
+            padding-top: 20px;
         }
-        body.dark-mode .section-pill { background: rgba(0,0,0,0.2); }
+
+        .section-pill {
+            display: inline-block;
+            padding: 6px 16px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--primary);
+            margin-bottom: 24px;
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        body.dark-mode .section-pill {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
         .main-title {
-            font-size: clamp(2.8rem, 4vw, 4.2rem); font-weight: 400; line-height: 1.1; color: var(--dark);
+            font-size: clamp(2.8rem, 4vw, 4.2rem);
+            font-weight: 400;
+            line-height: 1.1;
+            color: var(--dark);
             margin-bottom: 20px;
         }
+
         .main-desc {
-            font-size: 1.1rem; color: var(--dark); line-height: 1.8; font-weight: 400; opacity: 0.85;
+            font-size: 1.1rem;
+            color: var(--dark);
+            line-height: 1.8;
+            font-weight: 400;
+            opacity: 0.85;
             max-width: 480px;
         }
 
         /* steps */
         .steps-container {
-            margin-top: 48px; display: flex; flex-direction: column; gap: 32px; position: relative;
+            margin-top: 48px;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            position: relative;
         }
+
         .steps-container::before {
-            content: ''; position: absolute; left: 20px; top: 10px; bottom: 10px; width: 1px;
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 10px;
+            bottom: 10px;
+            width: 1px;
             background: linear-gradient(to bottom, var(--border), transparent);
         }
-        .step-item {
-            display: flex; align-items: flex-start; gap: 20px; position: relative; z-index: 1; opacity: 0.5; transition: 0.3s;
-        }
-        .step-item.active, .step-item.done { opacity: 1; }
-        .step-dot {
-            width: 40px; height: 40px; border-radius: 50%;
-            background: var(--bg); border: 1px solid var(--border);
-            display: grid; place-items: center; font-size: 0.8rem; font-weight: 600; color: var(--muted);
-            transition: 0.3s; flex-shrink: 0;
-        }
-        .step-item.done .step-dot {
-            background: var(--surface); color: var(--primary); border-color: var(--primary);
-        }
-        .step-item.active .step-dot {
-            background: var(--dark); color: var(--bg); border-color: var(--dark);
-        }
-        .step-text h4 { font-size: 1.05rem; color: var(--dark); font-weight: 600; margin-bottom: 2px; transition: 0.3s; }
-        .step-text p { font-size: 0.9rem; color: var(--muted); font-weight: 300; margin: 0; transition: 0.3s; }
 
-        @keyframes fadeRight { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            position: relative;
+            z-index: 1;
+            opacity: 0.5;
+            transition: 0.3s;
+        }
+
+        .step-item.active,
+        .step-item.done {
+            opacity: 1;
+        }
+
+        .step-dot {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            display: grid;
+            place-items: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--muted);
+            transition: 0.3s;
+            flex-shrink: 0;
+        }
+
+        .step-item.done .step-dot {
+            background: var(--surface);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .step-item.active .step-dot {
+            background: var(--dark);
+            color: var(--bg);
+            border-color: var(--dark);
+        }
+
+        .step-text h4 {
+            font-size: 1.05rem;
+            color: var(--dark);
+            font-weight: 600;
+            margin-bottom: 2px;
+            transition: 0.3s;
+        }
+
+        .step-text p {
+            font-size: 0.9rem;
+            color: var(--muted);
+            font-weight: 300;
+            margin: 0;
+            transition: 0.3s;
+        }
+
+        @keyframes fadeRight {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
 
         /* right section */
-        .dashboard-section { animation: fadeLeft 0.8s ease forwards; }
-        @keyframes fadeLeft { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+        .dashboard-section {
+            animation: fadeLeft 0.8s ease forwards;
+        }
+
+        @keyframes fadeLeft {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
 
         .dashboard-card {
             background: var(--surface);
-            backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
             border: 1px solid rgba(255, 255, 255, 0.8);
             border-radius: 24px;
-            box-shadow: 0 40px 80px rgba(0,0,0,0.05);
-            padding: 40px; position: relative; overflow: hidden;
-            display: flex; flex-direction: column;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.05);
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
-        body.dark-mode .dashboard-card { border-color: rgba(255,255,255,0.05); box-shadow: 0 40px 100px rgba(0,0,0,0.3); }
+
+        body.dark-mode .dashboard-card {
+            border-color: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.3);
+        }
 
         /* tabs */
         .tabs-wrap {
-            display: flex; background: rgba(255,255,255,0.4);
-            border-radius: 12px; padding: 4px; border: 1px solid var(--border); margin-bottom: 32px; position: relative;
+            display: flex;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 12px;
+            padding: 4px;
+            border: 1px solid var(--border);
+            margin-bottom: 32px;
+            position: relative;
         }
-        body.dark-mode .tabs-wrap { background: rgba(0,0,0,0.2); }
+
+        body.dark-mode .tabs-wrap {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
         .tab-btn {
-            flex: 1; text-align: center; padding: 12px;
-            color: var(--muted); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
-            cursor: pointer; background: transparent; border: none; position: relative; z-index: 2; transition: 0.3s;
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            color: var(--muted);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            position: relative;
+            z-index: 2;
+            transition: 0.3s;
         }
-        .tab-btn.active { color: var(--dark); font-weight: 700; }
+
+        .tab-btn.active {
+            color: var(--dark);
+            font-weight: 700;
+        }
+
         .tab-indicator {
-            position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px);
-            background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            transition: transform 0.4s ease; z-index: 1;
+            position: absolute;
+            top: 4px;
+            bottom: 4px;
+            left: 4px;
+            width: calc(50% - 4px);
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: transform 0.4s ease;
+            z-index: 1;
         }
-        body.dark-mode .tab-indicator { background: var(--dark); box-shadow: none; }
-        #product-tab-btn.active ~ .tab-indicator { transform: translateX(100%); }
+
+        body.dark-mode .tab-indicator {
+            background: var(--dark);
+            box-shadow: none;
+        }
+
+        #product-tab-btn.active~.tab-indicator {
+            transform: translateX(100%);
+        }
 
         /* panes */
-        .pane { display: none; animation: subtleUp 0.4s ease forwards; }
-        .pane.active { display: block; }
-        @keyframes subtleUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .pane {
+            display: none;
+            animation: subtleUp 0.4s ease forwards;
+        }
+
+        .pane.active {
+            display: block;
+        }
+
+        @keyframes subtleUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
         /* forms */
         .input-label {
-            display: flex; align-items: center; gap: 8px;
-            font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em;
-            color: var(--dark); margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--dark);
+            margin-bottom: 12px;
         }
-        .input-label span { color: var(--primary); }
-        
+
+        .input-label span {
+            color: var(--primary);
+        }
+
         .upload-area {
-            border: 1px dashed var(--border); border-radius: 16px;
-            background: rgba(255,255,255,0.3); padding: 40px 24px; text-align: center;
-            transition: 0.3s; position: relative; overflow: hidden; cursor: pointer;
+            border: 1px dashed var(--border);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 40px 24px;
+            text-align: center;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
             margin-bottom: 24px;
         }
-        body.dark-mode .upload-area { background: rgba(0,0,0,0.1); }
-        .upload-area:hover {
-            border-style: solid; border-color: var(--primary); background: rgba(255,255,255,0.7);
-        }
-        .upload-icon { font-size: 2rem; margin-bottom: 8px; opacity: 0.7; color: var(--dark); }
-        .img-preview {
-            position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
-            opacity: 0; transition: 0.3s; border-radius: 16px; background: var(--bg); pointer-events: none; z-index: 5;
-        }
-        .img-preview.show { opacity: 1; }
-        .upload-area input { display: none; }
 
-        .type-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
-        .type-pill {
-            padding: 8px 16px; border: 1px solid var(--border); border-radius: 20px; background: transparent;
-            font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted);
-            transition: 0.3s; cursor: pointer; font-family: inherit;
+        body.dark-mode .upload-area {
+            background: rgba(0, 0, 0, 0.1);
         }
-        .type-pill:hover { border-color: var(--dark); color: var(--dark); }
-        .type-pill.active { background: var(--dark); color: var(--bg); border-color: var(--dark); }
+
+        .upload-area:hover {
+            border-style: solid;
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        .upload-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            opacity: 0.7;
+            color: var(--dark);
+        }
+
+        .img-preview {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: 0.3s;
+            border-radius: 16px;
+            background: var(--bg);
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .img-preview.show {
+            opacity: 1;
+        }
+
+        .upload-area input {
+            display: none;
+        }
+
+        .type-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .type-pill {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background: transparent;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+            transition: 0.3s;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .type-pill:hover {
+            border-color: var(--dark);
+            color: var(--dark);
+        }
+
+        .type-pill.active {
+            background: var(--dark);
+            color: var(--bg);
+            border-color: var(--dark);
+        }
 
         .text-input {
-            width: 100%; padding: 20px; border: 1px solid var(--border); border-radius: 16px;
-            background: rgba(255,255,255,0.4); color: var(--dark); font-family: inherit; font-size: 0.9rem;
-            resize: vertical; min-height: 120px; transition: 0.3s; outline: none; margin-bottom: 24px;
+            width: 100%;
+            padding: 20px;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.4);
+            color: var(--dark);
+            font-family: inherit;
+            font-size: 0.9rem;
+            resize: vertical;
+            min-height: 120px;
+            transition: 0.3s;
+            outline: none;
+            margin-bottom: 24px;
         }
-        body.dark-mode .text-input { background: rgba(0,0,0,0.1); }
-        .text-input:focus { border-color: var(--primary); background: rgba(255,255,255,0.8); }
+
+        body.dark-mode .text-input {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .text-input:focus {
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.8);
+        }
 
         .submit-btn {
-            width: 100%; padding: 18px; background: var(--primary); color: #fff;
-            font-family: inherit; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-            border: none; border-radius: 12px; cursor: pointer; transition: 0.3s;
+            width: 100%;
+            padding: 18px;
+            background: var(--primary);
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.3s;
         }
-        .submit-btn:hover { background: var(--dark); transform: translateY(-2px); }
+
+        .submit-btn:hover {
+            background: var(--dark);
+            transform: translateY(-2px);
+        }
 
         /* overlay */
         .overlay-scan {
-            position: absolute; inset: 0; z-index: 50;
-            background: rgba(245, 243, 239, 0.85); backdrop-filter: blur(10px);
-            display: none; align-items: center; justify-content: center; text-align: center;
-            border-radius: inherit; flex-direction: column;
+            position: absolute;
+            inset: 0;
+            z-index: 50;
+            background: rgba(245, 243, 239, 0.85);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border-radius: inherit;
+            flex-direction: column;
         }
-        body.dark-mode .overlay-scan { background: rgba(18, 21, 20, 0.85); }
+
+        body.dark-mode .overlay-scan {
+            background: rgba(18, 21, 20, 0.85);
+        }
+
         .spinner {
-            width: 48px; height: 48px; margin: 0 auto 20px; border-radius: 50%;
-            border: 2px solid transparent; border-top-color: var(--primary); border-right-color: var(--primary);
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-top-color: var(--primary);
+            border-right-color: var(--primary);
             animation: spin 1s linear infinite;
         }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
 
         /* results */
         .result-tag {
-            display: inline-block; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em;
-            color: var(--primary); border: 1px solid var(--border); padding: 4px 12px; border-radius: 20px; margin-bottom: 8px;
-        }
-        .result-box {
-            background: rgba(255,255,255,0.4); border: 1px solid var(--border);
-            padding: 20px; border-radius: 16px; font-size: 1rem; color: var(--muted); line-height: 1.6;
-            margin-bottom: 24px; text-align: center;
-        }
-        body.dark-mode .result-box { background: rgba(0,0,0,0.1); }
-        .score-circle {
-            width: 120px; height: 120px; margin: 0 auto 20px; border-radius: 50%; border: 1px solid var(--border);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            display: inline-block;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--primary);
+            border: 1px solid var(--border);
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 8px;
         }
 
-        .products-grid { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 12px; }
-        .product-card { flex: 0 0 150px; text-align: left; }
-        .product-img {
-            width: 100%; height: 150px; background: rgba(255,255,255,0.4); border: 1px solid var(--border);
-            border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; padding: 12px;
+        .result-box {
+            background: rgba(255, 255, 255, 0.4);
+            border: 1px solid var(--border);
+            padding: 20px;
+            border-radius: 16px;
+            font-size: 1rem;
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 24px;
+            text-align: center;
         }
-        .product-card img { max-width: 100%; max-height: 100%; mix-blend-mode: multiply; }
-        .product-card h4 { font-size: 0.9rem; color: var(--dark); font-weight: 500; margin-bottom: 6px; }
+
+        body.dark-mode .result-box {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .products-grid {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            padding-bottom: 12px;
+        }
+
+        .product-card {
+            flex: 0 0 150px;
+            text-align: left;
+        }
+
+        .product-img {
+            width: 100%;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.4);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+        }
+
+        .product-card img {
+            max-width: 100%;
+            max-height: 100%;
+            mix-blend-mode: multiply;
+        }
+
+        .product-card h4 {
+            font-size: 0.9rem;
+            color: var(--dark);
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
         .product-link {
-            font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--primary);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--primary);
             text-decoration: none;
         }
 
         .reset-btn {
-            width: 100%; padding: 16px; background: transparent; border: 1px solid var(--border); border-radius: 12px;
-            color: var(--dark); font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
-            cursor: pointer; transition: 0.3s; margin-top: 16px;
+            width: 100%;
+            padding: 16px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--dark);
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 16px;
         }
-        .reset-btn:hover { background: var(--surface); }
 
-        footer { text-align: center; padding: 20px 0; margin-top: auto; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--muted); width: 100%;}
+        .reset-btn:hover {
+            background: var(--surface);
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            margin-top: auto;
+            border-top: 1px solid var(--border);
+            font-size: 0.85rem;
+            color: var(--muted);
+            width: 100%;
+        }
 
         /* Expanding Settings FAB */
         .fab-container {
@@ -350,16 +799,16 @@
             background: var(--surface);
             border: none;
             cursor: pointer;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
             display: flex;
             align-items: center;
             justify-content: center;
             transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        #fab-main:hover { 
-            transform: scale(1.05) rotate(90deg); 
-            box-shadow: 0 10px 28px rgba(0,0,0,0.1);
+        #fab-main:hover {
+            transform: scale(1.05) rotate(90deg);
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.1);
         }
 
         .fab-menu {
@@ -385,7 +834,7 @@
             background: var(--surface);
             border: none;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -393,950 +842,1259 @@
             color: var(--dark);
         }
 
-        .fab-item:hover { 
-            transform: scale(1.1); 
-            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+        .fab-item:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
             background: var(--bg);
         }
 
         /* RTL Layout Improvements */
-        body.rtl { direction: rtl; text-align: right; }
-        body.rtl .fab-container { left: 32px; right: auto; }
-        body.rtl .step-item { flex-direction: row; gap: 20px; }
-        body.rtl .step-dot { margin-left: 0; margin-right: 0; }
-        body.rtl .steps-container::before { left: auto; right: 20px; }
-        body.rtl .upload-area { text-align: center; }
+        body.rtl {
+            direction: rtl;
+            text-align: right;
+        }
+
+        body.rtl .navbar {
+            padding-left: 100px;
+            padding-right: 5%;
+        }
+
+        body.rtl .fab-container {
+            left: 32px;
+            right: auto;
+        }
+
+        body.rtl .step-item {
+            flex-direction: row;
+            gap: 20px;
+        }
+
+        body.rtl .step-dot {
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        body.rtl .steps-container::before {
+            left: auto;
+            right: 20px;
+        }
+
+        body.rtl .upload-area {
+            text-align: center;
+        }
 
         /* ─── Photo Guidelines Alert ──────────────────────────────────── */
         .photo-guidelines {
-            background: linear-gradient(135deg, rgba(107,142,124,0.08), rgba(143,168,154,0.12));
-            border: 1px solid rgba(107,142,124,0.25);
+            background: linear-gradient(135deg, rgba(107, 142, 124, 0.08), rgba(143, 168, 154, 0.12));
+            border: 1px solid rgba(107, 142, 124, 0.25);
             border-radius: 14px;
             padding: 16px 20px;
             margin-bottom: 20px;
         }
+
         .photo-guidelines h4 {
-            font-size: 0.8rem; font-weight: 700; color: var(--primary);
-            margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
+
         .photo-guidelines ul {
-            list-style: none; padding: 0; margin: 0;
-            display: flex; flex-direction: column; gap: 6px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
+
         .photo-guidelines li {
-            font-size: 0.82rem; color: var(--dark); display: flex; align-items: center; gap: 8px;
+            font-size: 0.82rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
             opacity: 0.85;
         }
+
         .photo-guidelines li::before {
-            content: '✓'; font-size: 0.7rem; font-weight: 700;
-            color: var(--ok); flex-shrink: 0;
+            content: '✓';
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--ok);
+            flex-shrink: 0;
         }
 
         /* ─── Low Confidence Error ────────────────────────────────────── */
         .low-confidence-box {
-            background: linear-gradient(135deg, rgba(184,74,74,0.06), rgba(199,123,43,0.08));
-            border: 1px solid rgba(184,74,74,0.25);
+            background: linear-gradient(135deg, rgba(184, 74, 74, 0.06), rgba(199, 123, 43, 0.08));
+            border: 1px solid rgba(184, 74, 74, 0.25);
             border-radius: 14px;
-            padding: 24px; text-align: center;
+            padding: 24px;
+            text-align: center;
             margin-bottom: 20px;
             animation: subtleUp 0.4s ease;
         }
+
         .low-confidence-box .lc-icon {
-            font-size: 2.4rem; margin-bottom: 8px;
+            font-size: 2.4rem;
+            margin-bottom: 8px;
         }
+
         .low-confidence-box h4 {
-            font-size: 1.1rem; color: var(--danger); font-weight: 600; margin-bottom: 6px;
+            font-size: 1.1rem;
+            color: var(--danger);
+            font-weight: 600;
+            margin-bottom: 6px;
         }
+
         .low-confidence-box p {
-            font-size: 0.88rem; color: var(--muted); line-height: 1.6; margin-bottom: 16px;
+            font-size: 0.88rem;
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 16px;
         }
+
         .low-confidence-box .lc-score {
-            display: inline-block; background: rgba(184,74,74,0.12); padding: 4px 14px;
-            border-radius: 20px; font-size: 0.75rem; font-weight: 700; color: var(--danger);
+            display: inline-block;
+            background: rgba(184, 74, 74, 0.12);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--danger);
             margin-bottom: 12px;
         }
 
         /* ─── Confidence Badge ────────────────────────────────────────── */
         .confidence-badge {
-            display: inline-flex; align-items: center; gap: 6px;
-            background: rgba(61,122,92,0.1); padding: 5px 14px;
-            border-radius: 20px; font-size: 0.72rem; font-weight: 700;
-            color: var(--ok); text-transform: uppercase; letter-spacing: 0.05em;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(61, 122, 92, 0.1);
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--ok);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
             margin-top: 8px;
         }
+
         .confidence-badge .dot {
-            width: 6px; height: 6px; border-radius: 50%; background: var(--ok);
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--ok);
         }
 
         /* ─── Quiz Section ────────────────────────────────────────────── */
         .quiz-section {
-            margin-top: 24px; animation: subtleUp 0.4s ease;
+            margin-top: 24px;
+            animation: subtleUp 0.4s ease;
         }
+
         .quiz-section h3 {
-            font-size: 1.3rem; color: var(--dark); margin-bottom: 6px;
+            font-size: 1.3rem;
+            color: var(--dark);
+            margin-bottom: 6px;
         }
+
         .quiz-section .quiz-subtitle {
-            font-size: 0.88rem; color: var(--muted); margin-bottom: 24px; line-height: 1.6;
+            font-size: 0.88rem;
+            color: var(--muted);
+            margin-bottom: 24px;
+            line-height: 1.6;
         }
+
         .quiz-q {
-            margin-bottom: 22px; padding: 16px 20px;
-            background: rgba(255,255,255,0.4); border: 1px solid var(--border);
-            border-radius: 14px; transition: 0.3s;
+            margin-bottom: 22px;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.4);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            transition: 0.3s;
         }
-        body.dark-mode .quiz-q { background: rgba(0,0,0,0.1); }
+
+        body.dark-mode .quiz-q {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
         .quiz-q .q-label {
-            font-size: 0.88rem; font-weight: 600; color: var(--dark); margin-bottom: 12px;
-            display: flex; align-items: flex-start; gap: 8px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
         }
+
         .quiz-q .q-num {
-            font-size: 0.7rem; font-weight: 700; color: var(--primary);
-            background: rgba(107,142,124,0.12); padding: 2px 8px;
-            border-radius: 8px; flex-shrink: 0;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--primary);
+            background: rgba(107, 142, 124, 0.12);
+            padding: 2px 8px;
+            border-radius: 8px;
+            flex-shrink: 0;
         }
-        .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
         .quiz-option {
-            display: flex; align-items: center; gap: 10px;
-            padding: 10px 14px; border: 1px solid var(--border);
-            border-radius: 10px; cursor: pointer; transition: 0.25s;
-            font-size: 0.85rem; color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.25s;
+            font-size: 0.85rem;
+            color: var(--dark);
         }
-        .quiz-option:hover { border-color: var(--primary); background: rgba(107,142,124,0.04); }
+
+        .quiz-option:hover {
+            border-color: var(--primary);
+            background: rgba(107, 142, 124, 0.04);
+        }
+
         .quiz-option input[type='radio'] {
-            accent-color: var(--primary); width: 16px; height: 16px; flex-shrink: 0; cursor: pointer;
+            accent-color: var(--primary);
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            cursor: pointer;
         }
+
         .quiz-option.selected {
-            border-color: var(--primary); background: rgba(107,142,124,0.08);
+            border-color: var(--primary);
+            background: rgba(107, 142, 124, 0.08);
         }
 
         /* ─── Method Tag ──────────────────────────────────────────────── */
         .method-tag {
-            display: inline-block; font-size: 0.6rem; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 0.1em; padding: 3px 10px; border-radius: 12px; margin-top: 6px;
+            display: inline-block;
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 3px 10px;
+            border-radius: 12px;
+            margin-top: 6px;
         }
-        .method-tag.consensus { background: rgba(61,122,92,0.12); color: var(--ok); }
-        .method-tag.override { background: rgba(199,123,43,0.12); color: var(--warn); }
+
+        .method-tag.consensus {
+            background: rgba(61, 122, 92, 0.12);
+            color: var(--ok);
+        }
+
+        .method-tag.override {
+            background: rgba(199, 123, 43, 0.12);
+            color: var(--warn);
+        }
 
         /* ─── Hamburger Button ──────────────────────────────── */
         .hamburger {
             display: flex;
-            flex-direction: column; gap: 5px; cursor: pointer;
-            background: none; border: none; padding: 8px; z-index: 1001;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 8px;
+            z-index: 1001;
         }
+
         .hamburger span {
-            display: block; width: 22px; height: 2px;
-            background: var(--dark); border-radius: 2px;
+            display: block;
+            width: 22px;
+            height: 2px;
+            background: var(--dark);
+            border-radius: 2px;
             transition: 0.35s cubic-bezier(0.77, 0, 0.18, 1);
             transform-origin: center;
         }
-        .hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-        .hamburger.active span:nth-child(2) { opacity: 0; transform: scaleX(0); }
-        .hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        .hamburger.active span:nth-child(1) {
+            transform: translateY(7px) rotate(45deg);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+            transform: scaleX(0);
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: translateY(-7px) rotate(-45deg);
+        }
 
         /* ─── Sidebar Overlay ───────────────────────────────── */
         .sidebar-overlay {
-            position: fixed; inset: 0; z-index: 999;
-            background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
-            opacity: 0; visibility: hidden;
+            position: fixed;
+            inset: 0;
+            z-index: 999;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            visibility: hidden;
             transition: opacity 0.35s ease, visibility 0.35s ease;
         }
-        .sidebar-overlay.active { opacity: 1; visibility: visible; }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
 
         /* ─── Sidebar Panel ─────────────────────────────────── */
         .sidebar {
-            position: fixed; top: 0; right: -320px; z-index: 1000;
-            width: 300px; max-width: 85vw; height: 100vh;
+            position: fixed;
+            top: 0;
+            right: -320px;
+            z-index: 1000;
+            width: 300px;
+            max-width: 85vw;
+            height: 100vh;
             background: var(--surface);
             border-left: 1px solid var(--border);
-            box-shadow: -8px 0 32px rgba(0,0,0,0.1);
-            display: flex; flex-direction: column;
+            box-shadow: -8px 0 32px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
             padding: 28px 24px;
             transition: right 0.4s cubic-bezier(0.22, 1, 0.36, 1);
             overflow-y: auto;
         }
-        body.rtl .sidebar { right: auto; left: -320px; border-left: none; border-right: 1px solid var(--border); }
-        .sidebar.active { right: 0; }
-        body.rtl .sidebar.active { left: 0; right: auto; }
+
+        body.rtl .sidebar {
+            right: auto;
+            left: -320px;
+            border-left: none;
+            border-right: 1px solid var(--border);
+        }
+
+        .sidebar.active {
+            right: 0;
+        }
+
+        body.rtl .sidebar.active {
+            left: 0;
+            right: auto;
+        }
 
         .sidebar-header {
-            display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 28px; padding-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+            padding-bottom: 16px;
             border-bottom: 1px solid var(--border);
         }
-        .sidebar-header h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; color: var(--dark); }
-        .sidebar-close {
-            background: none; border: none; cursor: pointer;
-            font-size: 1.4rem; color: var(--muted); transition: 0.2s;
-        }
-        .sidebar-close:hover { color: var(--dark); transform: rotate(90deg); }
 
-        .sidebar-section { margin-bottom: 24px; }
-        .sidebar-section-title {
-            font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.2em;
-            color: var(--muted); font-weight: 600; margin-bottom: 12px;
+        .sidebar-header h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            color: var(--dark);
         }
+
+        .sidebar-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.4rem;
+            color: var(--muted);
+            transition: 0.2s;
+        }
+
+        .sidebar-close:hover {
+            color: var(--dark);
+            transform: rotate(90deg);
+        }
+
+        .sidebar-section {
+            margin-bottom: 24px;
+        }
+
+        .sidebar-section-title {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--muted);
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
         .sidebar-link {
-            display: flex; align-items: center; gap: 12px;
-            padding: 12px 14px; border-radius: 12px;
-            font-size: 0.9rem; font-weight: 500; color: var(--dark);
-            transition: 0.25s; cursor: pointer; border: none; background: none; width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--dark);
+            transition: 0.25s;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
             text-align: left;
         }
-        body.rtl .sidebar-link { text-align: right; }
-        .sidebar-link:hover { background: var(--beige-light); }
-        .sidebar-link.active-link { background: var(--beige-light); color: var(--primary); font-weight: 600; }
-        .sidebar-link .material-icons-outlined { font-size: 20px; color: var(--primary); }
-        .sidebar-divider { height: 1px; background: var(--border); margin: 8px 0; }
+
+        body.rtl .sidebar-link {
+            text-align: right;
+        }
+
+        .sidebar-link:hover {
+            background: var(--beige-light);
+        }
+
+        .sidebar-link.active-link {
+            background: var(--beige-light);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .sidebar-link .material-icons-outlined {
+            font-size: 20px;
+            color: var(--primary);
+        }
+
+        .sidebar-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 8px 0;
+        }
 
         @media (max-width: 900px) {
-            .main-layout { grid-template-columns: 1fr; margin-top: 20px; }
-            .steps-container { flex-direction: row; justify-content: center; }
-            .steps-container::before { top: 20px; left: 10%; right: 10%; width: auto; height: 1px; }
-            .step-item { flex-direction: column; align-items: center; text-align: center; }
-            .step-text p { display: none; }
-            .main-title { text-align: center; }
-            .main-desc { text-align: center; margin: 0 auto; }
-            .section-pill { display: block; margin: 0 auto 20px; width: max-content; }
-            .links { display: none; }
-            .hamburger { display: flex; }
+            .main-layout {
+                grid-template-columns: 1fr;
+                margin-top: 20px;
+            }
+
+            .steps-container {
+                flex-direction: row;
+                justify-content: center;
+            }
+
+            .steps-container::before {
+                top: 20px;
+                left: 10%;
+                right: 10%;
+                width: auto;
+                height: 1px;
+            }
+
+            .step-item {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .step-text p {
+                display: none;
+            }
+
+            .main-title {
+                text-align: center;
+            }
+
+            .main-desc {
+                text-align: center;
+                margin: 0 auto;
+            }
+
+            .section-pill {
+                display: block;
+                margin: 0 auto 20px;
+                width: max-content;
+            }
+
+            .links {
+                display: none;
+            }
+
+            .hamburger {
+                display: flex;
+            }
         }
     </style>
 </head>
+
 <body>
 
-<div class="bg-fluid"></div>
+    <div class="bg-fluid"></div>
 
-<div class="nav-wrap">
-    <nav class="navbar">
-        <a href="/" class="brand">
-            <div class="brand-dot"></div>
-            <span class="serif" id="nav-logo">AI SkinCare Safety Analyzer</span>
-        </a>
-        <div class="links">
-            <a href="/" id="link-home">Home</a>
-            <a href="{% url 'catalog' %}" id="link-catalog">Catalog</a>
-            <a href="{% url 'analyzer' %}" class="active" id="link-analyzer">Analyzer</a>
-            {% if request.user.is_staff %}
-            <a href="{% url 'admin_dashboard' %}">Admin Dashboard</a>
-            {% endif %}
-            {% if request.user.is_authenticated %}
-            <a href="#" onclick="if(confirm('Are you sure you want to sign out?')){window.location.href='{% url 'logout' %}'}">Sign Out</a>
-            {% else %}
-            <a href="{% url 'login' %}">Sign In</a>
-            {% endif %}
-        </div>
-    </nav>
-</div>
-
-{% include '_floating_menu.html' %}
-
-<main class="main-layout">
-    <div class="text-section">
-        <div class="section-pill" id="how-works-pill">How it works</div>
-        <h1 class="main-title serif" id="main-title">Discover your<br>Skin's true needs.</h1>
-        <p class="main-desc" id="main-desc">
-            Not sure about your skin type? Use <strong>Face Scan</strong> to let the AI find out. <br><br>
-            Already know it? Use <strong>Formula Check</strong> to see if a product is safe for you.
-        </p>
-        <div class="steps-container">
-            <div class="step-item active" id="st-1-wrap">
-                <div class="step-dot" id="st-1">1</div>
-                <div class="step-text">
-                    <h4 id="step1-title">Pick Skin Type</h4>
-                    <p id="st-1-sub">Select your skin type from the list.</p>
-                </div>
+    <div class="nav-wrap">
+        <nav class="navbar">
+            <a href="/" class="brand">
+                <div class="brand-dot"></div>
+                <span class="serif" id="nav-logo">AI SkinCare Safety Analyzer</span>
+            </a>
+            <div class="links">
+                <a href="/" id="link-home">Home</a>
+                <a href="{% url 'catalog' %}" id="link-catalog">Catalog</a>
+                <a href="{% url 'analyzer' %}" class="active" id="link-analyzer">Analyzer</a>
+                {% if request.user.is_staff %}
+                <a href="{% url 'admin_dashboard' %}">Admin Dashboard</a>
+                {% endif %}
             </div>
-            <div class="step-item" id="st-2-wrap">
-                <div class="step-dot" id="st-2">2</div>
-                <div class="step-text">
-                    <h4 id="step2-title">Snap Product</h4>
-                    <p id="step2-sub">Upload a photo of the ingredients.</p>
+        </nav>
+    </div>
+
+    {% include '_floating_menu.html' %}
+
+    <main class="main-layout">
+        <div class="text-section">
+            <div class="section-pill" id="how-works-pill">How it works</div>
+            <h1 class="main-title serif" id="main-title">Discover your<br>Skin's true needs.</h1>
+            <p class="main-desc" id="main-desc">
+                Not sure about your skin type? Use <strong>Face Scan</strong> to let the AI find out. <br><br>
+                Already know it? Use <strong>Formula Check</strong> to see if a product is safe for you.
+            </p>
+            <div class="steps-container">
+                <div class="step-item active" id="st-1-wrap">
+                    <div class="step-dot" id="st-1">1</div>
+                    <div class="step-text">
+                        <h4 id="step1-title">Pick Skin Type</h4>
+                        <p id="st-1-sub">Select your skin type from the list.</p>
+                    </div>
                 </div>
-            </div>
-            <div class="step-item" id="st-3-wrap">
-                <div class="step-dot" id="st-3">3</div>
-                <div class="step-text">
-                    <h4 id="step3-title">Check Safety</h4>
-                    <p id="step3-sub">See if the product is safe for you.</p>
+                <div class="step-item" id="st-2-wrap">
+                    <div class="step-dot" id="st-2">2</div>
+                    <div class="step-text">
+                        <h4 id="step2-title">Snap Product</h4>
+                        <p id="step2-sub">Upload a photo of the ingredients.</p>
+                    </div>
+                </div>
+                <div class="step-item" id="st-3-wrap">
+                    <div class="step-dot" id="st-3">3</div>
+                    <div class="step-text">
+                        <h4 id="step3-title">Check Safety</h4>
+                        <p id="step3-sub">See if the product is safe for you.</p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="dashboard-section">
-        <div class="dashboard-card" id="analyzer-card">
-            
-            <div class="overlay-scan" id="scan-overlay">
-                <div class="spinner"></div>
-                <h3 class="serif" id="loading-title" style="font-size:2rem; color:var(--dark);">Analyzing...</h3>
-                <p id="loading-desc" style="color:var(--muted); font-weight:300;">Our AI is reviewing your data</p>
-            </div>
+        <div class="dashboard-section">
+            <div class="dashboard-card" id="analyzer-card">
 
-            <div class="tabs-wrap">
-                <button type="button" class="tab-btn active" id="skin-tab-btn" onclick="switchTab('skin')">Face Scan</button>
-                <button type="button" class="tab-btn" id="product-tab-btn" onclick="switchTab('product')">Formula Check</button>
-                <div class="tab-indicator"></div>
-            </div>
-
-            <div class="pane active" id="pane-skin">
-                <!-- Photo Guidelines -->
-                <div class="photo-guidelines" id="photo-guidelines">
-                    <h4><span>📋</span> <span id="guidelines-title">For best results</span></h4>
-                    <ul>
-                        <li id="guide-1">Wash your face and wait 15 minutes</li>
-                        <li id="guide-2">Use natural daylight — no flash or filters</li>
-                        <li id="guide-3">Remove any makeup before the photo</li>
-                    </ul>
+                <div class="overlay-scan" id="scan-overlay">
+                    <div class="spinner"></div>
+                    <h3 class="serif" id="loading-title" style="font-size:2rem; color:var(--dark);">Analyzing...</h3>
+                    <p id="loading-desc" style="color:var(--muted); font-weight:300;">Our AI is reviewing your data</p>
                 </div>
 
-                <label class="input-label"><span id="l-01">01</span> <span id="skin-upload-label">Portrait Upload</span></label>
-                <div class="upload-area" id="skin-dz">
-                    <div class="upload-icon">⚲</div>
-                    <h3 class="serif" id="skin-dz-title" style="font-size:1.4rem; color:var(--dark);">Tap or drop photo here</h3>
-                    <p id="skin-dz-sub" style="font-size:0.85rem; color:var(--muted); margin-top:4px;">For best results, use natural lighting without makeup.</p>
-                    <img src="" class="img-preview" id="skin-img">
-                    <input type="file" id="skin-file" accept="image/*">
+                <div class="tabs-wrap">
+                    <button type="button" class="tab-btn active" id="skin-tab-btn" onclick="switchTab('skin')">Face
+                        Scan</button>
+                    <button type="button" class="tab-btn" id="product-tab-btn" onclick="switchTab('product')">Formula
+                        Check</button>
+                    <div class="tab-indicator"></div>
                 </div>
 
-                <!-- Low confidence error (hidden by default) -->
-                <div class="low-confidence-box" id="low-confidence-box" style="display:none;">
-                    <div class="lc-icon">📸</div>
-                    <div class="lc-score" id="lc-score-badge">Confidence: --</div>
-                    <h4 id="lc-title">Photo quality too low</h4>
-                    <p id="lc-desc">Please upload a clearer photo following the guidelines above for accurate results.</p>
-                </div>
-
-                <button type="button" class="submit-btn" id="skin-submit-btn" onclick="runSkinAnalysis()">Analyze My Skin</button>
-            </div>
-
-            <!-- Questionnaire Pane (shown after successful AI scan) -->
-            <div class="pane" id="pane-quiz">
-                <div id="ai-preview" style="text-align:center; margin-bottom: 20px;">
-                    <span class="result-tag" id="ai-preview-tag">AI Preliminary Result</span>
-                    <h2 class="serif" id="ai-preview-type" style="font-size:2.2rem; margin:6px 0; color:var(--dark);">--</h2>
-                    <div class="confidence-badge" id="ai-confidence-badge">
-                        <span class="dot"></span> <span id="ai-conf-text">Confidence: --</span>
+                <div class="pane active" id="pane-skin">
+                    <!-- Photo Guidelines -->
+                    <div class="photo-guidelines" id="photo-guidelines">
+                        <h4><span>📋</span> <span id="guidelines-title">For best results</span></h4>
+                        <ul>
+                            <li id="guide-1">Wash your face and wait 15 minutes</li>
+                            <li id="guide-2">Use natural daylight — no flash or filters</li>
+                            <li id="guide-3">Remove any makeup before the photo</li>
+                        </ul>
                     </div>
+
+                    <label class="input-label"><span id="l-01">01</span> <span id="skin-upload-label">Portrait
+                            Upload</span></label>
+                    <div class="upload-area" id="skin-dz">
+                        <div class="upload-icon">⚲</div>
+                        <h3 class="serif" id="skin-dz-title" style="font-size:1.4rem; color:var(--dark);">Tap or drop
+                            photo here</h3>
+                        <p id="skin-dz-sub" style="font-size:0.85rem; color:var(--muted); margin-top:4px;">For best
+                            results, use natural lighting without makeup.</p>
+                        <img src="" class="img-preview" id="skin-img">
+                        <input type="file" id="skin-file" accept="image/*">
+                    </div>
+
+                    <!-- Low confidence error (hidden by default) -->
+                    <div class="low-confidence-box" id="low-confidence-box" style="display:none;">
+                        <div class="lc-icon">📸</div>
+                        <div class="lc-score" id="lc-score-badge">Confidence: --</div>
+                        <h4 id="lc-title">Photo quality too low</h4>
+                        <p id="lc-desc">Please upload a clearer photo following the guidelines above for accurate
+                            results.</p>
+                    </div>
+
+                    <button type="button" class="submit-btn" id="skin-submit-btn" onclick="runSkinAnalysis()">Analyze My
+                        Skin</button>
                 </div>
 
-                <div class="quiz-section">
-                    <h3 class="serif" id="quiz-main-title">Confirm Your Skin Type</h3>
-                    <p class="quiz-subtitle" id="quiz-subtitle">Answer 3 quick questions so our hybrid system can give you a definitive result.</p>
-
-                    <div class="quiz-q">
-                        <div class="q-label"><span class="q-num">Q1</span> <span id="q1-label">How does your skin feel 30 minutes after washing?</span></div>
-                        <div class="quiz-options">
-                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
-                                <input type="radio" name="q1" value="a"> <span id="q1a">Shiny or greasy</span>
-                            </label>
-                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
-                                <input type="radio" name="q1" value="b"> <span id="q1b">Tight or flaky</span>
-                            </label>
-                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
-                                <input type="radio" name="q1" value="c"> <span id="q1c">Comfortable and balanced</span>
-                            </label>
-                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
-                                <input type="radio" name="q1" value="d"> <span id="q1d">Itches, burns, or turns red</span>
-                            </label>
-                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
-                                <input type="radio" name="q1" value="e"> <span id="q1e">Oily on forehead/nose, tight on cheeks</span>
-                            </label>
+                <!-- Questionnaire Pane (shown after successful AI scan) -->
+                <div class="pane" id="pane-quiz">
+                    <div id="ai-preview" style="text-align:center; margin-bottom: 20px;">
+                        <span class="result-tag" id="ai-preview-tag">AI Preliminary Result</span>
+                        <h2 class="serif" id="ai-preview-type"
+                            style="font-size:2.2rem; margin:6px 0; color:var(--dark);">--</h2>
+                        <div class="confidence-badge" id="ai-confidence-badge">
+                            <span class="dot"></span> <span id="ai-conf-text">Confidence: --</span>
                         </div>
                     </div>
 
-                    <div class="quiz-q">
-                        <div class="q-label"><span class="q-num">Q2</span> <span id="q2-label">How often does your face get shiny by midday?</span></div>
-                        <div class="quiz-options">
-                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
-                                <input type="radio" name="q2" value="a"> <span id="q2a">All over my face</span>
-                            </label>
-                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
-                                <input type="radio" name="q2" value="b"> <span id="q2b">Never — stays matte or dry</span>
-                            </label>
-                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
-                                <input type="radio" name="q2" value="c"> <span id="q2c">Rarely, mostly stays balanced</span>
-                            </label>
-                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
-                                <input type="radio" name="q2" value="d"> <span id="q2d">Shiny but also experience stinging/redness</span>
-                            </label>
-                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
-                                <input type="radio" name="q2" value="e"> <span id="q2e">Only in the T-zone (forehead, nose, chin)</span>
-                            </label>
+                    <div class="quiz-section">
+                        <h3 class="serif" id="quiz-main-title">Confirm Your Skin Type</h3>
+                        <p class="quiz-subtitle" id="quiz-subtitle">Answer 3 quick questions so our hybrid system can
+                            give you a definitive result.</p>
+
+                        <div class="quiz-q">
+                            <div class="q-label"><span class="q-num">Q1</span> <span id="q1-label">How does your skin
+                                    feel 30 minutes after washing?</span></div>
+                            <div class="quiz-options">
+                                <label class="quiz-option"
+                                    onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                    <input type="radio" name="q1" value="a"> <span id="q1a">Shiny or greasy</span>
+                                </label>
+                                <label class="quiz-option"
+                                    onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                    <input type="radio" name="q1" value="b"> <span id="q1b">Tight or flaky</span>
+                                </label>
+                                <label class="quiz-option"
+                                    onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                    <input type="radio" name="q1" value="c"> <span id="q1c">Comfortable and
+                                        balanced</span>
+                                </label>
+                                <label class="quiz-option"
+                                    onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                    <input type="radio" name="q1" value="d"> <span id="q1d">Itches, burns, or turns
+                                        red</span>
+                                </label>
+                                <label class="quiz-option"
+                                    onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                    <input type="radio" name="q1" value="e"> <span id="q1e">Oily on forehead/nose, tight
+                                        on cheeks</span>
+                                </label>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="quiz-q">
-                        <div class="q-label"><span class="q-num">Q3</span> <span id="q3-label">How does your skin react to new products?</span></div>
-                        <div class="quiz-options">
-                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
-                                <input type="radio" name="q3" value="a"> <span id="q3a">Tends to break out or get greasy</span>
-                            </label>
-                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
-                                <input type="radio" name="q3" value="b"> <span id="q3b">Can feel tight or doesn't absorb well</span>
-                            </label>
-                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
-                                <input type="radio" name="q3" value="c"> <span id="q3c">No noticeable reaction, usually fine</span>
-                            </label>
-                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
-                                <input type="radio" name="q3" value="d"> <span id="q3d">Frequently burns, stings, or turns red</span>
-                            </label>
-                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
-                                <input type="radio" name="q3" value="e"> <span id="q3e">Fine, but sometimes breaks out in T-zone</span>
-                            </label>
+                        <div class="quiz-q">
+                            <div class="q-label"><span class="q-num">Q2</span> <span id="q2-label">How often does your
+                                    face get shiny by midday?</span></div>
+                            <div class="quiz-options">
+                                <label class="quiz-option"
+                                    onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                    <input type="radio" name="q2" value="a"> <span id="q2a">All over my face</span>
+                                </label>
+                                <label class="quiz-option"
+                                    onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                    <input type="radio" name="q2" value="b"> <span id="q2b">Never — stays matte or
+                                        dry</span>
+                                </label>
+                                <label class="quiz-option"
+                                    onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                    <input type="radio" name="q2" value="c"> <span id="q2c">Rarely, mostly stays
+                                        balanced</span>
+                                </label>
+                                <label class="quiz-option"
+                                    onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                    <input type="radio" name="q2" value="d"> <span id="q2d">Shiny but also experience
+                                        stinging/redness</span>
+                                </label>
+                                <label class="quiz-option"
+                                    onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                    <input type="radio" name="q2" value="e"> <span id="q2e">Only in the T-zone
+                                        (forehead, nose, chin)</span>
+                                </label>
+                            </div>
                         </div>
+
+                        <div class="quiz-q">
+                            <div class="q-label"><span class="q-num">Q3</span> <span id="q3-label">How does your skin
+                                    react to new products?</span></div>
+                            <div class="quiz-options">
+                                <label class="quiz-option"
+                                    onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                    <input type="radio" name="q3" value="a"> <span id="q3a">Tends to break out or get
+                                        greasy</span>
+                                </label>
+                                <label class="quiz-option"
+                                    onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                    <input type="radio" name="q3" value="b"> <span id="q3b">Can feel tight or doesn't
+                                        absorb well</span>
+                                </label>
+                                <label class="quiz-option"
+                                    onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                    <input type="radio" name="q3" value="c"> <span id="q3c">No noticeable reaction,
+                                        usually fine</span>
+                                </label>
+                                <label class="quiz-option"
+                                    onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                    <input type="radio" name="q3" value="d"> <span id="q3d">Frequently burns, stings, or
+                                        turns red</span>
+                                </label>
+                                <label class="quiz-option"
+                                    onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                    <input type="radio" name="q3" value="e"> <span id="q3e">Fine, but sometimes breaks
+                                        out in T-zone</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="button" class="submit-btn" id="quiz-submit-btn" onclick="submitQuiz()">Get Final
+                            Result</button>
+                    </div>
+                </div>
+
+                <div class="pane" id="pane-product">
+                    <label class="input-label"><span id="l-01b">01</span> <span id="skin-pills-label">Profile
+                            Setup</span></label>
+                    <div class="type-pills" id="skin-pills">
+                        <button type="button" class="type-pill" data-type="oily"
+                            onclick="selectSkin(this, 'oily')">Oily</button>
+                        <button type="button" class="type-pill" data-type="dry"
+                            onclick="selectSkin(this, 'dry')">Dry</button>
+                        <button type="button" class="type-pill" data-type="normal"
+                            onclick="selectSkin(this, 'normal')">Normal</button>
+                        <button type="button" class="type-pill" data-type="sensitive"
+                            onclick="selectSkin(this, 'sensitive')">Sensitive</button>
+                        <button type="button" class="type-pill" data-type="combination"
+                            onclick="selectSkin(this, 'combination')">Combo</button>
                     </div>
 
-                    <button type="button" class="submit-btn" id="quiz-submit-btn" onclick="submitQuiz()">Get Final Result</button>
-                </div>
-            </div>
+                    <label class="input-label"><span id="l-02">02</span> <span id="prod-upload-label">Ingredient
+                            Data</span></label>
+                    <div class="upload-area" id="prod-dz" style="padding: 24px 20px;">
+                        <div class="upload-icon" style="font-size:1.2rem;">📷</div>
+                        <h3 class="serif" id="prod-dz-title" style="font-size:1.2rem; color:var(--dark);">Snap Product
+                            Label</h3>
+                        <img src="" class="img-preview" id="prod-img">
+                        <input type="file" id="prod-file" accept="image/*">
+                    </div>
+                    <textarea class="text-input" id="prod-text"
+                        placeholder="Or manually paste formula here..."></textarea>
 
-            <div class="pane" id="pane-product">
-                <label class="input-label"><span id="l-01b">01</span> <span id="skin-pills-label">Profile Setup</span></label>
-                <div class="type-pills" id="skin-pills">
-                    <button type="button" class="type-pill" data-type="oily" onclick="selectSkin(this, 'oily')">Oily</button>
-                    <button type="button" class="type-pill" data-type="dry" onclick="selectSkin(this, 'dry')">Dry</button>
-                    <button type="button" class="type-pill" data-type="normal" onclick="selectSkin(this, 'normal')">Normal</button>
-                    <button type="button" class="type-pill" data-type="sensitive" onclick="selectSkin(this, 'sensitive')">Sensitive</button>
-                    <button type="button" class="type-pill" data-type="combination" onclick="selectSkin(this, 'combination')">Combo</button>
+                    <button type="button" class="submit-btn" id="prod-submit-btn" onclick="runProductAnalysis()">Analyze
+                        My Skin</button>
                 </div>
-                
-                <label class="input-label"><span id="l-02">02</span> <span id="prod-upload-label">Ingredient Data</span></label>
-                <div class="upload-area" id="prod-dz" style="padding: 24px 20px;">
-                    <div class="upload-icon" style="font-size:1.2rem;">📷</div>
-                    <h3 class="serif" id="prod-dz-title" style="font-size:1.2rem; color:var(--dark);">Snap Product Label</h3>
-                    <img src="" class="img-preview" id="prod-img">
-                    <input type="file" id="prod-file" accept="image/*">
-                </div>
-                <textarea class="text-input" id="prod-text" placeholder="Or manually paste formula here..."></textarea>
-                
-                <button type="button" class="submit-btn" id="prod-submit-btn" onclick="runProductAnalysis()">Analyze My Skin</button>
-            </div>
 
-            <div class="pane" id="pane-result">
-                <div id="res-skin-content" style="display:none; text-align:center;">
-                    <span class="result-tag" id="bio-profile-tag">Biological Profile</span>
-                    <h2 class="serif" id="rs-skin-type" style="font-size:3rem; margin:8px 0; color:var(--dark);">--</h2>
-                    <div class="confidence-badge" id="rs-confidence-badge" style="margin-bottom:12px;">
-                        <span class="dot"></span> <span id="rs-conf-text">Confidence: --</span>
+                <div class="pane" id="pane-result">
+                    <div id="res-skin-content" style="display:none; text-align:center;">
+                        <span class="result-tag" id="bio-profile-tag">Biological Profile</span>
+                        <h2 class="serif" id="rs-skin-type" style="font-size:3rem; margin:8px 0; color:var(--dark);">--
+                        </h2>
+                        <div class="confidence-badge" id="rs-confidence-badge" style="margin-bottom:12px;">
+                            <span class="dot"></span> <span id="rs-conf-text">Confidence: --</span>
+                        </div>
+
+                        <div class="result-box" id="rs-skin-desc">--</div>
                     </div>
 
-                    <div class="result-box" id="rs-skin-desc">--</div>
-                </div>
-                
-                <div id="res-prod-content" style="display:none; text-align:center;">
-                    <div class="score-circle" id="rs-score-circ">
-                        <h2 class="serif" id="rs-prod-score" style="font-size:2.5rem; margin:0; color:var(--dark);">--</h2>
-                        <span id="safety-idx-label" style="font-size:0.6rem; text-transform:uppercase; font-weight:700; color:var(--muted);">Safety Index</span>
+                    <div id="res-prod-content" style="display:none; text-align:center;">
+                        <div class="score-circle" id="rs-score-circ">
+                            <h2 class="serif" id="rs-prod-score" style="font-size:2.5rem; margin:0; color:var(--dark);">
+                                --</h2>
+                            <span id="safety-idx-label"
+                                style="font-size:0.6rem; text-transform:uppercase; font-weight:700; color:var(--muted);">Safety
+                                Index</span>
+                        </div>
+                        <h3 class="serif" id="rs-prod-title"
+                            style="font-size:2rem; margin-top:20px; color:var(--dark);">--</h3>
+                        <div class="result-box" style="margin-top:16px;" id="rs-prod-desc">--</div>
                     </div>
-                    <h3 class="serif" id="rs-prod-title" style="font-size:2rem; margin-top:20px; color:var(--dark);">--</h3>
-                    <div class="result-box" style="margin-top:16px;" id="rs-prod-desc">--</div>
-                </div>
 
-                <div id="rs-recs-wrapper" style="display:none;">
-                    <div class="input-label" id="rs-recs-title" style="margin:30px 0 12px;"><span>✓</span> Curated Ritual</div>
-                    <div class="products-grid" id="rs-recs"></div>
-                </div>
+                    <div id="rs-recs-wrapper" style="display:none;">
+                        <div class="input-label" id="rs-recs-title" style="margin:30px 0 12px;"><span>✓</span> Curated
+                            Ritual</div>
+                        <div class="products-grid" id="rs-recs"></div>
+                    </div>
 
-                <button type="button" class="reset-btn" id="restart-btn" onclick="resetApp()">Restart Process</button>
+                    <button type="button" class="reset-btn" id="restart-btn" onclick="resetApp()">Restart
+                        Process</button>
+                </div>
             </div>
         </div>
-    </div>
-</main>
+    </main>
 
-<footer>
-    Final Year Project — Arab Open University · © 2026 Engy Nabil Safwat · AI SkinCare Safety Analyzer
-</footer>
+    <footer>
+        Final Year Project — Arab Open University · © 2026 Engy Nabil Safwat · AI SkinCare Safety Analyzer
+    </footer>
 
-<div class="fab-container">
-    <div class="fab-menu" id="fab-menu">
-        <button class="fab-item" onclick="toggleDarkMode()" title="Toggle Dark Mode">
-            <span id="fab-dm-icon" style="font-size: 15px;">🌙</span>
-        </button>
-        <button class="fab-item" onclick="toggleTextSize()" title="Accessibility">
-            <span style="font-size: 15px; font-family: 'Jost', sans-serif; font-weight: 600; color: #7b8d84;">A</span>
-        </button>
-        <button class="fab-item" onclick="toggleLanguage()" title="Switch Language (EN/AR)">
-            <span style="font-size: 16px;">🌐</span>
-        </button>
-    </div>
-    <button id="fab-main" onclick="toggleFab()" title="Settings">
-        <i class="material-icons-outlined" style="font-size: 22px; color: #5C7365;">settings</i>
-    </button>
-</div>
 
-<script>
-    // ─── Sidebar Toggle ─────────────────────────────────────────────────
-    function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar-menu');
-        const overlay = document.getElementById('sidebar-overlay');
-        const hamburger = document.getElementById('hamburger-btn');
-        sidebar.classList.toggle('active');
-        overlay.classList.toggle('active');
-        hamburger.classList.toggle('active');
-    }
 
-    // global UI logic
-    window.toggleFab = function() {
-        document.getElementById('fab-menu').classList.toggle('active');
-    };
-
-    let fontSizeState = 1;
-    function toggleTextSize() {
-        const sizes = ['14px', '16px', '18px'];
-        fontSizeState = (fontSizeState + 1) % 3;
-        document.documentElement.style.fontSize = sizes[fontSizeState];
-    }
-
-    window.toggleLanguage = function() {
-        document.body.classList.toggle('rtl');
-        updateTexts();
-    };
-
-    function updateTexts() {
-        const isRtl = document.body.classList.contains('rtl');
-        document.body.dir = isRtl ? "rtl" : "ltr";
-        
-        const logo = document.getElementById('nav-logo');
-        if(logo) logo.innerText = isRtl ? "مساعد العناية بالبشرة الذكي" : "AI SkinCare Safety Analyzer";
-        
-        const linkHome = document.getElementById('link-home');
-        const linkCatalog = document.getElementById('link-catalog');
-        const linkAnalyzer = document.getElementById('link-analyzer');
-        if(linkHome) linkHome.innerText = isRtl ? "الرئيسية" : "Home";
-        if(linkCatalog) linkCatalog.innerText = isRtl ? "الكتالوج" : "Catalog";
-        if(linkAnalyzer) linkAnalyzer.innerText = isRtl ? "المحلل" : "Analyzer";
-
-        const pill = document.getElementById('how-works-pill');
-        if(pill) pill.innerText = isRtl ? "كيف يعمل" : "How it works";
-        const mTitle = document.getElementById('main-title');
-        if(mTitle) mTitle.innerHTML = isRtl ? "اكتشفي<br>احتياجات بشرتك." : "Discover your<br>Skin's true needs.";
-        const mDesc = document.getElementById('main-desc');
-        if(mDesc) mDesc.innerHTML = isRtl ? "لست متأكدة من نوع بشرتك؟ استخدمي <strong>فحص الوجه</strong> ليدع الذكاء الاصطناعي يكتشف ذلك. <br><br> تعرفين نوعها بالفعل؟ استخدمي <strong>فحص التركيبة</strong> لمعرفة ما إذا كان المنتج آمناً لكِ." : "Not sure about your skin type? Use <strong>Face Scan</strong> to let the AI find out. <br><br> Already know it? Use <strong>Formula Check</strong> to see if a product is safe for you.";
-
-        const s1t = document.getElementById('step1-title');
-        const s1s = document.getElementById('st-1-sub');
-        const s2t = document.getElementById('step2-title');
-        const s2s = document.getElementById('step2-sub');
-        const s3t = document.getElementById('step3-title');
-        const s3s = document.getElementById('step3-sub');
-
-        if(currentMode === 'skin') {
-            if(s1t) s1t.innerText = isRtl ? "التقطي صورة" : "Snap a Photo";
-            if(s1s) s1s.innerText = isRtl ? "ارفعي صورة واضحة لوجهك." : "Upload a clear photo of your face.";
-            if(s2t) s2t.innerText = isRtl ? "تحليل الذكاء الاصطناعي" : "AI Analysis";
-            if(s2s) s2s.innerText = isRtl ? "نحلل بشرتك في لحظات." : "We analyze your skin instantly.";
-            if(s3t) s3t.innerText = isRtl ? "احصلي على النتائج" : "Get Results";
-            if(s3s) s3s.innerText = isRtl ? "اعثري على المنتجات المناسبة لكِ." : "Find products perfectly suited for you.";
-        } else {
-            if(s1t) s1t.innerText = isRtl ? "اختاري نوع البشرة" : "Pick Skin Type";
-            if(s1s) s1s.innerText = isRtl ? "اختاري نوع بشرتك من القائمة." : "Select your skin type from the list.";
-            if(s2t) s2t.innerText = isRtl ? "فحص المنتج" : "Scan Product";
-            if(s2s) s2s.innerText = isRtl ? "ارفعي صورة لمكونات المنتج." : "Upload a photo of the ingredients.";
-            if(s3t) s3t.innerText = isRtl ? "تحقق الأمان" : "Check Safety";
-            if(s3s) s3s.innerText = isRtl ? "تأكدي إذا كان المنتج آمناً لبشرتك." : "See if the product is safe for you.";
+    <script>
+        let fontSizeState = 1;
+        function toggleTextSize() {
+            const sizes = ['14px', '16px', '18px'];
+            fontSizeState = (fontSizeState + 1) % 3;
+            document.documentElement.style.fontSize = sizes[fontSizeState];
         }
 
-        const btnSkin = document.getElementById('skin-tab-btn');
-        const btnProd = document.getElementById('product-tab-btn');
-        if(btnSkin) btnSkin.innerText = isRtl ? "فحص الوجه" : "Face Scan";
-        if(btnProd) btnProd.innerText = isRtl ? "فحص التركيبة" : "Formula Check";
-
-        document.getElementById('l-01').innerText = isRtl ? "٠١" : "01";
-        document.getElementById('l-01b').innerText = isRtl ? "٠١" : "01";
-        document.getElementById('l-02').innerText = isRtl ? "٠٢" : "02";
-        
-        document.getElementById('skin-upload-label').innerText = isRtl ? "رفع الصورة الشخصية" : "Portrait Upload";
-        document.getElementById('skin-dz-title').innerText = isRtl ? "انقري أو اسحبي الصورة هنا" : "Tap or drop photo here";
-        document.getElementById('skin-submit-btn').innerText = isRtl ? "حللي بشرتي" : "Analyze My Skin";
-
-        // Photo guidelines
-        const gt = document.getElementById('guidelines-title');
-        if(gt) gt.innerText = isRtl ? "للحصول على أفضل النتائج" : "For best results";
-        const g1 = document.getElementById('guide-1');
-        if(g1) g1.innerText = isRtl ? "اغسلي وجهك وانتظري 15 دقيقة" : "Wash your face and wait 15 minutes";
-        const g2 = document.getElementById('guide-2');
-        if(g2) g2.innerText = isRtl ? "استخدمي إضاءة طبيعية — بدون فلاش أو فلاتر" : "Use natural daylight — no flash or filters";
-        const g3 = document.getElementById('guide-3');
-        if(g3) g3.innerText = isRtl ? "أزيلي المكياج قبل التصوير" : "Remove any makeup before the photo";
-
-        // Low confidence
-        const lcTitle = document.getElementById('lc-title');
-        if(lcTitle) lcTitle.innerText = isRtl ? "جودة الصورة منخفضة" : "Photo quality too low";
-        const lcDesc = document.getElementById('lc-desc');
-        if(lcDesc) lcDesc.innerText = isRtl ? "يرجى رفع صورة أوضح مع اتباع الإرشادات أعلاه." : "Please upload a clearer photo following the guidelines above for accurate results.";
-
-        // Quiz
-        const qmt = document.getElementById('quiz-main-title');
-        if(qmt) qmt.innerText = isRtl ? "أكدي نوع بشرتك" : "Confirm Your Skin Type";
-        const qs = document.getElementById('quiz-subtitle');
-        if(qs) qs.innerText = isRtl ? "أجيبي على 3 أسئلة سريعة ليعطيك نظامنا الهجين نتيجة نهائية." : "Answer 3 quick questions so our hybrid system can give you a definitive result.";
-        const q1l = document.getElementById('q1-label');
-        if(q1l) q1l.innerText = isRtl ? "كيف تشعرين ببشرتك بعد 30 دقيقة من الغسل؟" : "How does your skin feel 30 minutes after washing?";
-        if(document.getElementById('q1a')) document.getElementById('q1a').innerText = isRtl ? "لامعة أو دهنية" : "Shiny or greasy";
-        if(document.getElementById('q1b')) document.getElementById('q1b').innerText = isRtl ? "مشدودة أو متقشرة" : "Tight or flaky";
-        if(document.getElementById('q1c')) document.getElementById('q1c').innerText = isRtl ? "مريحة ومتوازنة" : "Comfortable and balanced";
-        if(document.getElementById('q1d')) document.getElementById('q1d').innerText = isRtl ? "تسبب حكة، حرقان، أو احمرار" : "Itches, burns, or turns red";
-        if(document.getElementById('q1e')) document.getElementById('q1e').innerText = isRtl ? "دهنية على الجبهة/الأنف، مشدودة على الخدين" : "Oily on forehead/nose, tight on cheeks";
-
-        const q2l = document.getElementById('q2-label');
-        if(q2l) q2l.innerText = isRtl ? "كم مرة يصبح وجهك لامعاً بحلول الظهيرة؟" : "How often does your face get shiny by midday?";
-        if(document.getElementById('q2a')) document.getElementById('q2a').innerText = isRtl ? "في جميع أنحاء وجهي" : "All over my face";
-        if(document.getElementById('q2b')) document.getElementById('q2b').innerText = isRtl ? "أبداً — يبقى غير لامع أو جاف" : "Never — stays matte or dry";
-        if(document.getElementById('q2c')) document.getElementById('q2c').innerText = isRtl ? "نادراً، غالباً يبقى متوازناً" : "Rarely, mostly stays balanced";
-        if(document.getElementById('q2d')) document.getElementById('q2d').innerText = isRtl ? "لامع ولكن مع إحساس بلسع/احمرار" : "Shiny but also experience stinging/redness";
-        if(document.getElementById('q2e')) document.getElementById('q2e').innerText = isRtl ? "فقط في منطقة T (الجبهة، الأنف، الذقن)" : "Only in the T-zone (forehead, nose, chin)";
-
-        const q3l = document.getElementById('q3-label');
-        if(q3l) q3l.innerText = isRtl ? "كيف تتفاعل بشرتك مع المنتجات الجديدة؟" : "How does your skin react to new products?";
-        if(document.getElementById('q3a')) document.getElementById('q3a').innerText = isRtl ? "تميل لظهور حبوب أو تصبح دهنية" : "Tends to break out or get greasy";
-        if(document.getElementById('q3b')) document.getElementById('q3b').innerText = isRtl ? "قد تشعرين بشد أو لا تمتصه جيداً" : "Can feel tight or doesn't absorb well";
-        if(document.getElementById('q3c')) document.getElementById('q3c').innerText = isRtl ? "لا تفاعل ملحوظ، عادة ما تكون بخير" : "No noticeable reaction, usually fine";
-        if(document.getElementById('q3d')) document.getElementById('q3d').innerText = isRtl ? "غالباً ما تحترق، تلسع، أو تحمر" : "Frequently burns, stings, or turns red";
-        if(document.getElementById('q3e')) document.getElementById('q3e').innerText = isRtl ? "جيدة، لكن أحياناً تظهر حبوب في منطقة T" : "Fine, but sometimes breaks out in T-zone";
-
-        const qsb = document.getElementById('quiz-submit-btn');
-        if(qsb) qsb.innerText = isRtl ? "احصلي على النتيجة النهائية" : "Get Final Result";
-
-        document.getElementById('skin-pills-label').innerText = isRtl ? "إعداد الملف الشخصي" : "Profile Setup";
-        const pills = document.querySelectorAll('.type-pill');
-        if(pills.length >= 4) {
-            pills[0].innerText = isRtl ? "دهنية" : "Oily";
-            pills[1].innerText = isRtl ? "جافة" : "Dry";
-            pills[2].innerText = isRtl ? "عادية" : "Normal";
-            pills[3].innerText = isRtl ? "حساسة" : "Sensitive";
+        function applyLanguage(lang) {
+            const isRtl = (lang === 'ar');
+            if (isRtl) {
+                document.body.classList.add('rtl');
+                document.documentElement.setAttribute('dir', 'rtl');
+            } else {
+                document.body.classList.remove('rtl');
+                document.documentElement.setAttribute('dir', 'ltr');
+            }
+            updateTexts();
         }
-        document.getElementById('prod-upload-label').innerText = isRtl ? "بيانات المكونات" : "Ingredient Data";
-        document.getElementById('prod-dz-title').innerText = isRtl ? "التقطي ملصق المنتج" : "Snap Product Label";
-        document.getElementById('prod-text').placeholder = isRtl ? "أو الصقي المكونات يدوياً هنا..." : "Or manually paste formula here...";
-        document.getElementById('prod-submit-btn').innerText = isRtl ? "حللي بشرتي" : "Analyze My Skin";
 
-        document.getElementById('loading-title').innerText = isRtl ? "جاري التحليل..." : "Analyzing...";
-        document.getElementById('loading-desc').innerText = isRtl ? "الذكاء الاصطناعي يقوم بمراجعة بياناتك" : "Our AI is reviewing your data";
+        function updateTexts() {
+            const isRtl = document.body.classList.contains('rtl');
+            document.body.dir = isRtl ? "rtl" : "ltr";
 
-        document.getElementById('bio-profile-tag').innerText = isRtl ? "الملف الحيوي" : "Biological Profile";
-        document.getElementById('safety-idx-label').innerText = isRtl ? "مؤشر الأمان" : "Safety Index";
-        document.getElementById('restart-btn').innerText = isRtl ? "إعادة البدء" : "Restart Process";
-        
-        const recLabel = document.getElementById('rs-recs-title');
-        if(recLabel) recLabel.innerHTML = isRtl ? "<span>✓</span> روتين مقترح لك" : "<span>✓</span> Recommended Products";
-    }
+            const logo = document.getElementById('nav-logo');
+            if (logo) logo.innerText = isRtl ? "مساعد العناية بالبشرة الذكي" : "AI SkinCare Safety Analyzer";
 
-    function toggleDarkMode() {
-        document.body.classList.toggle("dark-mode");
-        const isDark = document.body.classList.contains("dark-mode");
-        const icon = document.getElementById("fab-dm-icon");
-        if(icon) icon.innerText = isDark ? "☀️" : "🌙";
-        localStorage.setItem("darkMode", isDark ? "on" : "off");
-    }
+            const linkHome = document.getElementById('link-home');
+            const linkCatalog = document.getElementById('link-catalog');
+            const linkAnalyzer = document.getElementById('link-analyzer');
+            if (linkHome) linkHome.innerText = isRtl ? "الرئيسية" : "Home";
+            if (linkCatalog) linkCatalog.innerText = isRtl ? "الكتالوج" : "Catalog";
+            if (linkAnalyzer) linkAnalyzer.innerText = isRtl ? "المحلل" : "Analyzer";
 
-    if (localStorage.getItem("darkMode") === "on") {
-        document.body.classList.add("dark-mode");
-        const icon = document.getElementById("fab-dm-icon");
-        if(icon) icon.innerText = "☀️";
-    }
+            const pill = document.getElementById('how-works-pill');
+            if (pill) pill.innerText = isRtl ? "كيف يعمل" : "How it works";
+            const mTitle = document.getElementById('main-title');
+            if (mTitle) mTitle.innerHTML = isRtl ? "اكتشفي<br>احتياجات بشرتك." : "Discover your<br>Skin's true needs.";
+            const mDesc = document.getElementById('main-desc');
+            if (mDesc) mDesc.innerHTML = isRtl ? "لست متأكدة من نوع بشرتك؟ استخدمي <strong>فحص الوجه</strong> ليدع الذكاء الاصطناعي يكتشف ذلك. <br><br> تعرفين نوعها بالفعل؟ استخدمي <strong>فحص التركيبة</strong> لمعرفة ما إذا كان المنتج آمناً لكِ." : "Not sure about your skin type? Use <strong>Face Scan</strong> to let the AI find out. <br><br> Already know it? Use <strong>Formula Check</strong> to see if a product is safe for you.";
 
-    let currentMode = 'skin';
-    function switchTab(mode) {
-        currentMode = mode;
-        document.getElementById('skin-tab-btn').classList.remove('active');
-        document.getElementById('product-tab-btn').classList.remove('active');
-        document.getElementById(`${mode}-tab-btn`).classList.add('active');
-        document.querySelectorAll('.pane').forEach(el => el.classList.remove('active'));
-        document.getElementById(`pane-${mode}`).classList.add('active');
-        updateTexts();
-        resetProgress();
-    }
+            const s1t = document.getElementById('step1-title');
+            const s1s = document.getElementById('st-1-sub');
+            const s2t = document.getElementById('step2-title');
+            const s2s = document.getElementById('step2-sub');
+            const s3t = document.getElementById('step3-title');
+            const s3s = document.getElementById('step3-sub');
 
-    function setProgress(step) {
-        for(let i=1; i<=3; i++) {
-            let wrap = document.getElementById(`st-${i}-wrap`);
-            if(!wrap) continue;
-            wrap.className = 'step-item';
-            if(i < step) wrap.classList.add('done');
-            else if(i === step) wrap.classList.add('active');
+            if (currentMode === 'skin') {
+                if (s1t) s1t.innerText = isRtl ? "التقطي صورة" : "Snap a Photo";
+                if (s1s) s1s.innerText = isRtl ? "ارفعي صورة واضحة لوجهك." : "Upload a clear photo of your face.";
+                if (s2t) s2t.innerText = isRtl ? "تحليل الذكاء الاصطناعي" : "AI Analysis";
+                if (s2s) s2s.innerText = isRtl ? "نحلل بشرتك في لحظات." : "We analyze your skin instantly.";
+                if (s3t) s3t.innerText = isRtl ? "احصلي على النتائج" : "Get Results";
+                if (s3s) s3s.innerText = isRtl ? "اعثري على المنتجات المناسبة لكِ." : "Find products perfectly suited for you.";
+            } else {
+                if (s1t) s1t.innerText = isRtl ? "اختاري نوع البشرة" : "Pick Skin Type";
+                if (s1s) s1s.innerText = isRtl ? "اختاري نوع بشرتك من القائمة." : "Select your skin type from the list.";
+                if (s2t) s2t.innerText = isRtl ? "فحص المنتج" : "Scan Product";
+                if (s2s) s2s.innerText = isRtl ? "ارفعي صورة لمكونات المنتج." : "Upload a photo of the ingredients.";
+                if (s3t) s3t.innerText = isRtl ? "تحقق الأمان" : "Check Safety";
+                if (s3s) s3s.innerText = isRtl ? "تأكدي إذا كان المنتج آمناً لبشرتك." : "See if the product is safe for you.";
+            }
+
+            const btnSkin = document.getElementById('skin-tab-btn');
+            const btnProd = document.getElementById('product-tab-btn');
+            if (btnSkin) btnSkin.innerText = isRtl ? "فحص الوجه" : "Face Scan";
+            if (btnProd) btnProd.innerText = isRtl ? "فحص التركيبة" : "Formula Check";
+
+            document.getElementById('l-01').innerText = isRtl ? "٠١" : "01";
+            document.getElementById('l-01b').innerText = isRtl ? "٠١" : "01";
+            document.getElementById('l-02').innerText = isRtl ? "٠٢" : "02";
+
+            document.getElementById('skin-upload-label').innerText = isRtl ? "رفع الصورة الشخصية" : "Portrait Upload";
+            document.getElementById('skin-dz-title').innerText = isRtl ? "انقري أو اسحبي الصورة هنا" : "Tap or drop photo here";
+            document.getElementById('skin-submit-btn').innerText = isRtl ? "حللي بشرتي" : "Analyze My Skin";
+
+            // Photo guidelines
+            const gt = document.getElementById('guidelines-title');
+            if (gt) gt.innerText = isRtl ? "للحصول على أفضل النتائج" : "For best results";
+            const g1 = document.getElementById('guide-1');
+            if (g1) g1.innerText = isRtl ? "اغسلي وجهك وانتظري 15 دقيقة" : "Wash your face and wait 15 minutes";
+            const g2 = document.getElementById('guide-2');
+            if (g2) g2.innerText = isRtl ? "استخدمي إضاءة طبيعية — بدون فلاش أو فلاتر" : "Use natural daylight — no flash or filters";
+            const g3 = document.getElementById('guide-3');
+            if (g3) g3.innerText = isRtl ? "أزيلي المكياج قبل التصوير" : "Remove any makeup before the photo";
+
+            // Low confidence
+            const lcTitle = document.getElementById('lc-title');
+            if (lcTitle) lcTitle.innerText = isRtl ? "جودة الصورة منخفضة" : "Photo quality too low";
+            const lcDesc = document.getElementById('lc-desc');
+            if (lcDesc) lcDesc.innerText = isRtl ? "يرجى رفع صورة أوضح مع اتباع الإرشادات أعلاه." : "Please upload a clearer photo following the guidelines above for accurate results.";
+
+            // Quiz
+            const qmt = document.getElementById('quiz-main-title');
+            if (qmt) qmt.innerText = isRtl ? "أكدي نوع بشرتك" : "Confirm Your Skin Type";
+            const qs = document.getElementById('quiz-subtitle');
+            if (qs) qs.innerText = isRtl ? "أجيبي على 3 أسئلة سريعة ليعطيك نظامنا الهجين نتيجة نهائية." : "Answer 3 quick questions so our hybrid system can give you a definitive result.";
+            const q1l = document.getElementById('q1-label');
+            if (q1l) q1l.innerText = isRtl ? "كيف تشعرين ببشرتك بعد 30 دقيقة من الغسل؟" : "How does your skin feel 30 minutes after washing?";
+            if (document.getElementById('q1a')) document.getElementById('q1a').innerText = isRtl ? "لامعة أو دهنية" : "Shiny or greasy";
+            if (document.getElementById('q1b')) document.getElementById('q1b').innerText = isRtl ? "مشدودة أو متقشرة" : "Tight or flaky";
+            if (document.getElementById('q1c')) document.getElementById('q1c').innerText = isRtl ? "مريحة ومتوازنة" : "Comfortable and balanced";
+            if (document.getElementById('q1d')) document.getElementById('q1d').innerText = isRtl ? "تسبب حكة، حرقان، أو احمرار" : "Itches, burns, or turns red";
+            if (document.getElementById('q1e')) document.getElementById('q1e').innerText = isRtl ? "دهنية على الجبهة/الأنف، مشدودة على الخدين" : "Oily on forehead/nose, tight on cheeks";
+
+            const q2l = document.getElementById('q2-label');
+            if (q2l) q2l.innerText = isRtl ? "كم مرة يصبح وجهك لامعاً بحلول الظهيرة؟" : "How often does your face get shiny by midday?";
+            if (document.getElementById('q2a')) document.getElementById('q2a').innerText = isRtl ? "في جميع أنحاء وجهي" : "All over my face";
+            if (document.getElementById('q2b')) document.getElementById('q2b').innerText = isRtl ? "أبداً — يبقى غير لامع أو جاف" : "Never — stays matte or dry";
+            if (document.getElementById('q2c')) document.getElementById('q2c').innerText = isRtl ? "نادراً، غالباً يبقى متوازناً" : "Rarely, mostly stays balanced";
+            if (document.getElementById('q2d')) document.getElementById('q2d').innerText = isRtl ? "لامع ولكن مع إحساس بلسع/احمرار" : "Shiny but also experience stinging/redness";
+            if (document.getElementById('q2e')) document.getElementById('q2e').innerText = isRtl ? "فقط في منطقة T (الجبهة، الأنف، الذقن)" : "Only in the T-zone (forehead, nose, chin)";
+
+            const q3l = document.getElementById('q3-label');
+            if (q3l) q3l.innerText = isRtl ? "كيف تتفاعل بشرتك مع المنتجات الجديدة؟" : "How does your skin react to new products?";
+            if (document.getElementById('q3a')) document.getElementById('q3a').innerText = isRtl ? "تميل لظهور حبوب أو تصبح دهنية" : "Tends to break out or get greasy";
+            if (document.getElementById('q3b')) document.getElementById('q3b').innerText = isRtl ? "قد تشعرين بشد أو لا تمتصه جيداً" : "Can feel tight or doesn't absorb well";
+            if (document.getElementById('q3c')) document.getElementById('q3c').innerText = isRtl ? "لا تفاعل ملحوظ، عادة ما تكون بخير" : "No noticeable reaction, usually fine";
+            if (document.getElementById('q3d')) document.getElementById('q3d').innerText = isRtl ? "غالباً ما تحترق، تلسع، أو تحمر" : "Frequently burns, stings, or turns red";
+            if (document.getElementById('q3e')) document.getElementById('q3e').innerText = isRtl ? "جيدة، لكن أحياناً تظهر حبوب في منطقة T" : "Fine, but sometimes breaks out in T-zone";
+
+            const qsb = document.getElementById('quiz-submit-btn');
+            if (qsb) qsb.innerText = isRtl ? "احصلي على النتيجة النهائية" : "Get Final Result";
+
+            document.getElementById('skin-pills-label').innerText = isRtl ? "إعداد الملف الشخصي" : "Profile Setup";
+            const pills = document.querySelectorAll('.type-pill');
+            if (pills.length >= 4) {
+                pills[0].innerText = isRtl ? "دهنية" : "Oily";
+                pills[1].innerText = isRtl ? "جافة" : "Dry";
+                pills[2].innerText = isRtl ? "عادية" : "Normal";
+                pills[3].innerText = isRtl ? "حساسة" : "Sensitive";
+            }
+            document.getElementById('prod-upload-label').innerText = isRtl ? "بيانات المكونات" : "Ingredient Data";
+            document.getElementById('prod-dz-title').innerText = isRtl ? "التقطي ملصق المنتج" : "Snap Product Label";
+            document.getElementById('prod-text').placeholder = isRtl ? "أو الصقي المكونات يدوياً هنا..." : "Or manually paste formula here...";
+            document.getElementById('prod-submit-btn').innerText = isRtl ? "حللي بشرتي" : "Analyze My Skin";
+
+            document.getElementById('loading-title').innerText = isRtl ? "جاري التحليل..." : "Analyzing...";
+            document.getElementById('loading-desc').innerText = isRtl ? "الذكاء الاصطناعي يقوم بمراجعة بياناتك" : "Our AI is reviewing your data";
+
+            document.getElementById('bio-profile-tag').innerText = isRtl ? "الملف الحيوي" : "Biological Profile";
+            document.getElementById('safety-idx-label').innerText = isRtl ? "مؤشر الأمان" : "Safety Index";
+            document.getElementById('restart-btn').innerText = isRtl ? "إعادة البدء" : "Restart Process";
+
+            const recLabel = document.getElementById('rs-recs-title');
+            if (recLabel) recLabel.innerHTML = isRtl ? "<span>✓</span> روتين مقترح لك" : "<span>✓</span> Recommended Products";
         }
-    }
-    function resetProgress() { setProgress(1); }
-    
-    function resetApp() {
-        switchTab(currentMode);
-        document.getElementById('res-skin-content').style.display = 'none';
-        document.getElementById('res-prod-content').style.display = 'none';
-        document.getElementById('rs-recs-wrapper').style.display = 'none';
-        document.getElementById('low-confidence-box').style.display = 'none';
-        document.getElementById('skin-img').classList.remove('show');
-        document.getElementById('prod-img').classList.remove('show');
-        document.getElementById('skin-file').value = '';
-        document.getElementById('prod-file').value = '';
-        document.getElementById('prod-text').value = '';
-        // Reset quiz selections
-        document.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
-        document.querySelectorAll('#pane-quiz input[type=radio]').forEach(r => r.checked = false);
-        aiResultCache = null;
-    }
 
-    function highlightOption(el) {
-        el.closest('.quiz-options').querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
-        el.classList.add('selected');
-    }
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+            const isDark = document.body.classList.contains("dark-mode");
+            const icon = document.getElementById("fab-dm-icon");
+            if (icon) icon.innerText = isDark ? "☀️" : "🌙";
+            localStorage.setItem("darkMode", isDark ? "on" : "off");
+        }
 
-    function setupDZ(dzId, fileId, imgId) {
-        const dz = document.getElementById(dzId);
-        const fi = document.getElementById(fileId);
-        const ig = document.getElementById(imgId);
-        if(!dz || !fi || !ig) return;
-        dz.onclick = () => fi.click();
-        fi.onchange = (e) => {
-            if(e.target.files && e.target.files[0]) {
-                ig.src = URL.createObjectURL(e.target.files[0]);
-                ig.classList.add('show');
-                setProgress(2);
+        if (localStorage.getItem("darkMode") === "on") {
+            document.body.classList.add("dark-mode");
+            const icon = document.getElementById("fab-dm-icon");
+            if (icon) icon.innerText = "☀️";
+        }
+
+        let currentMode = 'skin';
+        function switchTab(mode) {
+            currentMode = mode;
+            document.getElementById('skin-tab-btn').classList.remove('active');
+            document.getElementById('product-tab-btn').classList.remove('active');
+            document.getElementById(`${mode}-tab-btn`).classList.add('active');
+            document.querySelectorAll('.pane').forEach(el => el.classList.remove('active'));
+            document.getElementById(`pane-${mode}`).classList.add('active');
+            updateTexts();
+            resetProgress();
+        }
+
+        function setProgress(step) {
+            for (let i = 1; i <= 3; i++) {
+                let wrap = document.getElementById(`st-${i}-wrap`);
+                if (!wrap) continue;
+                wrap.className = 'step-item';
+                if (i < step) wrap.classList.add('done');
+                else if (i === step) wrap.classList.add('active');
             }
-        };
-    }
-    setupDZ('skin-dz', 'skin-file', 'skin-img');
-    setupDZ('prod-dz', 'prod-file', 'prod-img');
+        }
+        function resetProgress() { setProgress(1); }
 
-    let selectedSkinType = null;
-    function selectSkin(el, type) {
-        document.querySelectorAll('.type-pill').forEach(p => p.classList.remove('active'));
-        el.classList.add('active');
-        selectedSkinType = type;
-        setProgress(2);
-    }
+        function resetApp() {
+            switchTab(currentMode);
+            document.getElementById('res-skin-content').style.display = 'none';
+            document.getElementById('res-prod-content').style.display = 'none';
+            document.getElementById('rs-recs-wrapper').style.display = 'none';
+            document.getElementById('low-confidence-box').style.display = 'none';
+            document.getElementById('skin-img').classList.remove('show');
+            document.getElementById('prod-img').classList.remove('show');
+            document.getElementById('skin-file').value = '';
+            document.getElementById('prod-file').value = '';
+            document.getElementById('prod-text').value = '';
+            // Reset quiz selections
+            document.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
+            document.querySelectorAll('#pane-quiz input[type=radio]').forEach(r => r.checked = false);
+            aiResultCache = null;
+        }
 
-    // CSRF token helper for Django
-    function getCsrfToken() {
-        const cookie = document.cookie.split(';').find(c => c.trim().startsWith('csrftoken='));
-        return cookie ? cookie.split('=')[1] : '';
-    }
+        function highlightOption(el) {
+            el.closest('.quiz-options').querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
+            el.classList.add('selected');
+        }
 
-    // Cache the AI result for the hybrid endpoint
-    let aiResultCache = null;
+        function setupDZ(dzId, fileId, imgId) {
+            const dz = document.getElementById(dzId);
+            const fi = document.getElementById(fileId);
+            const ig = document.getElementById(imgId);
+            if (!dz || !fi || !ig) return;
+            dz.onclick = () => fi.click();
+            fi.onchange = (e) => {
+                if (e.target.files && e.target.files[0]) {
+                    ig.src = URL.createObjectURL(e.target.files[0]);
+                    ig.classList.add('show');
+                    setProgress(2);
+                }
+            };
+        }
+        setupDZ('skin-dz', 'skin-file', 'skin-img');
+        setupDZ('prod-dz', 'prod-file', 'prod-img');
 
-    async function runSkinAnalysis() {
-        const file = document.getElementById('skin-file').files[0];
-        if(!file) return alert("Please upload a photo.");
-        const isRtl = document.body.classList.contains('rtl');
-        const ov = document.getElementById('scan-overlay');
-        ov.style.display = 'flex';
-        document.getElementById('low-confidence-box').style.display = 'none';
+        let selectedSkinType = null;
+        function selectSkin(el, type) {
+            document.querySelectorAll('.type-pill').forEach(p => p.classList.remove('active'));
+            el.classList.add('active');
+            selectedSkinType = type;
+            setProgress(2);
+        }
 
-        const fd = new FormData();
-        fd.append('image', file);
-        try {
-            const res = await fetch('/analyze/', {
-                method: 'POST',
-                body: fd,
-                headers: { 'X-CSRFToken': getCsrfToken() }
-            });
-            const data = await res.json();
+        // CSRF token helper for Django
+        function getCsrfToken() {
+            const cookie = document.cookie.split(';').find(c => c.trim().startsWith('csrftoken='));
+            return cookie ? cookie.split('=')[1] : '';
+        }
 
-            // Handle no face detected
-            if (data.no_face) {
-                ov.style.display = 'none';
-                const lcBox = document.getElementById('low-confidence-box');
-                lcBox.style.display = 'block';
-                document.getElementById('lc-score-badge').innerText =
-                    isRtl ? 'لم يتم اكتشاف وجه' : 'No face detected';
-                document.getElementById('lc-title').innerText =
-                    isRtl ? 'لم يتم العثور على وجه' : 'No face found';
-                document.getElementById('lc-desc').innerText =
-                    isRtl ? 'يرجى رفع صورة واضحة لوجهك.' : 'Please upload a clear photo of your face.';
-                return;
-            }
+        // Cache the AI result for the hybrid endpoint
+        let aiResultCache = null;
 
-            // Handle low confidence
-            if (data.low_confidence) {
-                ov.style.display = 'none';
-                const lcBox = document.getElementById('low-confidence-box');
-                lcBox.style.display = 'block';
-                document.getElementById('lc-score-badge').innerText =
-                    (isRtl ? 'الثقة: ' : 'Confidence: ') + data.confidence + '%';
-                document.getElementById('lc-title').innerText =
-                    isRtl ? 'جودة الصورة منخفضة' : 'Photo quality too low';
-                document.getElementById('lc-desc').innerText =
-                    isRtl ? 'يرجى رفع صورة أوضح مع اتباع الإرشادات أعلاه.' : 'Please upload a clearer photo following the guidelines above for accurate results.';
-                return;
-            }
+        async function runSkinAnalysis() {
+            const file = document.getElementById('skin-file').files[0];
+            if (!file) return alert("Please upload a photo.");
+            const isRtl = document.body.classList.contains('rtl');
+            const ov = document.getElementById('scan-overlay');
+            ov.style.display = 'flex';
+            document.getElementById('low-confidence-box').style.display = 'none';
 
-            // AI scan successful
-            aiResultCache = { skin_type: data.skin_type, confidence: data.confidence };
-            
-            if (data.confidence >= 85.0) {
-                // If confidence is extremely high, skip the questionnaire and go straight to results
-                const fd = {
-                    ai_skin_type: data.skin_type,
-                    ai_confidence: data.confidence,
-                    answers: {} // Empty answers, meaning 100% AI dominant
-                };
-                
-                try {
-                    const finalRes = await fetch('/analyze-hybrid/', {
-                        method: 'POST',
-                        body: JSON.stringify(fd),
-                        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() }
-                    });
-                    const finalData = await finalRes.json();
-                    
-                    document.getElementById('rs-skin-type').innerText = finalData.skin_type.toUpperCase();
-                    document.getElementById('rs-conf-text').innerText = (isRtl ? 'الثقة: ' : 'Confidence: ') + finalData.confidence + '%';
-                    document.getElementById('rs-skin-desc').innerText = finalData.description;
+            const fd = new FormData();
+            fd.append('image', file);
+            try {
+                const res = await fetch('/analyze/', {
+                    method: 'POST',
+                    body: fd,
+                    headers: { 'X-CSRFToken': getCsrfToken() }
+                });
+                const data = await res.json();
 
-                    const recsDiv = document.getElementById('rs-recs');
-                    recsDiv.innerHTML = '';
-                    if(finalData.products && finalData.products.length > 0) {
-                        finalData.products.forEach(p => {
-                            recsDiv.innerHTML += `
+                // Handle no face detected
+                if (data.no_face) {
+                    ov.style.display = 'none';
+                    const lcBox = document.getElementById('low-confidence-box');
+                    lcBox.style.display = 'block';
+                    document.getElementById('lc-score-badge').innerText =
+                        isRtl ? 'لم يتم اكتشاف وجه' : 'No face detected';
+                    document.getElementById('lc-title').innerText =
+                        isRtl ? 'لم يتم العثور على وجه' : 'No face found';
+                    document.getElementById('lc-desc').innerText =
+                        isRtl ? 'يرجى رفع صورة واضحة لوجهك.' : 'Please upload a clear photo of your face.';
+                    return;
+                }
+
+                // Handle low confidence
+                if (data.low_confidence) {
+                    ov.style.display = 'none';
+                    const lcBox = document.getElementById('low-confidence-box');
+                    lcBox.style.display = 'block';
+                    document.getElementById('lc-score-badge').innerText =
+                        (isRtl ? 'الثقة: ' : 'Confidence: ') + data.confidence + '%';
+                    document.getElementById('lc-title').innerText =
+                        isRtl ? 'جودة الصورة منخفضة' : 'Photo quality too low';
+                    document.getElementById('lc-desc').innerText =
+                        isRtl ? 'يرجى رفع صورة أوضح مع اتباع الإرشادات أعلاه.' : 'Please upload a clearer photo following the guidelines above for accurate results.';
+                    return;
+                }
+
+                // AI scan successful
+                aiResultCache = { skin_type: data.skin_type, confidence: data.confidence };
+
+                if (data.confidence >= 85.0) {
+                    // If confidence is extremely high, skip the questionnaire and go straight to results
+                    const fd = {
+                        ai_skin_type: data.skin_type,
+                        ai_confidence: data.confidence,
+                        answers: {} // Empty answers, meaning 100% AI dominant
+                    };
+
+                    try {
+                        const finalRes = await fetch('/analyze-hybrid/', {
+                            method: 'POST',
+                            body: JSON.stringify(fd),
+                            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() }
+                        });
+                        const finalData = await finalRes.json();
+
+                        document.getElementById('rs-skin-type').innerText = finalData.skin_type.toUpperCase();
+                        document.getElementById('rs-conf-text').innerText = (isRtl ? 'الثقة: ' : 'Confidence: ') + finalData.confidence + '%';
+                        document.getElementById('rs-skin-desc').innerText = finalData.description;
+
+                        const recsDiv = document.getElementById('rs-recs');
+                        recsDiv.innerHTML = '';
+                        if (finalData.products && finalData.products.length > 0) {
+                            finalData.products.forEach(p => {
+                                recsDiv.innerHTML += `
                             <div class="product-card">
                                 ${p.image ? `<img src="${p.image}" alt="${p.name}">` : ''}
                                 <div class="p-cat">${p.category}</div>
                                 <div class="p-name">${p.name}</div>
                             </div>`;
-                        });
-                        document.getElementById('rs-recs-wrapper').style.display = 'block';
-                    } else {
-                        document.getElementById('rs-recs-wrapper').style.display = 'none';
+                            });
+                            document.getElementById('rs-recs-wrapper').style.display = 'block';
+                        } else {
+                            document.getElementById('rs-recs-wrapper').style.display = 'none';
+                        }
+
+                        document.getElementById('res-skin-content').style.display = 'block';
+                        setProgress(3);
+                        document.querySelectorAll('.pane').forEach(el => el.classList.remove('active'));
+                        document.getElementById('pane-result').classList.add('active');
+                    } catch (e) {
+                        alert('Failed to load final results.');
                     }
+                } else {
+                    // Moderate confidence (75-84.9%) → show questionnaire to confirm
+                    document.getElementById('ai-preview-type').innerText = data.skin_type.toUpperCase();
+                    document.getElementById('ai-conf-text').innerText =
+                        (isRtl ? 'الثقة: ' : 'Confidence: ') + data.confidence + '%';
+                    document.getElementById('ai-preview-tag').innerText =
+                        isRtl ? 'نتيجة الذكاء الاصطناعي الأولية' : 'AI Preliminary Result';
 
-                    document.getElementById('res-skin-content').style.display = 'block';
-                    setProgress(3);
+                    // Switch to quiz pane
+                    setProgress(2);
                     document.querySelectorAll('.pane').forEach(el => el.classList.remove('active'));
-                    document.getElementById('pane-result').classList.add('active');
-                } catch (e) {
-                    alert('Failed to load final results.');
+                    document.getElementById('pane-quiz').classList.add('active');
                 }
+
+            } catch (e) { alert('Analysis failed. Please try again.'); }
+            ov.style.display = 'none';
+        }
+
+        async function submitQuiz() {
+            const isRtl = document.body.classList.contains('rtl');
+            // Collect answers
+            const q1 = document.querySelector('input[name="q1"]:checked');
+            const q2 = document.querySelector('input[name="q2"]:checked');
+            const q3 = document.querySelector('input[name="q3"]:checked');
+
+            if (!q1 || !q2 || !q3) {
+                return alert(isRtl ? 'يرجى الإجابة على جميع الأسئلة.' : 'Please answer all 3 questions.');
+            }
+            if (!aiResultCache) {
+                return alert(isRtl ? 'يرجى تحليل صورتك أولاً.' : 'Please analyze your photo first.');
+            }
+
+            const ov = document.getElementById('scan-overlay');
+            ov.style.display = 'flex';
+
+            try {
+                const res = await fetch('/analyze-hybrid/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCsrfToken()
+                    },
+                    body: JSON.stringify({
+                        ai_skin_type: aiResultCache.skin_type,
+                        ai_confidence: aiResultCache.confidence,
+                        answers: { q1: q1.value, q2: q2.value, q3: q3.value }
+                    })
+                });
+                const data = await res.json();
+                displayResults('skin', data);
+            } catch (e) { alert('Failed. Please try again.'); }
+            ov.style.display = 'none';
+        }
+
+        async function runProductAnalysis() {
+            if (!selectedSkinType) return alert("Select skin type.");
+            const file = document.getElementById('prod-file').files[0];
+            const txt = document.getElementById('prod-text').value;
+            if (!file && !txt.trim()) return alert("Provide ingredients.");
+            const ov = document.getElementById('scan-overlay');
+            ov.style.display = 'flex';
+            const fd = new FormData();
+            fd.append('skin_type', selectedSkinType);
+            if (file) fd.append('image', file); else fd.append('ingredients_text', txt);
+            try {
+                const res = await fetch('/analyze-product/', {
+                    method: 'POST',
+                    body: fd,
+                    headers: { 'X-CSRFToken': getCsrfToken() }
+                });
+                const data = await res.json();
+                displayResults('product', data);
+            } catch (e) { alert('Failed.'); }
+            ov.style.display = 'none';
+        }
+
+        function displayResults(type, data) {
+            const isRtl = document.body.classList.contains('rtl');
+            setProgress(3);
+            document.querySelectorAll('.pane').forEach(el => el.classList.remove('active'));
+            document.getElementById('pane-result').classList.add('active');
+
+            if (type === 'skin') {
+                document.getElementById('res-skin-content').style.display = 'block';
+                document.getElementById('res-prod-content').style.display = 'none';
+                document.getElementById('rs-skin-type').innerText = data.skin_type.toUpperCase();
+
+                // Confidence badge
+                const confText = document.getElementById('rs-conf-text');
+                if (confText) confText.innerText = (isRtl ? 'الثقة: ' : 'Confidence: ') + data.confidence + '%';
+
+
+
+                // Description
+                const desc = data.description ||
+                    (isRtl ? "بشرتك تم تحليلها كـ " + data.skin_type : "Skin type identified as " + data.skin_type);
+                document.getElementById('rs-skin-desc').innerText = desc;
+
             } else {
-                // Moderate confidence (75-84.9%) → show questionnaire to confirm
-                document.getElementById('ai-preview-type').innerText = data.skin_type.toUpperCase();
-                document.getElementById('ai-conf-text').innerText =
-                    (isRtl ? 'الثقة: ' : 'Confidence: ') + data.confidence + '%';
-                document.getElementById('ai-preview-tag').innerText =
-                    isRtl ? 'نتيجة الذكاء الاصطناعي الأولية' : 'AI Preliminary Result';
+                document.getElementById('res-skin-content').style.display = 'none';
+                document.getElementById('res-prod-content').style.display = 'block';
+                document.getElementById('rs-prod-score').innerText = data.safety_score + "%";
+                document.getElementById('rs-prod-title').innerText = data.safety_score > 70 ? (isRtl ? "آمن" : "Optimal Match") : (isRtl ? "خطر" : "High Risk");
+                document.getElementById('rs-score-circ').style.borderColor = data.safety_score > 70 ? "var(--ok)" : "var(--danger)";
 
-                // Switch to quiz pane
-                setProgress(2);
-                document.querySelectorAll('.pane').forEach(el => el.classList.remove('active'));
-                document.getElementById('pane-quiz').classList.add('active');
+                let desc = isRtl ? "تحليل المكونات اكتمل." : "Analysis finished.";
+                if (data.harmful_ingredients && data.harmful_ingredients.length > 0) {
+                    desc += `<br><span style="color:var(--danger)">Sensitisers: ${data.harmful_ingredients.join(', ')}</span>`;
+                }
+                document.getElementById('rs-prod-desc').innerHTML = desc;
             }
 
-        } catch(e) { alert('Analysis failed. Please try again.'); }
-        ov.style.display = 'none';
-    }
+            // Recommendations Injection
+            const products = data.products || data.recommendations || [];
+            const recsArea = document.getElementById('rs-recs-wrapper');
+            const recsGrid = document.getElementById('rs-recs');
 
-    async function submitQuiz() {
-        const isRtl = document.body.classList.contains('rtl');
-        // Collect answers
-        const q1 = document.querySelector('input[name="q1"]:checked');
-        const q2 = document.querySelector('input[name="q2"]:checked');
-        const q3 = document.querySelector('input[name="q3"]:checked');
-
-        if (!q1 || !q2 || !q3) {
-            return alert(isRtl ? 'يرجى الإجابة على جميع الأسئلة.' : 'Please answer all 3 questions.');
-        }
-        if (!aiResultCache) {
-            return alert(isRtl ? 'يرجى تحليل صورتك أولاً.' : 'Please analyze your photo first.');
-        }
-
-        const ov = document.getElementById('scan-overlay');
-        ov.style.display = 'flex';
-
-        try {
-            const res = await fetch('/analyze-hybrid/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCsrfToken()
-                },
-                body: JSON.stringify({
-                    ai_skin_type: aiResultCache.skin_type,
-                    ai_confidence: aiResultCache.confidence,
-                    answers: { q1: q1.value, q2: q2.value, q3: q3.value }
-                })
-            });
-            const data = await res.json();
-            displayResults('skin', data);
-        } catch(e) { alert('Failed. Please try again.'); }
-        ov.style.display = 'none';
-    }
-
-    async function runProductAnalysis() {
-        if(!selectedSkinType) return alert("Select skin type.");
-        const file = document.getElementById('prod-file').files[0];
-        const txt = document.getElementById('prod-text').value;
-        if(!file && !txt.trim()) return alert("Provide ingredients.");
-        const ov = document.getElementById('scan-overlay');
-        ov.style.display = 'flex';
-        const fd = new FormData();
-        fd.append('skin_type', selectedSkinType);
-        if(file) fd.append('image', file); else fd.append('ingredients_text', txt);
-        try {
-            const res = await fetch('/analyze-product/', {
-                method: 'POST',
-                body: fd,
-                headers: { 'X-CSRFToken': getCsrfToken() }
-            });
-            const data = await res.json();
-            displayResults('product', data);
-        } catch(e) { alert('Failed.'); }
-        ov.style.display = 'none';
-    }
-
-    function displayResults(type, data) {
-        const isRtl = document.body.classList.contains('rtl');
-        setProgress(3);
-        document.querySelectorAll('.pane').forEach(el => el.classList.remove('active'));
-        document.getElementById('pane-result').classList.add('active');
-
-        if(type === 'skin') {
-            document.getElementById('res-skin-content').style.display = 'block';
-            document.getElementById('res-prod-content').style.display = 'none';
-            document.getElementById('rs-skin-type').innerText = data.skin_type.toUpperCase();
-
-            // Confidence badge
-            const confText = document.getElementById('rs-conf-text');
-            if(confText) confText.innerText = (isRtl ? 'الثقة: ' : 'Confidence: ') + data.confidence + '%';
-
-
-
-            // Description
-            const desc = data.description ||
-                (isRtl ? "بشرتك تم تحليلها كـ " + data.skin_type : "Skin type identified as " + data.skin_type);
-            document.getElementById('rs-skin-desc').innerText = desc;
-
-        } else {
-            document.getElementById('res-skin-content').style.display = 'none';
-            document.getElementById('res-prod-content').style.display = 'block';
-            document.getElementById('rs-prod-score').innerText = data.safety_score + "%";
-            document.getElementById('rs-prod-title').innerText = data.safety_score > 70 ? (isRtl ? "آمن" : "Optimal Match") : (isRtl ? "خطر" : "High Risk");
-            document.getElementById('rs-score-circ').style.borderColor = data.safety_score > 70 ? "var(--ok)" : "var(--danger)";
-
-            let desc = isRtl ? "تحليل المكونات اكتمل." : "Analysis finished.";
-            if(data.harmful_ingredients && data.harmful_ingredients.length > 0) {
-                desc += `<br><span style="color:var(--danger)">Sensitisers: ${data.harmful_ingredients.join(', ')}</span>`;
-            }
-            document.getElementById('rs-prod-desc').innerHTML = desc;
-        }
-
-        // Recommendations Injection
-        const products = data.products || data.recommendations || [];
-        const recsArea = document.getElementById('rs-recs-wrapper');
-        const recsGrid = document.getElementById('rs-recs');
-
-        if(products.length > 0) {
-            recsArea.style.display = 'block';
-            recsGrid.innerHTML = products.map(p => `
+            if (products.length > 0) {
+                recsArea.style.display = 'block';
+                recsGrid.innerHTML = products.map(p => `
                 <div class="product-card">
                     <div class="product-img"><img src="${p.image}" onerror="this.src='https://via.placeholder.com/150'"></div>
                     <h4>${p.name}</h4>
                     <a href="/catalog/" class="product-link">${isRtl ? 'التفاصيل' : 'Details'}</a>
                 </div>
             `).join('');
-        } else {
-            recsArea.style.display = 'none';
+            } else {
+                recsArea.style.display = 'none';
+            }
         }
-    }
 
-    document.addEventListener('DOMContentLoaded', updateTexts);
-</script>
+        document.addEventListener('DOMContentLoaded', updateTexts);
+    </script>
 </body>
+
 </html

@@ -50,6 +50,15 @@ def register_user(request):
                 user.first_name = parts[0]
                 user.last_name = parts[1] if len(parts) > 1 else ''
                 user.save()
+                
+            # Save skin_type to profile
+            skin_type = request.POST.get('skin_type', '')
+            if skin_type:
+                from ..models import UserProfile
+                profile, _ = UserProfile.objects.get_or_create(user=user)
+                profile.skin_type = skin_type
+                profile.save()
+                
             logger.info(f'New user registered: {username}')
             login(request, user)
             return redirect('home')
