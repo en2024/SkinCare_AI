@@ -225,7 +225,7 @@ def analyze_skin(request):
             skin_type = CLASS_NAMES[predicted_idx.item()]
 
             # Confidence threshold check
-            if confidence_pct < 75.0:
+            if confidence_pct < 55.0:
                 logger.info(f'Low confidence scan: {confidence_pct}% for {skin_type}')
                 return JsonResponse({
                     'low_confidence': True,
