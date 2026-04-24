@@ -225,7 +225,7 @@ def analyze_skin(request):
             skin_type = CLASS_NAMES[predicted_idx.item()]
 
             # Confidence threshold check
-            if confidence_pct < 75.0:
+            if confidence_pct < 55.0:
                 logger.info(f'Low confidence scan: {confidence_pct}% for {skin_type}')
                 return JsonResponse({
                     'low_confidence': True,
@@ -343,8 +343,8 @@ def analyze_skin_hybrid(request):
     ai_confidence = float(data.get('ai_confidence', 0))
     answers = data.get('answers', {})  # {'q1': 'a', 'q2': 'b', 'q3': 'c'}
 
-    if not ai_skin_type or not answers:
-        return JsonResponse({'error': 'Missing AI result or questionnaire answers.'}, status=400)
+    if not ai_skin_type:
+        return JsonResponse({'error': 'Missing AI result.'}, status=400)
 
     # ── Questionnaire scoring ────────────────────────────────────────────
     quiz_scores = {'oily': 0, 'dry': 0, 'normal': 0, 'sensitive': 0, 'combination': 0}
@@ -406,3 +406,28 @@ def analyze_skin_hybrid(request):
         'description': SKIN_DESCRIPTIONS.get(final_type, ''),
         'products': products_list,
     })
+
+
+@require_POST
+def toggle_favorite(request):
+    """Toggle a product in the user's favorites list."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Login required.'}, status=401)
+
+    from ..models import Product, UserProfile
+    try:
+        data = json.loads(request.body)
+        product_id = data.get('product_id')
+        product = Product.objects.get(id=product_id)
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
+
+        if product in profile.favorite_products.all():
+            profile.favorite_products.remove(product)
+            return JsonResponse({'status': 'removed', 'product_id': product_id})
+        else:
+            profile.favorite_products.add(product)
+            return JsonResponse({'status': 'added', 'product_id': product_id})
+    except Product.DoesNotExist:
+        return JsonResponse({'error': 'Product not found.'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)

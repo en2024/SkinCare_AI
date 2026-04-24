@@ -86,6 +86,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 24px 4%;
+            padding-right: 100px;
             position: absolute;
             width: 100%;
             top: 0;
@@ -589,6 +590,7 @@
 
         /* تنسيقات اللغة العربية لضمان الشكل المنظم */
         body.rtl { direction: rtl; text-align: right; }
+        body.rtl header { padding-left: 100px; padding-right: 4%; }
         body.rtl .fab-container { left: 32px; right: auto; }
         body.rtl .video-card { text-align: right; }
         body.rtl .mf-card { text-align: right; }
@@ -634,9 +636,12 @@
             <a href="/">Home</a>
             <a href="{% url 'catalog' %}">Catalog</a>
             <a href="{% url 'analyzer' %}">AI Analyzer</a>
-        </div>
-        <a href="{% url 'login' %}" class="btn-nav">Login</a>
+            {% if request.user.is_staff %}
+            <a href="{% url 'admin_dashboard' %}">Admin Dashboard</a>
+            {% endif %}
     </header>
+
+    {% include '_floating_menu.html' %}
 
     <section class="hero">
         <div class="hero-img-wrapper">
@@ -783,22 +788,7 @@
         </p>
     </footer>
 
-    <div class="fab-container">
-        <div class="fab-menu" id="fab-menu">
-            <button class="fab-item" onclick="toggleDarkMode()" title="Toggle Dark Mode">
-                <span id="fab-dm-icon" style="font-size: 15px;">🌙</span>
-            </button>
-            <button class="fab-item" onclick="toggleTextSize()" title="Accessibility">
-                <span style="font-size: 15px; font-family: 'Jost', sans-serif; font-weight: 600; color: #7b8d84;">A</span>
-            </button>
-            <button class="fab-item" onclick="toggleLanguage()" title="Switch Language (EN/AR)">
-                <span style="font-size: 16px;">🌐</span>
-            </button>
-        </div>
-        <button id="fab-main" onclick="toggleFab()" title="Settings">
-            <i class="material-icons-outlined" style="font-size: 22px; color: #5C7365;">settings</i>
-        </button>
-    </div>
+
 
     <script>
         function reveal() {
@@ -820,9 +810,17 @@
         }
 
         // دالة الترجمة الشاملة لكل الصفحة
-        function toggleLanguage() {
-            document.body.classList.toggle('rtl');
-            const isRtl = document.body.classList.contains('rtl');
+        function applyLanguage(lang) {
+            const isRtl = (lang === 'ar');
+            if (isRtl) {
+                document.body.classList.add('rtl');
+                document.documentElement.setAttribute('dir', 'rtl');
+                document.documentElement.setAttribute('lang', 'ar');
+            } else {
+                document.body.classList.remove('rtl');
+                document.documentElement.setAttribute('dir', 'ltr');
+                document.documentElement.setAttribute('lang', 'en');
+            }
             
             // Navbar
             const logo = document.querySelector('.logo');
@@ -834,20 +832,18 @@
                 navLinks[1].innerText = isRtl ? "الكتالوج" : "Catalog";
                 navLinks[2].innerText = isRtl ? "المحلل الذكي" : "AI Analyzer";
             }
-            const btnNav = document.querySelector('.btn-nav');
-            if(btnNav) btnNav.innerText = isRtl ? "دخول" : "Login";
 
             // Hero Section
             const massiveText = document.querySelector('.massive-text');
-            if(massiveText) massiveText.innerHTML = isRtl ? "ذكاء<br />العناية." : "ai<br />skincare.";
+            if(massiveText) massiveText.innerHTML = isRtl ? "ذكاء<br />العناية" : "ai<br />skincare.";
             
             const heroDesc = document.querySelector('.hero-desc');
             if(heroDesc) heroDesc.innerText = isRtl ? "حللي مكونات العناية بالبشرة لضمان الأمان التام. لست متأكدة من نوع بشرتك؟ ارفعي صورة لفحص فوري بالذكاء الاصطناعي واحصلي على توصيات مخصصة." : "Analyze skincare ingredients for ultimate safety. Not sure of your skin type? Upload a photo for an instant AI scan and get personalized recommendations.";
             
             const btnMain = document.querySelector('.btn-main');
-            if(btnMain) btnMain.innerText = isRtl ? "حللي بشرتي" : "Analyze My Skin";
+            if(btnMain) btnMain.innerText = isRtl ? "تحليل بشرتي" : "Analyze My Skin";
 
-            // Marquee (الشريط المتحرك)
+            // Marquee
             const marqueeSpans = document.querySelectorAll('.marquee-track span');
             const arMarquee = ["✨ تحليل البشرة بالذكاء الاصطناعي", "🌿 أمان المكونات", "💧 روتين مخصص", "🤖 خوارزميات متقدمة"];
             const enMarquee = ["✨ AI SKIN ANALYSIS", "🌿 INGREDIENT SAFETY", "💧 PERSONALIZED ROUTINE", "🤖 ADVANCED ML ALGORITHMS"];
@@ -875,7 +871,7 @@
                 stepPs[2].innerText = isRtl ? "احصلي على نتيجة واضحة واكتشفي منتجات آمنة ومناسبة لك." : "Get a clear safety verdict and discover perfectly matched, harmless products from our catalog.";
             }
 
-            // Features (Safety meets smart beauty)
+            // Features
             const mfTextH2 = document.querySelector('.mf-text h2');
             const mfTextP = document.querySelector('.mf-text p');
             if(mfTextH2) mfTextH2.innerHTML = isRtl ? "الأمان يلتقي<br />بالجمال الذكي." : "Safety meets<br />smart beauty.";

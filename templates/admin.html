@@ -487,27 +487,9 @@
     </div>
 </div>
 
-<!-- FAB Menu - نفس شكل صفحة اللوجين -->
-<div class="fab-container">
-    <div class="fab-menu" id="fab-menu">
-        <button class="fab-item" onclick="toggleDarkMode()">
-            <span id="fab-dm-icon">🌙</span>
-        </button>
-        <button class="fab-item" onclick="changeFontSize()">A</button>
-        <button class="fab-item" onclick="toggleLanguage()">🌐</button>
-    </div>
-    <button id="fab-main" onclick="toggleFab()">
-        <i class="material-icons-outlined">settings</i>
-    </button>
-</div>
-
 {{ catalog|json_script:"catalog-data" }}
 
 <script>
-    function toggleFab() {
-        document.getElementById('fab-menu').classList.toggle('active');
-    }
-
     let currentSizeIdx = 1;
     function changeFontSize() {
         let sizes = ['14px', '16px', '19px'];
@@ -527,10 +509,15 @@
         document.getElementById('fab-dm-icon').innerText = "☀️";
     }
 
-    function toggleLanguage() {
-        document.body.classList.toggle('rtl');
-        const isRtl = document.body.classList.contains('rtl');
-        document.body.dir = isRtl ? "rtl" : "ltr";
+    function applyLanguage(lang) {
+        const isRtl = (lang === 'ar');
+        if (isRtl) {
+            document.body.classList.add('rtl');
+            document.documentElement.setAttribute('dir', 'rtl');
+        } else {
+            document.body.classList.remove('rtl');
+            document.documentElement.setAttribute('dir', 'ltr');
+        }
         
         const h1 = document.querySelector('.head h1');
         const navLinks = document.querySelectorAll('.nav-actions .btn');
@@ -547,13 +534,6 @@
             if(navLinks[0]) navLinks[0].innerText = "Catalog";
             if(navLinks[1]) navLinks[1].innerText = "Analyzer";
         }
-        
-        localStorage.setItem("rtl", isRtl ? "on" : "off");
-    }
-
-    if(localStorage.getItem("rtl") === "on") {
-        document.body.classList.add('rtl');
-        toggleLanguage();
     }
 
     // Edit product functionality
