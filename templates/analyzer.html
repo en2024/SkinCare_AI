@@ -516,6 +516,77 @@
         .method-tag.consensus { background: rgba(61,122,92,0.12); color: var(--ok); }
         .method-tag.override { background: rgba(199,123,43,0.12); color: var(--warn); }
 
+        /* ─── Hamburger Button ──────────────────────────────── */
+        .hamburger {
+            display: flex;
+            flex-direction: column; gap: 5px; cursor: pointer;
+            background: none; border: none; padding: 8px; z-index: 1001;
+        }
+        .hamburger span {
+            display: block; width: 22px; height: 2px;
+            background: var(--dark); border-radius: 2px;
+            transition: 0.35s cubic-bezier(0.77, 0, 0.18, 1);
+            transform-origin: center;
+        }
+        .hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .hamburger.active span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+        .hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        /* ─── Sidebar Overlay ───────────────────────────────── */
+        .sidebar-overlay {
+            position: fixed; inset: 0; z-index: 999;
+            background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
+            opacity: 0; visibility: hidden;
+            transition: opacity 0.35s ease, visibility 0.35s ease;
+        }
+        .sidebar-overlay.active { opacity: 1; visibility: visible; }
+
+        /* ─── Sidebar Panel ─────────────────────────────────── */
+        .sidebar {
+            position: fixed; top: 0; right: -320px; z-index: 1000;
+            width: 300px; max-width: 85vw; height: 100vh;
+            background: var(--surface);
+            border-left: 1px solid var(--border);
+            box-shadow: -8px 0 32px rgba(0,0,0,0.1);
+            display: flex; flex-direction: column;
+            padding: 28px 24px;
+            transition: right 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            overflow-y: auto;
+        }
+        body.rtl .sidebar { right: auto; left: -320px; border-left: none; border-right: 1px solid var(--border); }
+        .sidebar.active { right: 0; }
+        body.rtl .sidebar.active { left: 0; right: auto; }
+
+        .sidebar-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 28px; padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .sidebar-header h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; color: var(--dark); }
+        .sidebar-close {
+            background: none; border: none; cursor: pointer;
+            font-size: 1.4rem; color: var(--muted); transition: 0.2s;
+        }
+        .sidebar-close:hover { color: var(--dark); transform: rotate(90deg); }
+
+        .sidebar-section { margin-bottom: 24px; }
+        .sidebar-section-title {
+            font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.2em;
+            color: var(--muted); font-weight: 600; margin-bottom: 12px;
+        }
+        .sidebar-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 14px; border-radius: 12px;
+            font-size: 0.9rem; font-weight: 500; color: var(--dark);
+            transition: 0.25s; cursor: pointer; border: none; background: none; width: 100%;
+            text-align: left;
+        }
+        body.rtl .sidebar-link { text-align: right; }
+        .sidebar-link:hover { background: var(--beige-light); }
+        .sidebar-link.active-link { background: var(--beige-light); color: var(--primary); font-weight: 600; }
+        .sidebar-link .material-icons-outlined { font-size: 20px; color: var(--primary); }
+        .sidebar-divider { height: 1px; background: var(--border); margin: 8px 0; }
+
         @media (max-width: 900px) {
             .main-layout { grid-template-columns: 1fr; margin-top: 20px; }
             .steps-container { flex-direction: row; justify-content: center; }
@@ -526,6 +597,7 @@
             .main-desc { text-align: center; margin: 0 auto; }
             .section-pill { display: block; margin: 0 auto 20px; width: max-content; }
             .links { display: none; }
+            .hamburger { display: flex; }
         }
     </style>
 </head>
@@ -543,9 +615,19 @@
             <a href="/" id="link-home">Home</a>
             <a href="{% url 'catalog' %}" id="link-catalog">Catalog</a>
             <a href="{% url 'analyzer' %}" class="active" id="link-analyzer">Analyzer</a>
+            {% if request.user.is_staff %}
+            <a href="{% url 'admin_dashboard' %}">Admin Dashboard</a>
+            {% endif %}
+            {% if request.user.is_authenticated %}
+            <a href="#" onclick="if(confirm('Are you sure you want to sign out?')){window.location.href='{% url 'logout' %}'}">Sign Out</a>
+            {% else %}
+            <a href="{% url 'login' %}">Sign In</a>
+            {% endif %}
         </div>
     </nav>
 </div>
+
+{% include '_floating_menu.html' %}
 
 <main class="main-layout">
     <div class="text-section">
@@ -782,6 +864,16 @@
 </div>
 
 <script>
+    // ─── Sidebar Toggle ─────────────────────────────────────────────────
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar-menu');
+        const overlay = document.getElementById('sidebar-overlay');
+        const hamburger = document.getElementById('hamburger-btn');
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+        hamburger.classList.toggle('active');
+    }
+
     // global UI logic
     window.toggleFab = function() {
         document.getElementById('fab-menu').classList.toggle('active');
@@ -1079,7 +1171,7 @@
                 };
                 
                 try {
-                    const finalRes = await fetch('/analyze_hybrid/', {
+                    const finalRes = await fetch('/analyze-hybrid/', {
                         method: 'POST',
                         body: JSON.stringify(fd),
                         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() }

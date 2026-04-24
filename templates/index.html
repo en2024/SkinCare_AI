@@ -634,9 +634,18 @@
             <a href="/">Home</a>
             <a href="{% url 'catalog' %}">Catalog</a>
             <a href="{% url 'analyzer' %}">AI Analyzer</a>
+            {% if request.user.is_staff %}
+            <a href="{% url 'admin_dashboard' %}">Admin Dashboard</a>
+            {% endif %}
         </div>
-        <a href="{% url 'login' %}" class="btn-nav">Login</a>
+        {% if request.user.is_authenticated %}
+        <a href="#" class="btn-nav" onclick="if(confirm('Are you sure you want to sign out?')){window.location.href='{% url 'logout' %}'}">Sign Out</a>
+        {% else %}
+        <a href="{% url 'login' %}" class="btn-nav">Sign In</a>
+        {% endif %}
     </header>
+
+    {% include '_floating_menu.html' %}
 
     <section class="hero">
         <div class="hero-img-wrapper">
@@ -921,6 +930,12 @@
             const footerP = document.querySelector('footer p');
             if(footerH2) footerH2.innerText = isRtl ? "✦ محلل سلامة العناية بالبشرة" : "✦ AI SkinCare Safety Analyzer";
             if(footerP) footerP.innerHTML = isRtl ? "مشروع التخرج - الجامعة العربية المفتوحة، مصر <br /> &copy; 2026 إنجي نبيل صفوت" : "Final Year Project - Arab Open University, Egypt <br /> &copy; 2026 Engy Nabil Safwat";
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar-menu').classList.toggle('active');
+            document.getElementById('sidebar-overlay').classList.toggle('active');
+            document.getElementById('hamburger-btn').classList.toggle('active');
         }
 
         function toggleDarkMode() {

@@ -9,10 +9,12 @@ urlpatterns = [
     path('analyze/', views.analyze_skin, name='analyze'),
     path('analyze-hybrid/', views.analyze_skin_hybrid, name='analyze_hybrid'),
     path('analyze-product/', views.analyze_product, name='analyze_product'),
+    path('toggle-favorite/', views.toggle_favorite, name='toggle_favorite'),
     # login & sign up
     path('login/', views.user_login, name='login'),
     path('logout/', views.user_logout, name='logout'),
     path('register/', views.register_user, name='register'),
+    path('profile/', views.profile_view, name='profile'),
     # admin
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('admin-dashboard/add/', views.add_product, name='add_product'),
