@@ -652,6 +652,12 @@
                             <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
                                 <input type="radio" name="q1" value="c"> <span id="q1c">Comfortable and balanced</span>
                             </label>
+                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                <input type="radio" name="q1" value="d"> <span id="q1d">Itches, burns, or turns red</span>
+                            </label>
+                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                <input type="radio" name="q1" value="e"> <span id="q1e">Oily on forehead/nose, tight on cheeks</span>
+                            </label>
                         </div>
                     </div>
 
@@ -659,13 +665,19 @@
                         <div class="q-label"><span class="q-num">Q2</span> <span id="q2-label">How often does your face get shiny by midday?</span></div>
                         <div class="quiz-options">
                             <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
-                                <input type="radio" name="q2" value="a"> <span id="q2a">Always — very oily</span>
+                                <input type="radio" name="q2" value="a"> <span id="q2a">All over my face</span>
                             </label>
                             <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
                                 <input type="radio" name="q2" value="b"> <span id="q2b">Never — stays matte or dry</span>
                             </label>
                             <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
-                                <input type="radio" name="q2" value="c"> <span id="q2c">Sometimes — only T-zone</span>
+                                <input type="radio" name="q2" value="c"> <span id="q2c">Rarely, mostly stays balanced</span>
+                            </label>
+                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                <input type="radio" name="q2" value="d"> <span id="q2d">Shiny but also experience stinging/redness</span>
+                            </label>
+                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                <input type="radio" name="q2" value="e"> <span id="q2e">Only in the T-zone (forehead, nose, chin)</span>
                             </label>
                         </div>
                     </div>
@@ -674,13 +686,19 @@
                         <div class="q-label"><span class="q-num">Q3</span> <span id="q3-label">How does your skin react to new products?</span></div>
                         <div class="quiz-options">
                             <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
-                                <input type="radio" name="q3" value="a"> <span id="q3a">Breakouts or excess oil</span>
+                                <input type="radio" name="q3" value="a"> <span id="q3a">Tends to break out or get greasy</span>
                             </label>
                             <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
-                                <input type="radio" name="q3" value="b"> <span id="q3b">Burning, redness, or dryness</span>
+                                <input type="radio" name="q3" value="b"> <span id="q3b">Can feel tight or doesn't absorb well</span>
                             </label>
                             <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
-                                <input type="radio" name="q3" value="c"> <span id="q3c">No noticeable reaction</span>
+                                <input type="radio" name="q3" value="c"> <span id="q3c">No noticeable reaction, usually fine</span>
+                            </label>
+                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                <input type="radio" name="q3" value="d"> <span id="q3d">Frequently burns, stings, or turns red</span>
+                            </label>
+                            <label class="quiz-option" onclick="this.querySelector('input').checked=true; highlightOption(this)">
+                                <input type="radio" name="q3" value="e"> <span id="q3e">Fine, but sometimes breaks out in T-zone</span>
                             </label>
                         </div>
                     </div>
@@ -861,10 +879,28 @@
         if(qs) qs.innerText = isRtl ? "أجيبي على 3 أسئلة سريعة ليعطيك نظامنا الهجين نتيجة نهائية." : "Answer 3 quick questions so our hybrid system can give you a definitive result.";
         const q1l = document.getElementById('q1-label');
         if(q1l) q1l.innerText = isRtl ? "كيف تشعرين ببشرتك بعد 30 دقيقة من الغسل؟" : "How does your skin feel 30 minutes after washing?";
+        if(document.getElementById('q1a')) document.getElementById('q1a').innerText = isRtl ? "لامعة أو دهنية" : "Shiny or greasy";
+        if(document.getElementById('q1b')) document.getElementById('q1b').innerText = isRtl ? "مشدودة أو متقشرة" : "Tight or flaky";
+        if(document.getElementById('q1c')) document.getElementById('q1c').innerText = isRtl ? "مريحة ومتوازنة" : "Comfortable and balanced";
+        if(document.getElementById('q1d')) document.getElementById('q1d').innerText = isRtl ? "تسبب حكة، حرقان، أو احمرار" : "Itches, burns, or turns red";
+        if(document.getElementById('q1e')) document.getElementById('q1e').innerText = isRtl ? "دهنية على الجبهة/الأنف، مشدودة على الخدين" : "Oily on forehead/nose, tight on cheeks";
+
         const q2l = document.getElementById('q2-label');
         if(q2l) q2l.innerText = isRtl ? "كم مرة يصبح وجهك لامعاً بحلول الظهيرة؟" : "How often does your face get shiny by midday?";
+        if(document.getElementById('q2a')) document.getElementById('q2a').innerText = isRtl ? "في جميع أنحاء وجهي" : "All over my face";
+        if(document.getElementById('q2b')) document.getElementById('q2b').innerText = isRtl ? "أبداً — يبقى غير لامع أو جاف" : "Never — stays matte or dry";
+        if(document.getElementById('q2c')) document.getElementById('q2c').innerText = isRtl ? "نادراً، غالباً يبقى متوازناً" : "Rarely, mostly stays balanced";
+        if(document.getElementById('q2d')) document.getElementById('q2d').innerText = isRtl ? "لامع ولكن مع إحساس بلسع/احمرار" : "Shiny but also experience stinging/redness";
+        if(document.getElementById('q2e')) document.getElementById('q2e').innerText = isRtl ? "فقط في منطقة T (الجبهة، الأنف، الذقن)" : "Only in the T-zone (forehead, nose, chin)";
+
         const q3l = document.getElementById('q3-label');
         if(q3l) q3l.innerText = isRtl ? "كيف تتفاعل بشرتك مع المنتجات الجديدة؟" : "How does your skin react to new products?";
+        if(document.getElementById('q3a')) document.getElementById('q3a').innerText = isRtl ? "تميل لظهور حبوب أو تصبح دهنية" : "Tends to break out or get greasy";
+        if(document.getElementById('q3b')) document.getElementById('q3b').innerText = isRtl ? "قد تشعرين بشد أو لا تمتصه جيداً" : "Can feel tight or doesn't absorb well";
+        if(document.getElementById('q3c')) document.getElementById('q3c').innerText = isRtl ? "لا تفاعل ملحوظ، عادة ما تكون بخير" : "No noticeable reaction, usually fine";
+        if(document.getElementById('q3d')) document.getElementById('q3d').innerText = isRtl ? "غالباً ما تحترق، تلسع، أو تحمر" : "Frequently burns, stings, or turns red";
+        if(document.getElementById('q3e')) document.getElementById('q3e').innerText = isRtl ? "جيدة، لكن أحياناً تظهر حبوب في منطقة T" : "Fine, but sometimes breaks out in T-zone";
+
         const qsb = document.getElementById('quiz-submit-btn');
         if(qsb) qsb.innerText = isRtl ? "احصلي على النتيجة النهائية" : "Get Final Result";
 
@@ -1031,18 +1067,65 @@
                 return;
             }
 
-            // AI scan successful → show questionnaire
+            // AI scan successful
             aiResultCache = { skin_type: data.skin_type, confidence: data.confidence };
-            document.getElementById('ai-preview-type').innerText = data.skin_type.toUpperCase();
-            document.getElementById('ai-conf-text').innerText =
-                (isRtl ? 'الثقة: ' : 'Confidence: ') + data.confidence + '%';
-            document.getElementById('ai-preview-tag').innerText =
-                isRtl ? 'نتيجة الذكاء الاصطناعي الأولية' : 'AI Preliminary Result';
+            
+            if (data.confidence >= 85.0) {
+                // If confidence is extremely high, skip the questionnaire and go straight to results
+                const fd = {
+                    ai_skin_type: data.skin_type,
+                    ai_confidence: data.confidence,
+                    answers: {} // Empty answers, meaning 100% AI dominant
+                };
+                
+                try {
+                    const finalRes = await fetch('/analyze_hybrid/', {
+                        method: 'POST',
+                        body: JSON.stringify(fd),
+                        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCsrfToken() }
+                    });
+                    const finalData = await finalRes.json();
+                    
+                    document.getElementById('rs-skin-type').innerText = finalData.skin_type.toUpperCase();
+                    document.getElementById('rs-conf-text').innerText = (isRtl ? 'الثقة: ' : 'Confidence: ') + finalData.confidence + '%';
+                    document.getElementById('rs-skin-desc').innerText = finalData.description;
 
-            // Switch to quiz pane
-            setProgress(2);
-            document.querySelectorAll('.pane').forEach(el => el.classList.remove('active'));
-            document.getElementById('pane-quiz').classList.add('active');
+                    const recsDiv = document.getElementById('rs-recs');
+                    recsDiv.innerHTML = '';
+                    if(finalData.products && finalData.products.length > 0) {
+                        finalData.products.forEach(p => {
+                            recsDiv.innerHTML += `
+                            <div class="product-card">
+                                ${p.image ? `<img src="${p.image}" alt="${p.name}">` : ''}
+                                <div class="p-cat">${p.category}</div>
+                                <div class="p-name">${p.name}</div>
+                            </div>`;
+                        });
+                        document.getElementById('rs-recs-wrapper').style.display = 'block';
+                    } else {
+                        document.getElementById('rs-recs-wrapper').style.display = 'none';
+                    }
+
+                    document.getElementById('res-skin-content').style.display = 'block';
+                    setProgress(3);
+                    document.querySelectorAll('.pane').forEach(el => el.classList.remove('active'));
+                    document.getElementById('pane-result').classList.add('active');
+                } catch (e) {
+                    alert('Failed to load final results.');
+                }
+            } else {
+                // Moderate confidence (75-84.9%) → show questionnaire to confirm
+                document.getElementById('ai-preview-type').innerText = data.skin_type.toUpperCase();
+                document.getElementById('ai-conf-text').innerText =
+                    (isRtl ? 'الثقة: ' : 'Confidence: ') + data.confidence + '%';
+                document.getElementById('ai-preview-tag').innerText =
+                    isRtl ? 'نتيجة الذكاء الاصطناعي الأولية' : 'AI Preliminary Result';
+
+                // Switch to quiz pane
+                setProgress(2);
+                document.querySelectorAll('.pane').forEach(el => el.classList.remove('active'));
+                document.getElementById('pane-quiz').classList.add('active');
+            }
 
         } catch(e) { alert('Analysis failed. Please try again.'); }
         ov.style.display = 'none';

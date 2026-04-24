@@ -53,7 +53,8 @@ except ImportError:
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
 transform = transforms.Compose([
-    transforms.Resize((224, 224)),
+    transforms.Resize(256),
+    transforms.CenterCrop(224),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
@@ -131,8 +132,7 @@ def analyze_skin(request):
         try:
             img = Image.open(request.FILES.get('image')).convert('RGB')
 
-            # ── Step 0: Face Detection Gate ──────────────────────────────
-            # Reject non-face images before any AI processing
+            # ── Step 0: Face Detection & Patch Extraction ───────────────
             img_cv = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
             gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
             faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(60, 60))
@@ -144,18 +144,25 @@ def analyze_skin(request):
                     'no_face': True
                 }, status=200)
 
-            # Crop to the largest detected face for more accurate analysis
+            # Get largest face
             (x, y, w, h) = max(faces, key=lambda f: f[2] * f[3])
-            # Add padding around the face (20% on each side)
-            pad = int(0.2 * max(w, h))
-            fx1 = max(0, x - pad)
-            fy1 = max(0, y - pad)
-            fx2 = min(img.width, x + w + pad)
-            fy2 = min(img.height, y + h + pad)
-            img = img.crop((fx1, fy1, fx2, fy2))
-            logger.info(f'Face detected and cropped: ({fx1},{fy1}) to ({fx2},{fy2}).')
+            logger.info('Face detected. Proceeding with analysis.')
 
-            # ── Step 1: YOLO detects acne locations ──────────────────────
+            # The ResNet model was trained on pure skin patches (zoomed in textures), 
+            # NOT full faces. We must crop a patch of the cheek to match the training data.
+            cheek_x = x + int(w * 0.6)
+            cheek_y = y + int(h * 0.5)
+            cheek_w = int(w * 0.3)
+            cheek_h = int(h * 0.3)
+            
+            # Ensure it's within image bounds
+            cheek_x = min(max(0, cheek_x), img.width - cheek_w)
+            cheek_y = min(max(0, cheek_y), img.height - cheek_h)
+            
+            skin_patch = img.crop((cheek_x, cheek_y, cheek_x + cheek_w, cheek_y + cheek_h))
+            logger.info('Extracted pure skin patch for ResNet analysis.')
+
+            # ── Step 1: YOLO detects acne locations on FULL face ─────────
             acne_count = 0
             acne_boxes = []
             if acne_model is not None:
@@ -164,26 +171,30 @@ def analyze_skin(request):
                     for box, cls_id in zip(r.boxes.xyxy, r.boxes.cls):
                         if acne_model.names[int(cls_id)] == 'acne':
                             acne_count += 1
-                            # Store bounding box as (x1, y1, x2, y2)
                             acne_boxes.append(box.cpu().numpy().astype(int))
                 logger.info(f'YOLO detected {acne_count} acne spot(s).')
 
-            # ── Step 2: Create a "clean" image for ResNet ────────────────
-            # Blur out every acne region so ResNet classifies pure skin
-            # texture without acne spots confusing it
-            clean_img = img.copy()
+            # ── Step 2: Create a "clean" patch for ResNet ────────────────
+            # Blur out any acne that happens to fall inside our cheek patch
+            clean_patch = skin_patch.copy()
             if acne_boxes:
                 from PIL import ImageFilter
-                # Create a heavily blurred version of the entire image
-                blurred = img.filter(ImageFilter.GaussianBlur(radius=15))
-                for (x1, y1, x2, y2) in acne_boxes:
-                    # Paste the blurred patch over each acne region
-                    patch = blurred.crop((x1, y1, x2, y2))
-                    clean_img.paste(patch, (x1, y1, x2, y2))
-                logger.info(f'Masked {len(acne_boxes)} acne region(s) for clean skin analysis.')
+                blurred_patch = skin_patch.filter(ImageFilter.GaussianBlur(radius=15))
+                # Adjust acne boxes to patch coordinates
+                for (ax1, ay1, ax2, ay2) in acne_boxes:
+                    # Check if acne overlaps with our cheek patch
+                    if not (ax2 < cheek_x or ax1 > cheek_x + cheek_w or ay2 < cheek_y or ay1 > cheek_y + cheek_h):
+                        px1 = max(0, ax1 - cheek_x)
+                        py1 = max(0, ay1 - cheek_y)
+                        px2 = min(cheek_w, ax2 - cheek_x)
+                        py2 = min(cheek_h, ay2 - cheek_y)
+                        
+                        if px2 > px1 and py2 > py1:
+                            acne_crop = blurred_patch.crop((px1, py1, px2, py2))
+                            clean_patch.paste(acne_crop, (px1, py1, px2, py2))
 
-            # ── Step 3: ResNet classifies the CLEANED image ──────────────
-            output = face_model(transform(clean_img).unsqueeze(0))
+            # ── Step 3: ResNet classifies the CLEANED PATCH ──────────────
+            output = face_model(transform(clean_patch).unsqueeze(0))
             probabilities = F.softmax(output, dim=1).squeeze()  # shape: [5]
 
             # ── Step 4: Minor secondary adjustment from acne evidence ────
@@ -304,17 +315,19 @@ def analyze_product(request):
 # Questionnaire answer → skin-type point mapping
 QUIZ_SCORING = {
     # Q1: How does your skin feel 30 min after washing?
-    'q1': {'a': 'oily', 'b': 'dry', 'c': 'normal'},
+    'q1': {'a': 'oily', 'b': 'dry', 'c': 'normal', 'd': 'sensitive', 'e': 'combination'},
     # Q2: How often does your face get shiny by midday?
-    'q2': {'a': 'oily', 'b': 'dry', 'c': 'normal'},
+    'q2': {'a': 'oily', 'b': 'dry', 'c': 'normal', 'd': 'sensitive', 'e': 'combination'},
     # Q3: How does your skin react to new products?
-    'q3': {'a': 'oily', 'b': 'dry', 'c': 'normal'},
+    'q3': {'a': 'oily', 'b': 'dry', 'c': 'normal', 'd': 'sensitive', 'e': 'combination'},
 }
 
 SKIN_DESCRIPTIONS = {
     'oily': 'Your skin produces excess sebum, especially in the T-zone. Lightweight, oil-free products are ideal.',
     'dry': 'Your skin tends to feel tight and may flake. Rich, hydrating products with ceramides work best.',
     'normal': 'Your skin is well-balanced. A simple, consistent routine will keep it healthy.',
+    'sensitive': 'Your skin is easily irritated. Look for gentle, fragrance-free products with soothing ingredients.',
+    'combination': 'Your skin is oily in the T-zone but dry elsewhere. You may need to treat different areas differently.',
 }
 
 
@@ -334,7 +347,7 @@ def analyze_skin_hybrid(request):
         return JsonResponse({'error': 'Missing AI result or questionnaire answers.'}, status=400)
 
     # ── Questionnaire scoring ────────────────────────────────────────────
-    quiz_scores = {'oily': 0, 'dry': 0, 'normal': 0}
+    quiz_scores = {'oily': 0, 'dry': 0, 'normal': 0, 'sensitive': 0, 'combination': 0}
     for q_key, mapping in QUIZ_SCORING.items():
         answer = answers.get(q_key, '')
         skin_type_vote = mapping.get(answer, '')
