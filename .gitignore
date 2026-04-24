@@ -1,12 +1,9 @@
-# ML Model weights (too large for GitHub)
-*.pth
-*.pt
+# Large directories to ignore completely
 runs/
 Skin Type Identification Research/
 acne-detection-yolo.v1i.yolov8/
 
 # Byte-compiled / optimized / DLL files
-__pycache__/
 *.py[cod]
 *$py.class
 
