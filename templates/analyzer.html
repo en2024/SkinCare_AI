@@ -1577,6 +1577,21 @@
                         <img src="" class="img-preview" id="prod-img">
                         <input type="file" id="prod-file" accept="image/*">
                     </div>
+
+                    <!-- OCR Error Box (hidden by default) -->
+                    <div class="low-confidence-box" id="ocr-error-box" style="display:none;">
+                        <div class="lc-icon">🔍</div>
+                        <div class="lc-score" id="ocr-error-badge">OCR Failed</div>
+                        <h4 id="ocr-error-title">Could not read ingredients</h4>
+                        <p id="ocr-error-desc">Try a clearer, well-lit photo of the product label, or paste the ingredients manually below.</p>
+                    </div>
+
+                    <!-- OCR Extracted Text Preview (hidden by default) -->
+                    <div id="ocr-preview-box" style="display:none; margin-bottom:16px;">
+                        <label class="input-label"><span>✓</span> <span id="ocr-preview-label">Extracted Text</span></label>
+                        <div class="result-box" id="ocr-preview-text" style="text-align:left; font-size:0.85rem; max-height:120px; overflow-y:auto;"></div>
+                    </div>
+
                     <textarea class="text-input" id="prod-text"
                         placeholder="Or manually paste formula here..."></textarea>
 
@@ -1820,6 +1835,8 @@
             document.getElementById('res-prod-content').style.display = 'none';
             document.getElementById('rs-recs-wrapper').style.display = 'none';
             document.getElementById('low-confidence-box').style.display = 'none';
+            document.getElementById('ocr-error-box').style.display = 'none';
+            document.getElementById('ocr-preview-box').style.display = 'none';
             document.getElementById('skin-img').classList.remove('show');
             document.getElementById('prod-img').classList.remove('show');
             document.getElementById('skin-file').value = '';
@@ -2017,10 +2034,16 @@
         }
 
         async function runProductAnalysis() {
-            if (!selectedSkinType) return alert("Select skin type.");
+            const isRtl = document.body.classList.contains('rtl');
+            if (!selectedSkinType) return alert(isRtl ? 'اختاري نوع البشرة أولاً.' : 'Select your skin type first.');
             const file = document.getElementById('prod-file').files[0];
             const txt = document.getElementById('prod-text').value;
-            if (!file && !txt.trim()) return alert("Provide ingredients.");
+            if (!file && !txt.trim()) return alert(isRtl ? 'أدخلي المكونات أو ارفعي صورة.' : 'Provide ingredients via text or image.');
+
+            // Hide previous OCR messages
+            document.getElementById('ocr-error-box').style.display = 'none';
+            document.getElementById('ocr-preview-box').style.display = 'none';
+
             const ov = document.getElementById('scan-overlay');
             ov.style.display = 'flex';
             const fd = new FormData();
@@ -2033,8 +2056,53 @@
                     headers: { 'X-CSRFToken': getCsrfToken() }
                 });
                 const data = await res.json();
+
+                // Handle errors (OCR failure / not-ingredients / generic)
+                if (!res.ok || data.ocr_failed || data.not_ingredients || data.error) {
+                    ov.style.display = 'none';
+                    if (data.ocr_failed || data.not_ingredients) {
+                        const errBox = document.getElementById('ocr-error-box');
+                        errBox.style.display = 'block';
+
+                        if (data.not_ingredients && !data.ocr_failed) {
+                            // Text was read but it's not a valid ingredient list
+                            document.getElementById('ocr-error-badge').innerText =
+                                isRtl ? 'محتوى غير صالح' : 'Invalid Content';
+                            document.getElementById('ocr-error-title').innerText =
+                                isRtl ? 'لم يتم التعرف على قائمة مكونات' : 'No valid ingredients detected';
+                            document.getElementById('ocr-error-desc').innerText =
+                                isRtl
+                                    ? 'لم نتمكن من اكتشاف قائمة مكونات صالحة في هذه الصورة. يرجى التأكد من أن ملصق المنتج واضح ومقروء، أو الصقي المكونات يدوياً.'
+                                    : data.error || 'We couldn\u2019t detect a valid ingredients list in this image. Please ensure the label is clear and try again.';
+                        } else {
+                            // OCR could not read any text at all
+                            document.getElementById('ocr-error-badge').innerText =
+                                isRtl ? 'فشل القراءة' : 'Unreadable Image';
+                            document.getElementById('ocr-error-title').innerText =
+                                isRtl ? 'لم نتمكن من قراءة أي نص' : 'Could not read the image';
+                            document.getElementById('ocr-error-desc').innerText =
+                                isRtl
+                                    ? 'لم نتمكن من استخراج أي نص من الصورة. جربي صورة أوضح بإضاءة جيدة، أو الصقي المكونات يدوياً.'
+                                    : data.error || 'We couldn\u2019t extract any text from this image. Please try a clearer, well-lit photo.';
+                        }
+                    } else if (data.error) {
+                        alert(data.error);
+                    }
+                    return;
+                }
+
+                // Show extracted OCR text preview if source was an image
+                if (data.input_source === 'image' && data.ocr_text) {
+                    const previewBox = document.getElementById('ocr-preview-box');
+                    const previewText = document.getElementById('ocr-preview-text');
+                    previewText.innerText = data.ocr_text;
+                    previewBox.style.display = 'block';
+                    document.getElementById('ocr-preview-label').innerText =
+                        isRtl ? 'النص المستخرج' : 'Extracted Text';
+                }
+
                 displayResults('product', data);
-            } catch (e) { alert('Failed.'); }
+            } catch (e) { alert(isRtl ? 'فشل التحليل.' : 'Analysis failed. Please try again.'); }
             ov.style.display = 'none';
         }
 

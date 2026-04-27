@@ -1,7 +1,6 @@
 import logging
 import os
 import re
-import pickle
 
 import json
 import cv2
@@ -60,24 +59,8 @@ transform = transforms.Compose([
 ])
 
 # ─── 2. Ingredients AI Logic (The Hybrid System) ─────────────────────────────
-ML_MODELS_DIR = os.path.join(settings.BASE_DIR, 'analyzer', 'ml_models')
-
-# ─── Cache for loaded ML models (load once, reuse) ───────────────────────────
-_ml_model_cache = {}
-_ml_vectorizer_cache = {}
-
-
-def _get_ml_model(skin_type):
-    """Load and cache the ML model + vectorizer for a given skin type."""
-    if skin_type not in _ml_model_cache:
-        model_path = os.path.join(ML_MODELS_DIR, f'model_{skin_type}.pkl')
-        vec_path = os.path.join(ML_MODELS_DIR, f'vectorizer_{skin_type}.pkl')
-        with open(model_path, 'rb') as f:
-            _ml_model_cache[skin_type] = pickle.load(f)
-        with open(vec_path, 'rb') as f:
-            _ml_vectorizer_cache[skin_type] = pickle.load(f)
-        logger.info(f'ML model for "{skin_type}" loaded and cached.')
-    return _ml_model_cache[skin_type], _ml_vectorizer_cache[skin_type]
+# Unified model loaded via predictor helper (lazy singleton)
+from ..ml_models.ingredients.predictor import predict_safety
 
 
 # قاعدة بيانات المكونات المحظورة (Safety Shield)
@@ -98,23 +81,109 @@ SAFE_INGREDIENTS = {
 }
 
 
-# ─── 3. OCR Helper (Pre-processing for images) ───────────────────────────────
-def extract_text_from_image(pil_image):
-    orig = pil_image.convert('L')
-    w, h = orig.size
-    # تكبير الصورة وتحسين التباين لزيادة دقة الـ OCR
-    v = orig.resize((w * 2, h * 2), Image.LANCZOS)
-    v = ImageEnhance.Contrast(v).enhance(2.0)
-
-    config = r'--oem 3 --psm 6 -l eng'
+# ─── 3. OCR Helper (Multi-pass pre-processing for product labels) ─────────────
+def _ocr_single_pass(pil_img, psm=6):
+    """Run Tesseract on a single pre-processed PIL image."""
+    config = f'--oem 3 --psm {psm} -l eng'
     try:
-        raw_text = pytesseract.image_to_string(v, config=config)
-        cleaned = re.sub(r'[^a-zA-Z,\s\-&().]', ' ', raw_text)
-        cleaned = re.sub(r'\s+', ' ', cleaned).strip()
-        return cleaned
-    except Exception as e:
-        logger.warning(f'OCR extraction failed: {e}')
+        return pytesseract.image_to_string(pil_img, config=config)
+    except Exception:
         return ""
+
+
+def extract_text_from_image(pil_image):
+    """
+    Multi-pass OCR extraction optimised for ingredient labels.
+    Tries 3 different pre-processing strategies and picks the longest
+    (most informative) result.
+    """
+    orig = pil_image.convert('RGB')
+    w, h = orig.size
+    # Up-scale small images so Tesseract gets more detail
+    scale = max(1, 2000 // max(w, h))
+    if scale > 1:
+        orig = orig.resize((w * scale, h * scale), Image.LANCZOS)
+
+    gray = orig.convert('L')
+
+    candidates = []
+
+    # Pass 1: High-contrast grayscale
+    enhanced = ImageEnhance.Contrast(gray).enhance(2.2)
+    enhanced = ImageEnhance.Sharpness(enhanced).enhance(2.0)
+    candidates.append(_ocr_single_pass(enhanced, psm=6))
+
+    # Pass 2: Adaptive threshold via OpenCV
+    try:
+        arr = np.array(gray)
+        thresh = cv2.adaptiveThreshold(
+            arr, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 31, 10
+        )
+        candidates.append(_ocr_single_pass(Image.fromarray(thresh), psm=6))
+    except Exception:
+        pass
+
+    # Pass 3: Denoised + Otsu threshold
+    try:
+        arr = np.array(gray)
+        denoised = cv2.fastNlMeansDenoising(arr, None, 12, 7, 21)
+        _, otsu = cv2.threshold(denoised, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        candidates.append(_ocr_single_pass(Image.fromarray(otsu), psm=4))
+    except Exception:
+        pass
+
+    # Pick the longest useful result
+    best = ""
+    for raw in candidates:
+        cleaned = re.sub(r'[^a-zA-Z,\s\-&()./]', ' ', raw)
+        cleaned = re.sub(r'\s+', ' ', cleaned).strip()
+        if len(cleaned) > len(best):
+            best = cleaned
+
+    if best:
+        logger.info(f'OCR extracted {len(best)} chars from image.')
+    else:
+        logger.warning('OCR could not extract any text from the uploaded image.')
+
+    return best
+
+
+# ─── Ingredient-text validation gate ──────────────────────────────────────────
+# Cosmetic / INCI keywords that signal an authentic ingredient list
+_INGREDIENT_KEYWORDS = [
+    # Common header words
+    'ingredients', 'active ingredients', 'inactive ingredients', 'composition',
+    # Top INCI ingredients (appear on almost every label)
+    'aqua', 'water', 'glycerin', 'glycerine', 'dimethicone', 'tocopherol',
+    'panthenol', 'niacinamide', 'retinol', 'hyaluronic', 'squalane',
+    'cetearyl', 'stearic', 'palmitic', 'caprylic', 'cetyl',
+    'sodium', 'potassium', 'magnesium', 'zinc', 'titanium dioxide',
+    # Functional groups
+    'acid', 'sulfate', 'sulphate', 'paraben', 'phenoxyethanol',
+    'extract', 'oil', 'butter', 'wax', 'alcohol',
+    'fragrance', 'parfum', 'ci ',  # colour-index prefix
+    # Botanical / active markers
+    'aloe', 'chamomile', 'centella', 'ceramide', 'peptide',
+    'collagen', 'keratin', 'salicylic', 'benzoyl', 'kojic',
+    'ascorbic', 'lactic', 'citric', 'glycolic',
+    'shea', 'jojoba', 'argan', 'rosehip', 'tea tree',
+]
+_MIN_KEYWORD_HITS = 3  # At least this many must match
+
+
+def _validate_ingredients_text(text: str) -> tuple:
+    """
+    Check whether *text* looks like a genuine skincare ingredient list.
+
+    Returns
+    -------
+    (is_valid: bool, hits: list[str])
+        is_valid is True when >= _MIN_KEYWORD_HITS keywords are found.
+        hits contains the matched keywords (for logging / debugging).
+    """
+    lower = text.lower()
+    hits = [kw for kw in _INGREDIENT_KEYWORDS if kw in lower]
+    return len(hits) >= _MIN_KEYWORD_HITS, hits
 
 
 # ─── 4. AI Endpoints ─────────────────────────────────────────────────────────
@@ -249,45 +318,76 @@ def analyze_skin(request):
 
 @require_POST
 def analyze_product(request):
-    """تحليل المكونات باستخدام الموديلات الجديدة (93% دقة) ونظام الأمان اليدوي"""
+    """Ingredient analysis using the unified ML model + rule-based safety shield."""
     skin_type = request.POST.get('skin_type', 'normal').lower()
     ingredients_text = request.POST.get('ingredients_text', '').strip()
+    input_source = 'text'  # Track whether input came from text or image
 
-    # 1. OCR (لو اليوزر رفع صورة للمكونات)
+    # 1. OCR — extract text from uploaded product-label image
     if request.FILES.get('image'):
-        pil_img = Image.open(request.FILES.get('image'))
-        ingredients_text = extract_text_from_image(pil_img)
+        input_source = 'image'
+        try:
+            pil_img = Image.open(request.FILES.get('image')).convert('RGB')
+            ingredients_text = extract_text_from_image(pil_img)
+        except Exception as e:
+            logger.error(f'Image processing error: {e}')
+            return JsonResponse({
+                'error': 'Unable to process the uploaded image. Please try a different photo.',
+                'ocr_failed': True,
+                'input_source': input_source,
+            }, status=400)
 
+    # 2. Validate that we have readable text
     if not ingredients_text:
-        return JsonResponse({'error': 'No ingredients text found.'}, status=400)
+        if input_source == 'image':
+            return JsonResponse({
+                'error': ('We couldn\u2019t detect any readable text in this image. '
+                          'Please ensure the product label is clearly visible and try again.'),
+                'ocr_failed': True,
+                'not_ingredients': True,
+                'input_source': input_source,
+            }, status=400)
+        return JsonResponse({
+            'error': 'No ingredients provided. Please enter or upload ingredients.',
+            'input_source': input_source,
+        }, status=400)
 
-    # 2. AI Model Selection & Prediction (cached)
+    # 2b. Keyword validation — only process genuine ingredient lists
+    if input_source == 'image':
+        is_valid, keyword_hits = _validate_ingredients_text(ingredients_text)
+        if not is_valid:
+            logger.info(
+                f'Ingredient validation failed — only {len(keyword_hits)} keyword(s) '
+                f'matched: {keyword_hits}. Extracted text: "{ingredients_text[:120]}"'
+            )
+            return JsonResponse({
+                'error': ('We couldn\u2019t detect a valid ingredients list in this image. '
+                          'Please ensure the label is clear and readable, '
+                          'or paste the ingredients manually below.'),
+                'not_ingredients': True,
+                'input_source': input_source,
+                'ocr_text': ingredients_text[:500],
+            }, status=400)
+
+    # 3. AI Model Prediction via unified model (cached singleton)
     final_score = 50.0
+    found_harmful = []
+    found_safe = []
     try:
-        model, vectorizer = _get_ml_model(skin_type)
+        result = predict_safety(ingredients_text, skin_type)
+        prediction = result['prediction']   # 1 = safe, 0 = unsafe
+        prob = result['probability']         # P(safe)
 
-        # Preprocessing (نفس طريقة Colab)
+        # 4. Rule-Based Safety Shield
         clean_txt = ingredients_text.lower()
-        for p in ['visit the', 'no info', 'boutique']:
-            clean_txt = clean_txt.replace(p, '')
-
-        vec_input = vectorizer.transform([clean_txt]).toarray()
-        prediction = model.predict(vec_input)[0]
-        prob = model.predict_proba(vec_input)[0][1]
-
-        # 3. Rule-Based Safety Shield (The Manual Fix)
         found_harmful = [ing.title() for ing in HARMFUL_INGREDIENTS.get(skin_type, []) if ing in clean_txt]
         found_safe = [ing.title() for ing in SAFE_INGREDIENTS.get(skin_type, []) if ing in clean_txt]
 
-        # الـ Logic النهائي للنتيجة
         if found_harmful:
-            # لو في مواد ضارة صريحة، المنتج يسقط فوراً (أمان طبي)
             final_score = 40.0 - (len(found_harmful) * 5)
         elif prediction == 1:
-            # لو الـ AI قال آمن، بنديله درجة عالية بناءً على نسبة ثقة الـ AI
             final_score = 75 + (prob * 25) + (len(found_safe) * 2)
         else:
-            # لو الـ AI قال غير آمن
             final_score = prob * 70
 
     except Exception as e:
@@ -306,7 +406,8 @@ def analyze_product(request):
         'safe_ingredients': found_safe,
         'skin_type': skin_type,
         'recommendations': recommendations,
-        'ocr_text': ingredients_text[:300]
+        'input_source': input_source,
+        'ocr_text': ingredients_text[:500],
     })
 
 
