@@ -16,7 +16,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
 
     <style>
-        /* ─── Shared Design Tokens ──────────────────────────────────────────── */
+        /* Shared Design Tokens */
         :root {
             --cream: #FBFCFB;
             --beige-light: #F0F4F1;
@@ -74,11 +74,11 @@
 
         h1, h2, h3, .serif { font-family: "Cormorant Garamond", serif; }
 
-        /* ─── RTL Support ───────────────────────────────────────────────────── */
+        /* RTL Support */
         body.rtl { direction: rtl; text-align: right; }
         body.rtl .fab-container { left: 32px; right: auto; }
 
-        /* ─── Shared FAB Styles ─────────────────────────────────────────────── */
+        /*  Shared FAB Styles */
         .fab-container {
             position: fixed;
             bottom: 32px;
@@ -151,54 +151,6 @@
 <body>
     {% block body %}{% endblock %}
 
-    <!-- Shared FAB Menu -->
-    <div class="fab-container">
-        <div class="fab-menu" id="fab-menu">
-            <button class="fab-item" onclick="toggleDarkMode()" title="Toggle Dark Mode">
-                <span id="fab-dm-icon" style="font-size: 15px;">🌙</span>
-            </button>
-            <button class="fab-item" onclick="toggleTextSize()" title="Accessibility">
-                <span style="font-size: 15px; font-family: 'Jost', sans-serif; font-weight: 600; color: #7b8d84;">A</span>
-            </button>
-            <button class="fab-item" onclick="toggleLanguage()" title="Switch Language (EN/AR)">
-                <span style="font-size: 16px;">🌐</span>
-            </button>
-        </div>
-        <button id="fab-main" onclick="toggleFab()" title="Settings">
-            <i class="material-icons-outlined" style="font-size: 22px; color: #5C7365;">settings</i>
-        </button>
-    </div>
-
-    <!-- Shared JS Utilities -->
-    <script>
-        function toggleFab() {
-            document.getElementById('fab-menu').classList.toggle('active');
-        }
-
-        function toggleDarkMode() {
-            document.body.classList.toggle("dark-mode");
-            const isDark = document.body.classList.contains("dark-mode");
-            const icon = document.getElementById("fab-dm-icon");
-            if (icon) icon.innerText = isDark ? "☀️" : "🌙";
-            localStorage.setItem("darkMode", isDark ? "on" : "off");
-        }
-
-        // Restore dark mode preference
-        if (localStorage.getItem("darkMode") === "on") {
-            document.body.classList.add("dark-mode");
-            const icon = document.getElementById("fab-dm-icon");
-            if (icon) icon.innerText = "☀️";
-        }
-
-        let fontSizeState = 1;
-        function toggleTextSize() {
-            const sizes = ['14px', '16px', '18px'];
-            fontSizeState = (fontSizeState + 1) % 3;
-            document.documentElement.style.fontSize = sizes[fontSizeState];
-        }
-
-        // toggleLanguage is page-specific — defined in each page's block
-    </script>
     {% block extra_scripts %}{% endblock %}
 </body>
 </html>

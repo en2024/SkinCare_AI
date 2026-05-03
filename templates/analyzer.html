@@ -28,7 +28,7 @@
             --text-dark: #2A362F;
             --text-muted: #5C7365;
 
-            /* Visual Alias Mapping */
+            /* Alias mapping for easier use */
             --primary: var(--brown);
             --primary-bright: var(--rose-nude);
             --secondary: var(--beige);
@@ -1008,7 +1008,7 @@
             text-align: center;
         }
 
-        /* ─── Photo Guidelines Alert ──────────────────────────────────── */
+        /* Photo guidelines alert */
         .photo-guidelines {
             background: linear-gradient(135deg, rgba(107, 142, 124, 0.08), rgba(143, 168, 154, 0.12));
             border: 1px solid rgba(107, 142, 124, 0.25);
@@ -1053,7 +1053,7 @@
             flex-shrink: 0;
         }
 
-        /* ─── Low Confidence Error ────────────────────────────────────── */
+        /* Low confidence error box */
         .low-confidence-box {
             background: linear-gradient(135deg, rgba(184, 74, 74, 0.06), rgba(199, 123, 43, 0.08));
             border: 1px solid rgba(184, 74, 74, 0.25);
@@ -1094,7 +1094,7 @@
             margin-bottom: 12px;
         }
 
-        /* ─── Confidence Badge ────────────────────────────────────────── */
+        /* Confidence badge */
         .confidence-badge {
             display: inline-flex;
             align-items: center;
@@ -1117,7 +1117,7 @@
             background: var(--ok);
         }
 
-        /* ─── Quiz Section ────────────────────────────────────────────── */
+        /* Quiz section */
         .quiz-section {
             margin-top: 24px;
             animation: subtleUp 0.4s ease;
@@ -1206,7 +1206,7 @@
             background: rgba(107, 142, 124, 0.08);
         }
 
-        /* ─── Method Tag ──────────────────────────────────────────────── */
+        /* Method tag label */
         .method-tag {
             display: inline-block;
             font-size: 0.6rem;
@@ -1228,7 +1228,7 @@
             color: var(--warn);
         }
 
-        /* ─── Hamburger Button ──────────────────────────────── */
+        /* Mobile hamburger button */
         .hamburger {
             display: flex;
             flex-direction: column;
@@ -1263,7 +1263,7 @@
             transform: translateY(-7px) rotate(-45deg);
         }
 
-        /* ─── Sidebar Overlay ───────────────────────────────── */
+        /* Sidebar overlay background */
         .sidebar-overlay {
             position: fixed;
             inset: 0;
@@ -1280,7 +1280,7 @@
             visibility: visible;
         }
 
-        /* ─── Sidebar Panel ─────────────────────────────────── */
+        /* Sidebar panel */
         .sidebar {
             position: fixed;
             top: 0;
@@ -1793,6 +1793,7 @@
 
 
     <script>
+        // cycling through font sizes for accessibility
         let fontSizeState = 1;
         function toggleTextSize() {
             const sizes = ['14px', '16px', '18px'];
@@ -1800,6 +1801,7 @@
             document.documentElement.style.fontSize = sizes[fontSizeState];
         }
 
+        // translating all analyzer text to Arabic or English
         function applyLanguage(lang) {
             const isRtl = (lang === 'ar');
             if (isRtl) {
@@ -1812,6 +1814,7 @@
             updateTexts();
         }
 
+        // updating all labels and text on the page
         function updateTexts() {
             const isRtl = document.body.classList.contains('rtl');
             document.body.dir = isRtl ? "rtl" : "ltr";
@@ -1941,6 +1944,7 @@
             if (recLabel) recLabel.innerHTML = isRtl ? "<span>✓</span> روتين مقترح لك" : "<span>✓</span> Recommended Products";
         }
 
+        // toggling dark mode on/off
         function toggleDarkMode() {
             document.body.classList.toggle("dark-mode");
             const isDark = document.body.classList.contains("dark-mode");
@@ -1949,12 +1953,14 @@
             localStorage.setItem("darkMode", isDark ? "on" : "off");
         }
 
+        // restoring dark mode from last visit
         if (localStorage.getItem("darkMode") === "on") {
             document.body.classList.add("dark-mode");
             const icon = document.getElementById("fab-dm-icon");
             if (icon) icon.innerText = "☀️";
         }
 
+        // switching between Face Scan and Formula Check tabs
         let currentMode = 'skin';
         function switchTab(mode) {
             currentMode = mode;
@@ -1967,6 +1973,7 @@
             resetProgress();
         }
 
+        // updating the step progress dots (1, 2, 3)
         function setProgress(step) {
             for (let i = 1; i <= 3; i++) {
                 let wrap = document.getElementById(`st-${i}-wrap`);
@@ -1978,6 +1985,7 @@
         }
         function resetProgress() { setProgress(1); }
 
+        // resetting everything so the user can start over
         function resetApp() {
             switchTab(currentMode);
             document.getElementById('res-skin-content').style.display = 'none';
@@ -2002,6 +2010,7 @@
             el.classList.add('selected');
         }
 
+        // setting up drag-and-drop upload areas
         function setupDZ(dzId, fileId, imgId) {
             const dz = document.getElementById(dzId);
             const fi = document.getElementById(fileId);
@@ -2019,6 +2028,7 @@
         setupDZ('skin-dz', 'skin-file', 'skin-img');
         setupDZ('prod-dz', 'prod-file', 'prod-img');
 
+        // selecting a skin type pill in the product tab
         let selectedSkinType = null;
         function selectSkin(el, type) {
             document.querySelectorAll('.type-pill').forEach(p => p.classList.remove('active'));
@@ -2027,15 +2037,16 @@
             setProgress(2);
         }
 
-        // CSRF token helper for Django
+        // getting the CSRF token from cookies for Django
         function getCsrfToken() {
             const cookie = document.cookie.split(';').find(c => c.trim().startsWith('csrftoken='));
             return cookie ? cookie.split('=')[1] : '';
         }
 
-        // Cache the AI result for the hybrid endpoint
+        // saving the AI result for later use
         let aiResultCache = null;
 
+        // sending the face photo to the AI for skin analysis
         async function runSkinAnalysis() {
             const file = document.getElementById('skin-file').files[0];
             if (!file) return alert("Please upload a photo.");
@@ -2148,6 +2159,7 @@
             ov.style.display = 'none';
         }
 
+        // sending quiz answers to get the final hybrid result
         async function submitQuiz() {
             const isRtl = document.body.classList.contains('rtl');
             // Collect answers
@@ -2184,6 +2196,7 @@
             ov.style.display = 'none';
         }
 
+        // sending product ingredients to the AI for safety check
         async function runProductAnalysis() {
             const isRtl = document.body.classList.contains('rtl');
             if (!selectedSkinType) return alert(isRtl ? 'اختاري نوع البشرة أولاً.' : 'Select your skin type first.');
@@ -2257,6 +2270,7 @@
             ov.style.display = 'none';
         }
 
+        // displaying the final results on screen
         function displayResults(type, data) {
             const isRtl = document.body.classList.contains('rtl');
             setProgress(3);

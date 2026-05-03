@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile | AI SkinCare Safety Analyzer</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <style>
@@ -31,7 +31,7 @@
         h1, h2, h3, .serif { font-family: 'Cormorant Garamond', serif; }
         a { text-decoration: none; color: inherit; }
 
-        /* ─── Header ─────────────────────────────────── */
+        /* Header */
         .profile-header {
             background: var(--surface); border-bottom: 1px solid var(--border);
             padding: 24px 5%; padding-right: 100px; display: flex; align-items: center; justify-content: space-between;
@@ -43,7 +43,7 @@
         .back-link:hover { color: var(--dark); }
         body.rtl .back-link { flex-direction: row-reverse; }
 
-        /* ─── Layout ─────────────────────────────────── */
+        /* Layout */
         .profile-container { max-width: 800px; margin: 40px auto; padding: 0 5%; }
 
         .profile-avatar {
@@ -55,7 +55,7 @@
         .profile-name { text-align: center; font-size: 1.8rem; margin-bottom: 4px; }
         .profile-username { text-align: center; color: var(--muted); font-size: 0.9rem; margin-bottom: 32px; }
 
-        /* ─── Cards ──────────────────────────────────── */
+        /* Cards */
         .section-card {
             background: var(--surface); border: 1px solid var(--border);
             border-radius: 18px; padding: 28px; margin-bottom: 24px;
@@ -75,7 +75,7 @@
         }
         .section-title .material-icons-outlined { font-size: 18px; color: var(--primary); }
 
-        /* ─── Form Elements ──────────────────────────── */
+        /* Form elements */
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
         .form-input, .form-select {
@@ -99,7 +99,7 @@
         .btn-danger { background: transparent; border: 1px solid rgba(184,74,74,0.3); color: #b84a4a; }
         .btn-danger:hover { background: rgba(184,74,74,0.08); }
 
-        /* ─── Skin Type Selector ─────────────────────── */
+        /* Skin type selector */
         .skin-type-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-bottom: 16px; }
         .skin-type-option {
             padding: 14px 12px; border: 2px solid var(--border); border-radius: 14px;
@@ -109,7 +109,7 @@
         .skin-type-option.selected { border-color: var(--primary); background: rgba(107,142,124,0.1); color: var(--primary); font-weight: 700; }
         .skin-type-option .type-icon { font-size: 1.5rem; margin-bottom: 6px; display: block; }
 
-        /* ─── Favorites Grid ─────────────────────────── */
+        /* Favorites grid */
         .fav-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
         .fav-card {
             background: var(--bg); border: 1px solid var(--border); border-radius: 14px;
@@ -125,7 +125,7 @@
         .empty-state { text-align: center; padding: 32px; color: var(--muted); }
         .empty-state .material-icons-outlined { font-size: 40px; margin-bottom: 8px; display: block; opacity: 0.4; }
 
-        /* ─── Toast ──────────────────────────────────── */
+        /* Toast notification */
         .toast {
             position: fixed; top: 24px; right: 24px; z-index: 9999;
             padding: 14px 24px; border-radius: 12px; font-size: 0.88rem;
@@ -267,13 +267,14 @@
 
     <!-- 5. Sign Out -->
     <div class="section-card" style="text-align:center;">
-        <button class="btn btn-danger" onclick="if(confirm('Are you sure you want to sign out?')){window.location.href='{% url 'logout' %}'}">
+        <button class="btn btn-danger" onclick="if(confirm('Are you sure you want to sign out?')){window.location.href='{% url "logout" %}'}">
             <i class="material-icons-outlined" style="font-size:16px;">logout</i> <span id="prof-btn-signout">Sign Out</span>
         </button>
     </div>
 </div>
 
 <script>
+    // translating profile page text to Arabic or English
     function applyLanguage(lang) {
         const isRtl = (lang === 'ar');
         if (isRtl) {
@@ -317,17 +318,18 @@
         setHtml('prof-btn-signout', isRtl ? 'تسجيل خروج' : 'Sign Out');
     }
 
+    // selecting a skin type from the grid
     function selectSkinType(type, el) {
         document.querySelectorAll('.skin-type-option').forEach(o => o.classList.remove('selected'));
         el.classList.add('selected');
         document.getElementById('skinTypeInput').value = type;
     }
 
-    // Auto-dismiss toast
+    // auto-dismiss the success/error toast after a few seconds
     const toast = document.querySelector('.toast');
     if (toast) setTimeout(() => toast.remove(), 3200);
 
-    // Dark mode
+    // restoring dark mode from last visit
     if (localStorage.getItem('darkMode') === 'on') document.body.classList.add('dark-mode');
 </script>
 </body>

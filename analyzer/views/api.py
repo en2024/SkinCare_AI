@@ -1,3 +1,8 @@
+# Here I'm importing all the libraries we need for the AI pipeline:
+# - cv2 (OpenCV) for image processing and face detection
+# - torch / torchvision for the deep learning models (ResNet50)
+# - pytesseract for OCR (reading text from product label images)
+# - PIL for opening and enhancing images before processing
 import logging
 import os
 import re
@@ -19,15 +24,23 @@ from ..models import Product
 
 logger = logging.getLogger('analyzer')
 
-# ─── إعداد مسار Tesseract OCR ───────────────────────────────────────────────
+# Setting up the path to Tesseract OCR engine on the system
+# We need this so Python knows where the OCR program is installed
 pytesseract.pytesseract.tesseract_cmd = getattr(settings, 'TESSERACT_CMD', r'C:\Program Files\Tesseract-OCR\tesseract.exe')
 
 # ─── 1. Face Analysis Model (Vision AI) ──────────────────────────────────────
+# Here I'm loading the ResNet50 CNN model that we trained to classify skin types.
+# The model was trained on 5 classes: combination, dry, normal, oily, sensitive.
+# I replaced the last fully-connected layer to output 5 classes instead of
+# ImageNet's 1000, because we only care about skin types.
 CLASS_NAMES = ['combination', 'dry', 'normal', 'oily', 'sensitive']
 face_model = models.resnet50(weights=None)
 face_model.fc = nn.Linear(face_model.fc.in_features, 5)
 face_model_path = os.path.join(settings.BASE_DIR, 'analyzer', 'ml_models', 'model_resnet50_5class.pth')
 
+# Loading the saved weights from our training session
+# map_location='cpu' ensures it works even without a GPU
+# .eval() switches the model to inference mode (no training)
 try:
     face_model.load_state_dict(torch.load(face_model_path, map_location=torch.device('cpu')), strict=False)
     face_model.eval()
@@ -36,6 +49,9 @@ except Exception as e:
     logger.error(f'Face Model Loading Error: {e}')
 
 # ─── Load YOLOv8 Acne Detection Model ───
+# This is our second AI model — YOLOv8 for detecting acne spots on the face.
+# We use it to count acne and slightly adjust the skin type prediction.
+# If the library isn't installed or the model file is missing, we just skip it.
 try:
     from ultralytics import YOLO
     yolo_model_path = os.path.join(settings.BASE_DIR, 'analyzer', 'ml_models', 'acne_yolov8.pt')
@@ -49,8 +65,14 @@ except ImportError:
     logger.warning("Ultralytics not installed. YOLO detection disabled.")
 
 # ─── Face Detection Gate (OpenCV Haar Cascade) ───────────────────────────────
+# Before running the CNN, we first check if there's actually a face in the image
+# using OpenCV's built-in Haar Cascade detector. This prevents random images
+# from getting a skin type prediction.
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
+# These transforms prepare the image for ResNet50 — the model expects
+# 224x224 images normalized with ImageNet's mean and standard deviation.
+# This must match exactly what we used during training.
 transform = transforms.Compose([
     transforms.Resize(256),
     transforms.CenterCrop(224),
@@ -59,11 +81,15 @@ transform = transforms.Compose([
 ])
 
 # ─── 2. Ingredients AI Logic (The Hybrid System) ─────────────────────────────
-# Unified model loaded via predictor helper (lazy singleton)
+# Here I'm importing the ingredient safety predictor (Random Forest model).
+# It's loaded as a "lazy singleton" — meaning the model file only gets
+# loaded into memory once, the first time someone uses it.
 from ..ml_models.ingredients.predictor import predict_safety
 
 
-# قاعدة بيانات المكونات المحظورة (Safety Shield)
+# Rule-based safety shield — these are known harmful ingredients for each skin type.
+# Even if the ML model says "safe", finding these ingredients will lower the score.
+# This acts as a safety net on top of the AI prediction.
 HARMFUL_INGREDIENTS = {
     'oily': ['alcohol denat', 'isopropyl myristate', 'coconut oil', 'lanolin', 'mineral oil', 'cocoa butter', 'sodium lauryl sulfate'],
     'dry': ['alcohol denat', 'benzoyl peroxide', 'salicylic acid', 'fragrance', 'sulfates', 'isopropyl alcohol'],
@@ -72,6 +98,8 @@ HARMFUL_INGREDIENTS = {
     'combination': ['alcohol denat', 'coconut oil', 'mineral oil', 'isopropyl myristate'],
 }
 
+# And these are the good ingredients — finding them boosts the safety score.
+# This helps the system give bonus points when beneficial ingredients are present.
 SAFE_INGREDIENTS = {
     'oily': ['salicylic acid', 'niacinamide', 'hyaluronic acid', 'zinc', 'tea tree'],
     'dry': ['hyaluronic acid', 'glycerin', 'ceramide', 'squalane', 'shea butter'],
@@ -82,6 +110,8 @@ SAFE_INGREDIENTS = {
 
 
 # ─── 3. OCR Helper (Multi-pass pre-processing for product labels) ─────────────
+# This helper runs Tesseract OCR on a single image with specific settings.
+# psm=6 means "assume a single uniform block of text" which works well for labels.
 def _ocr_single_pass(pil_img, psm=6):
     """Run Tesseract on a single pre-processed PIL image."""
     config = f'--oem 3 --psm {psm} -l eng'
@@ -91,6 +121,10 @@ def _ocr_single_pass(pil_img, psm=6):
         return ""
 
 
+# This is the main OCR function — it tries 3 different image processing
+# techniques and picks whichever one extracts the most text.
+# The idea is that different label styles (dark background, glossy, etc.)
+# respond better to different preprocessing, so we try multiple approaches.
 def extract_text_from_image(pil_image):
     """
     Multi-pass OCR extraction optimised for ingredient labels.
@@ -149,7 +183,10 @@ def extract_text_from_image(pil_image):
 
 
 # ─── Ingredient-text validation gate ──────────────────────────────────────────
-# Cosmetic / INCI keywords that signal an authentic ingredient list
+# This is a security layer — before we send OCR text to the AI model,
+# we check if it actually looks like a skincare ingredient list.
+# If someone uploads a random photo (like a cat), the OCR might extract
+# gibberish. We require at least 3 known skincare keywords to be present.
 _INGREDIENT_KEYWORDS = [
     # Common header words
     'ingredients', 'active ingredients', 'inactive ingredients', 'composition',
@@ -187,6 +224,8 @@ def _validate_ingredients_text(text: str) -> tuple:
 
 
 # ─── 4. AI Endpoints ─────────────────────────────────────────────────────────
+# This is the main skin analysis endpoint — the core of our graduation project.
+# When a user uploads a face photo, this function runs the full AI pipeline.
 
 @require_POST
 def analyze_skin(request):
@@ -316,6 +355,9 @@ def analyze_skin(request):
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
+# This endpoint handles ingredient safety analysis.
+# It can receive ingredients as text OR as a photo of a product label (OCR).
+# The flow: OCR (if image) → validate text → ML prediction → rule-based shield → final score
 @require_POST
 def analyze_product(request):
     """Ingredient analysis using the unified ML model + rule-based safety shield."""
@@ -412,8 +454,12 @@ def analyze_product(request):
 
 
 # ─── 5. Hybrid Skin Analysis (AI + Questionnaire) ────────────────────────────
+# This is the hybrid system — we combine the AI's prediction with the user's
+# answers to 3 skin-type questions. If the AI is very confident (>85%), it wins.
+# If the AI is moderately confident (75-84%), the questionnaire has more weight.
+# This way we get more reliable results by using both AI and human input.
 
-# Questionnaire answer → skin-type point mapping
+# Each answer maps to a skin type — we count the votes to find the quiz winner
 QUIZ_SCORING = {
     # Q1: How does your skin feel 30 min after washing?
     'q1': {'a': 'oily', 'b': 'dry', 'c': 'normal', 'd': 'sensitive', 'e': 'combination'},
@@ -423,6 +469,7 @@ QUIZ_SCORING = {
     'q3': {'a': 'oily', 'b': 'dry', 'c': 'normal', 'd': 'sensitive', 'e': 'combination'},
 }
 
+# Friendly descriptions shown to the user after we determine their skin type
 SKIN_DESCRIPTIONS = {
     'oily': 'Your skin produces excess sebum, especially in the T-zone. Lightweight, oil-free products are ideal.',
     'dry': 'Your skin tends to feel tight and may flake. Rich, hydrating products with ceramides work best.',
@@ -509,6 +556,7 @@ def analyze_skin_hybrid(request):
     })
 
 
+# Simple endpoint to add/remove a product from the user's favorites list
 @require_POST
 def toggle_favorite(request):
     """Toggle a product in the user's favorites list."""

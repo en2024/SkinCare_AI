@@ -1,3 +1,6 @@
+# This script trains the ResNet50 CNN model for skin type classification.
+# We use transfer learning — starting from a model pre-trained on ImageNet,
+# then fine-tuning it on our own skin type dataset (5 classes).
 import os
 import torch
 import torch.nn as nn
@@ -11,7 +14,12 @@ def train_model():
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(f"[*] Training will run on: {device}")
 
-    # Define Image Augmentations/Transformations
+
+    # Data augmentation for training — we randomly crop and flip images
+    # so the model learns to recognise skin textures from different angles.
+    # For validation, we just resize and center-crop (no randomness).
+    # The Normalize values match ImageNet's statistics because ResNet50
+    # was originally trained on ImageNet.
     data_transforms = {
         'Train': transforms.Compose([
             transforms.RandomResizedCrop(224),
@@ -48,7 +56,10 @@ def train_model():
 
     num_classes = len(class_names)
 
-    # Load pre-trained ResNet-50 architecture
+    # Transfer Learning — loading ResNet50 with pre-trained ImageNet weights.
+    # We only replace the last layer (fc) with our own 5-class output layer.
+    # This way, the model already knows how to extract image features,
+    # and we just teach it to distinguish skin types.
     model = models.resnet50(weights=models.ResNet50_Weights.DEFAULT)
     
     # Replace final fully connected layer for the new 5 classes
@@ -57,9 +68,14 @@ def train_model():
     
     model = model.to(device)
 
+    # CrossEntropyLoss is the standard loss for classification problems.
+    # Adam optimizer adjusts the learning rate automatically during training.
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     
+    # Training loop — we run 5 epochs (passes through the entire dataset).
+    # We keep track of the best model weights so we save the version
+    # with the highest validation accuracy, not just the last one.
     num_epochs = 5
     best_model_wts = copy.deepcopy(model.state_dict())
     best_acc = 0.0
@@ -113,7 +129,7 @@ def train_model():
 
     print(f'[*] Training complete. Best Validation Accuracy: {best_acc:4f}')
 
-    # Save the best weights
+    # Save the best model weights to disk so the Django app can load them.
     model.load_state_dict(best_model_wts)
     
     output_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'analyzer', 'ml_models', 'model_resnet50_5class.pth'))

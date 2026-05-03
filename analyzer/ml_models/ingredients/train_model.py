@@ -31,14 +31,19 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 import pickle
 
-# ─── Paths ────────────────────────────────────────────────────────────────────
+# ─── Paths ────────────────────────────────────────────────────────────────────────
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 CSV_PATH = os.path.join(SCRIPT_DIR, "cleaned_dataset.csv")
 MODEL_PATH = os.path.join(SCRIPT_DIR, "skincare_model.pkl")
 
+# These are the 5 skin type columns in our dataset.
+# Each column is binary: 1 = safe for this skin type, 0 = unsafe.
 SKIN_TYPES = ["Combination", "Dry", "Normal", "Oily", "Sensitive"]
 
 
+# This function takes the raw ingredient data from the CSV and converts it
+# into a clean text string. The CSV stores ingredients as nested lists like
+# "[['water'], ['glycerin']]", so we parse that and join them into one string.
 def flatten_ingredients(raw: str) -> str:
     """
     Convert the raw ingredient cell (a nested list of strings) into a single

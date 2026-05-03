@@ -435,7 +435,7 @@
             font-size: 0.95rem;
         }
 
-        /* Expanding Settings FAB (الديزاين الرقيق) */
+        /* Floating settings button */
         .fab-container {
             position: fixed;
             bottom: 32px;
@@ -503,7 +503,7 @@
             background: var(--bg);
         }
 
-        /* تنسيقات اللغة العربية لضمان الشكل المنظم */
+        /* Arabic RTL layout fixes */
         body.rtl { direction: rtl; text-align: right; }
         body.rtl .main-nav { padding-left: 100px; padding-right: 20px; }
         body.rtl .fab-container { left: 32px; right: auto; }
@@ -622,10 +622,12 @@
 
 
     <script>
+        // opening/closing the floating settings menu
         window.toggleFab = function() {
             document.getElementById('fab-menu').classList.toggle('active');
         };
 
+        // cycling through font sizes for accessibility
         let fontSizeState = 1;
         window.toggleTextSize = function() {
             const sizes = ['14px', '16px', '18px'];
@@ -633,7 +635,7 @@
             document.documentElement.style.fontSize = sizes[fontSizeState];
         };
 
-        // Language translation for catalog page
+        // translating all catalog text to Arabic or English
         window.applyLanguage = function(lang) {
             const isRtl = (lang === 'ar');
             if (isRtl) {
@@ -689,6 +691,7 @@
             if(footerP) footerP.innerHTML = isRtl ? "مشروع التخرج - الجامعة العربية المفتوحة، مصر <br /> &copy; 2026 إنجي نبيل صفوت" : "Final Year Project — Arab Open University, Egypt <br /> &copy; 2026 Engy Nabil Safwat";
         };
 
+        // toggling dark mode on/off
         function toggleDarkMode() {
             document.body.classList.toggle("dark-mode");
             const icon = document.getElementById("fab-dm-icon");
@@ -701,12 +704,14 @@
             }
         }
 
+        // restoring dark mode from last visit
         if (localStorage.getItem("darkMode") === "on") {
             document.body.classList.add("dark-mode");
             const icon = document.getElementById("fab-dm-icon");
             if(icon) icon.innerText = "☀️";
         }
 
+        // animating product cards one by one
         function animateCardsStaggered(cards) {
             let delay = 0;
             cards.forEach((card) => {
@@ -726,6 +731,7 @@
             });
         }
 
+        // filtering products by category when a tab is clicked
         document.addEventListener("DOMContentLoaded", () => {
             const filterTabs = document.querySelectorAll(".filter-tab");
             const productCards = document.querySelectorAll(".product-card");

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account | AI SkinCare Safety Analyzer</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <style>
@@ -247,6 +247,7 @@
 
 
 <script>
+    // switching to the login tab
     function showLogin() {
         document.getElementById("login-section").style.display = "block";
         document.getElementById("register-section").style.display = "none";
@@ -254,6 +255,7 @@
         document.getElementById("tab-register").classList.remove("active");
         updateUIText();
     }
+    // switching to the register tab
     function showRegister() {
         document.getElementById("login-section").style.display = "none";
         document.getElementById("register-section").style.display = "block";
@@ -261,24 +263,22 @@
         document.getElementById("tab-register").classList.add("active");
         updateUIText();
     }
+    // if registration had an error, jump to register tab on load
     {% if reg_error %}
     document.addEventListener("DOMContentLoaded", function() {
         showRegister();
     });
     {% endif %}
+    // toggling dark mode on/off
     function toggleDarkMode() {
         document.body.classList.toggle("dark-mode");
         const isDark = document.body.classList.contains("dark-mode");
         document.getElementById("fab-dm-icon").innerText = isDark ? "☀️" : "🌙";
         localStorage.setItem("darkMode", isDark ? "on" : "off");
     }
+    // restoring dark mode from last visit
     if(localStorage.getItem("darkMode") === "on") { document.body.classList.add("dark-mode"); document.getElementById("fab-dm-icon").innerText = "☀️"; }
-    let currentSizeIdx = 1;
-    function changeFontSize() { 
-        let sizes = ['14px', '16px', '19px'];
-        currentSizeIdx = (currentSizeIdx + 1) % 3;
-        document.documentElement.style.fontSize = sizes[currentSizeIdx];
-    }
+    // applying language (Arabic or English)
     function applyLanguage(lang) {
         const isRtl = (lang === 'ar');
         if (isRtl) {
@@ -290,6 +290,7 @@
         }
         updateUIText();
     }
+    // updating all text on the page based on current language
     function updateUIText() {
         const isRtl = document.body.classList.contains('rtl');
         const isLoginVisible = document.getElementById('login-section').style.display !== "none";
@@ -309,6 +310,7 @@
             document.getElementById('reg-title').innerText = isRtl ? "إنشاء حساب" : "Create Account";
             document.getElementById('reg-subtitle').innerText = isRtl ? "انضمي إلى مختبر الجمال الذكي" : "Join our intelligent beauty lab";
         }
+        // translating input placeholders
         const placeholders = {
             'in-user': isRtl ? "اسم المستخدم" : "Username",
             'in-pass': isRtl ? "كلمة المرور" : "Password",
@@ -321,12 +323,14 @@
             let el = document.getElementById(id);
             if(el) el.placeholder = text;
         }
+        // translating skin type dropdown options
         let skinSelect = document.getElementById('skin-select');
         if(skinSelect) {
             let options = skinSelect.options;
             if(isRtl) {
                 if(options[0]) options[0].text = "نوع البشرة (اختياري)";
-             if(options[2]) options[2].text = "جافة";
+                if(options[1]) options[1].text = "دهنية";
+                if(options[2]) options[2].text = "جافة";
                 if(options[3]) options[3].text = "عادية";
                 if(options[4]) options[4].text = "مختلطة";
                 if(options[5]) options[5].text = "حساسة";
@@ -342,11 +346,6 @@
     }
     updateUIText();
 
-    function confirmSignOut() {
-        const isRtl = document.body.classList.contains('rtl');
-        const msg = isRtl ? 'هل أنتِ متأكدة من تسجيل الخروج؟' : 'Are you sure you want to sign out?';
-        if (confirm(msg)) { window.location.href = '{% url 'logout' %}'; }
-    }
 </script>
 </body>
 </html>

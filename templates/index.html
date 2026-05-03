@@ -4,8 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Home | AI Skin Care Assistant Analyzer</title>
-
+    <title>Home | AI SkinCare Safety Analyzer</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -28,7 +27,7 @@
             --text-dark: #2A362F;
             --text-muted: #5C7365;
 
-            /* Legacy mapping for layout stability */
+            /* Alias mapping for layout */
             --primary: var(--brown);
             --secondary: var(--sand);
             --accent: var(--rose-nude);
@@ -429,7 +428,7 @@
             line-height: 1.5;
         }
 
-        /* Skincare Education & Tips Styles */
+        /* Education and tips section */
         .education-tips {
             padding: 120px 5% 140px;
             background: linear-gradient(180deg, var(--surface) 0%, var(--bg) 100%);
@@ -520,7 +519,7 @@
             line-height: 1.6;
         }
 
-        /* Expanding Settings FAB */
+        /* Floating settings button */
         .fab-container {
             position: fixed;
             bottom: 32px;
@@ -588,7 +587,7 @@
             background: var(--bg);
         }
 
-        /* تنسيقات اللغة العربية لضمان الشكل المنظم */
+        /* Arabic RTL layout fixes */
         body.rtl { direction: rtl; text-align: right; }
         body.rtl header { padding-left: 100px; padding-right: 4%; }
         body.rtl .fab-container { left: 32px; right: auto; }
@@ -791,6 +790,7 @@
 
 
     <script>
+        // showing elements with fade-in when user scrolls down
         function reveal() {
             var reveals = document.querySelectorAll(".reveal");
             for (var i = 0; i < reveals.length; i++) {
@@ -805,11 +805,12 @@
         window.addEventListener("scroll", reveal);
         setTimeout(reveal, 200);
 
+        // opening/closing the floating settings menu
         function toggleFab() {
             document.getElementById('fab-menu').classList.toggle('active');
         }
 
-        // دالة الترجمة الشاملة لكل الصفحة
+        // translating all page text to Arabic or English
         function applyLanguage(lang) {
             const isRtl = (lang === 'ar');
             if (isRtl) {
@@ -919,6 +920,7 @@
             if(footerP) footerP.innerHTML = isRtl ? "مشروع التخرج - الجامعة العربية المفتوحة، مصر <br /> &copy; 2026 إنجي نبيل صفوت" : "Final Year Project - Arab Open University, Egypt <br /> &copy; 2026 Engy Nabil Safwat";
         }
 
+        // toggling dark mode on/off
         function toggleDarkMode() {
             document.body.classList.toggle("dark-mode");
             const icon = document.getElementById("fab-dm-icon");
@@ -931,12 +933,14 @@
             }
         }
 
+        // restoring dark mode from last visit
         if (localStorage.getItem("darkMode") === "on") {
             document.body.classList.add("dark-mode");
             const icon = document.getElementById("fab-dm-icon");
             if(icon) icon.innerText = "☀️";
         }
         
+        // cycling through font sizes for accessibility
         let fontSizeState = 1;
         function toggleTextSize() {
             const sizes = ['14px', '16px', '18px'];
