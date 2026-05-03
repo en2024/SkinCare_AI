@@ -266,6 +266,63 @@
             transform: translateY(-2px);
         }
 
+        /* Search bar */
+        .search-wrap {
+            width: 80%;
+            max-width: 800px;
+            margin: 0 auto 28px;
+            position: relative;
+        }
+        .search-wrap .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 22px;
+            color: var(--muted);
+            pointer-events: none;
+            transition: color 0.3s ease;
+        }
+        .search-wrap input {
+            width: 100%;
+            padding: 16px 20px 16px 54px;
+            border: 1.5px solid rgba(127, 154, 135, 0.25);
+            border-radius: var(--radius-pill);
+            background: var(--surface);
+            color: var(--dark);
+            font-family: 'Jost', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+            box-shadow: 0 2px 12px rgba(42, 54, 47, 0.05);
+            transition: all 0.3s ease;
+        }
+        .search-wrap input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(107, 142, 124, 0.1), 0 4px 20px rgba(42, 54, 47, 0.08);
+        }
+        .search-wrap input:focus ~ .search-icon {
+            color: var(--primary);
+        }
+        .search-wrap input::placeholder {
+            color: var(--muted);
+            font-weight: 400;
+        }
+        .no-results-msg {
+            text-align: center;
+            padding: 48px 20px;
+            color: var(--muted);
+            font-size: 1rem;
+            display: none;
+        }
+        .no-results-msg .material-icons-outlined {
+            font-size: 40px;
+            display: block;
+            margin-bottom: 10px;
+            opacity: 0.4;
+        }
+        body.rtl .search-wrap .search-icon { left: auto; right: 20px; }
+        body.rtl .search-wrap input { padding-left: 20px; padding-right: 54px; }
+
         /* GRID */
         .product-grid {
             display: grid;
@@ -534,6 +591,7 @@
             .shop-hero { min-height: 260px; border-radius: 18px; }
             .product-grid { grid-template-columns: 1fr; gap: 18px; }
             .product-card { min-height: auto; }
+            .search-wrap { width: 90%; }
         }
     </style>
 </head>
@@ -576,6 +634,18 @@
                 <button class="filter-tab" data-category="sunscreens">☀️ <span class="filter-text">Sunscreens</span></button>
             </div>
         </section>
+
+        <!-- Search bar for product filtering -->
+        <div class="search-wrap">
+            <input type="text" id="product-search" placeholder="Search for a product...">
+            <i class="material-icons-outlined search-icon">search</i>
+        </div>
+
+        <!-- No results message -->
+        <div class="no-results-msg" id="no-results">
+            <i class="material-icons-outlined">search_off</i>
+            <span id="no-results-text">No products found.</span>
+        </div>
 
         <section class="product-grid" id="product-grid">
             {% for product in products %}
@@ -685,6 +755,12 @@
             if(emptyTitle) emptyTitle.innerText = isRtl ? "لا توجد منتجات حتى الآن" : "No products yet";
             if(emptyDesc) emptyDesc.innerText = isRtl ? "ستظهر المنتجات هنا بمجرد تحديث الكتالوج." : "Products will appear here once the catalog is updated.";
 
+            // translating search bar and no-results message
+            const searchInput = document.getElementById('product-search');
+            if(searchInput) searchInput.placeholder = isRtl ? "ابحثي عن منتج..." : "Search for a product...";
+            const noResultsText = document.getElementById('no-results-text');
+            if(noResultsText) noResultsText.innerText = isRtl ? "لا توجد منتجات مطابقة." : "No products found.";
+
             const footerH2 = document.querySelector('footer h2');
             const footerP = document.querySelector('footer p');
             if(footerH2) footerH2.innerText = isRtl ? "✦ محلل سلامة العناية بالبشرة" : "✦ AI SkinCare Safety Analyzer";
@@ -735,15 +811,41 @@
         document.addEventListener("DOMContentLoaded", () => {
             const filterTabs = document.querySelectorAll(".filter-tab");
             const productCards = document.querySelectorAll(".product-card");
+            const searchInput = document.getElementById('product-search');
+            const noResults = document.getElementById('no-results');
+            let activeCategory = 'all';
 
             setTimeout(() => animateCardsStaggered(productCards), 120);
+
+            // search bar logic for product filtering
+            function applyFilters() {
+                const query = searchInput.value.toLowerCase().trim();
+                let visibleCount = 0;
+
+                productCards.forEach((card) => {
+                    const name = card.querySelector('.product-name').textContent.toLowerCase();
+                    const matchesCategory = activeCategory === 'all' || card.getAttribute('data-category') === activeCategory;
+                    const matchesSearch = name.includes(query);
+
+                    if (matchesCategory && matchesSearch) {
+                        card.style.display = 'flex';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+                animateCardsStaggered(productCards);
+            }
+
+            searchInput.addEventListener('input', applyFilters);
 
             filterTabs.forEach((tab) => {
                 tab.addEventListener("click", () => {
                     filterTabs.forEach((t) => t.classList.remove("active"));
                     tab.classList.add("active");
-
-                    const filterValue = tab.getAttribute("data-category");
+                    activeCategory = tab.getAttribute("data-category");
 
                     productCards.forEach((card) => {
                         card.style.transition = "0.22s ease";
@@ -751,16 +853,7 @@
                         card.style.transform = "translateY(12px)";
                     });
 
-                    setTimeout(() => {
-                        productCards.forEach((card) => {
-                            if (filterValue === "all" || card.getAttribute("data-category") === filterValue) {
-                                card.style.display = "flex";
-                            } else {
-                                card.style.display = "none";
-                            }
-                        });
-                        animateCardsStaggered(productCards);
-                    }, 220);
+                    setTimeout(() => applyFilters(), 220);
                 });
             });
         });
