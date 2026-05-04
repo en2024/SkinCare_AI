@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,9 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Jost:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet"
-    />
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Jost:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800;900&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
 
     <style>
@@ -58,7 +58,11 @@
             --deep-brown: #FBFCFB;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
             font-family: "Jost", sans-serif;
@@ -68,13 +72,19 @@
             transition: background-color 0.35s ease, color 0.35s ease;
         }
 
-        h1, h2, h3, .serif { font-family: "Cormorant Garamond", serif; }
+        h1,
+        h2,
+        h3,
+        .serif {
+            font-family: "Cormorant Garamond", serif;
+        }
 
         .reveal {
             opacity: 0;
             transform: translateY(34px);
             transition: 0.75s cubic-bezier(0.165, 0.84, 0.44, 1);
         }
+
         .reveal.active {
             opacity: 1;
             transform: translateY(0);
@@ -101,7 +111,10 @@
             letter-spacing: 2px;
         }
 
-        .nav-links { display: flex; gap: 34px; }
+        .nav-links {
+            display: flex;
+            gap: 34px;
+        }
 
         .nav-links a {
             text-decoration: none;
@@ -112,7 +125,10 @@
             text-transform: uppercase;
             letter-spacing: 0.8px;
         }
-        .nav-links a:hover { color: var(--accent); }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
 
         .btn-nav {
             background: rgba(255, 255, 255, 0.16);
@@ -125,6 +141,7 @@
             transition: 0.3s;
             backdrop-filter: blur(8px);
         }
+
         .btn-nav:hover {
             background: var(--accent);
             color: #3a2f2f;
@@ -160,7 +177,12 @@
             animation: slowZoom 20s infinite alternate linear;
             filter: saturate(0.9) contrast(1.03);
         }
-        @keyframes slowZoom { 100% { transform: scale(1); } }
+
+        @keyframes slowZoom {
+            100% {
+                transform: scale(1);
+            }
+        }
 
         .hero-overlay {
             position: absolute;
@@ -170,6 +192,7 @@
                 linear-gradient(to right, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.16));
             transition: background 0.35s;
         }
+
         body.dark-mode .hero-overlay {
             background: linear-gradient(to bottom, rgba(12, 15, 13, 0.45), rgba(12, 15, 13, 0.8));
         }
@@ -191,9 +214,17 @@
             animation: textPop 1.4s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
             text-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
         }
+
         @keyframes textPop {
-            from { opacity: 0; transform: translate(-50%, -42%) scale(0.96); }
-            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            from {
+                opacity: 0;
+                transform: translate(-50%, -42%) scale(0.96);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
         }
 
         .hero-bottom-content {
@@ -207,9 +238,17 @@
             z-index: 10;
             animation: slideUpBottom 1.3s ease-out forwards;
         }
+
         @keyframes slideUpBottom {
-            from { opacity: 0; transform: translateY(24px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .hero-desc {
@@ -261,7 +300,10 @@
             white-space: nowrap;
             animation: marquee 24s linear infinite;
         }
-        .marquee-track:hover { animation-play-state: paused; }
+
+        .marquee-track:hover {
+            animation-play-state: paused;
+        }
 
         .marquee-track span {
             font-size: 0.95rem;
@@ -274,8 +316,13 @@
         }
 
         @keyframes marquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
         }
 
         .how-it-works {
@@ -284,17 +331,23 @@
             text-align: center;
         }
 
-        .section-header { margin-bottom: 64px; }
-        .section-header h2 {
-            font-size: 3.2rem;
-            margin-bottom: 12px;
+        /* // Final spacing adjustments: Adding margins to prevent text from touching headings and icons. */
+        /* // Improving the visual "breathability" of the How it Works section. */
+        .how-it-works .section-header h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+            font-size: 3rem;
             color: var(--dark);
+            margin-bottom: 20px;
         }
-        .section-header p {
-            font-size: 1.1rem;
+
+        .how-it-works .section-header p {
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            font-size: 1.2rem;
             color: var(--muted);
-            max-width: 600px;
-            margin: 0 auto;
+            line-height: 1.6;
+            margin-bottom: 64px;
         }
 
         .steps-container {
@@ -313,17 +366,19 @@
             left: 15%;
             right: 15%;
             height: 2px;
-            background: repeating-linear-gradient(
-                90deg,
-                var(--secondary) 0,
-                var(--secondary) 10px,
-                transparent 10px,
-                transparent 20px
-            );
+            background: repeating-linear-gradient(90deg,
+                    var(--secondary) 0,
+                    var(--secondary) 10px,
+                    transparent 10px,
+                    transparent 20px);
             z-index: 1;
         }
 
-        .step { flex: 1; position: relative; z-index: 2; }
+        .step {
+            flex: 1;
+            position: relative;
+            z-index: 2;
+        }
 
         .step-icon {
             width: 82px;
@@ -340,40 +395,79 @@
             box-shadow: 0 0 0 10px var(--surface);
             transition: 0.35s;
         }
+
         .step:hover .step-icon {
             background: var(--primary);
             color: #f4f7f5;
             transform: translateY(-8px);
         }
 
-        .step h3 { font-size: 1.45rem; margin-bottom: 10px; }
-        .step p {
-            color: var(--muted);
-            font-size: 1rem;
-            width: 86%;
-            margin: 0 auto;
-            line-height: 1.55;
+        .step h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+            font-size: 1.6rem;
+            margin-bottom: 12px;
+            color: var(--dark);
         }
 
+        .step p {
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            font-size: 1.15rem;
+            color: var(--muted);
+            width: 88%;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* // Finalizing UI aesthetics: Slightly reducing blur for a crisper, more professional skincare look. */
+        /* // Ensuring black typography remains sharp on a high-definition background. */
         .features {
             background: var(--bg);
             padding: 110px 8%;
             display: flex;
-            align-items: center;
-            gap: 56px;
+            align-items: stretch;
+            gap: 40px;
         }
 
-        .mf-text { flex: 1; }
-        .mf-text h2 {
-            font-size: 3.25rem;
-            margin-bottom: 18px;
-            line-height: 1.1;
-            color: var(--dark);
+        .mf-text {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: url("{% static 'images/pexels-shvets-production-9775408.jpg' %}") center/cover no-repeat;
+            border-radius: var(--radius-xl);
+            padding: 60px 8%;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
         }
+
+        .mf-text-box {
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            position: relative;
+            z-index: 2;
+        }
+
+        .mf-text h2 {
+            font-size: 3.4rem;
+            margin-bottom: 20px;
+            line-height: 1.1;
+            color: #000000;
+            font-weight: 700;
+        }
+
         .mf-text p {
-            font-size: 1.12rem;
-            color: var(--muted);
-            line-height: 1.65;
+            font-size: 1.15rem;
+            color: #000000;
+            line-height: 1.7;
+            font-weight: 600;
+            margin-bottom: 0;
         }
 
         .mf-grid {
@@ -428,58 +522,58 @@
             line-height: 1.5;
         }
 
-        /* Education and tips section */
+        /* // Final Spacing Fix: Adding margins to ensure the header and description don't touch each other or the video cards. */
+        /* // Maintaining a clean, airy layout for the Education section. */
         .education-tips {
-            padding: 120px 5% 140px;
+            padding: 100px 5% 120px;
             background: linear-gradient(180deg, var(--surface) 0%, var(--bg) 100%);
             text-align: center;
         }
 
+        .education-tips .section-header h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+            font-size: 3rem;
+            color: var(--dark);
+            margin-bottom: 25px;
+        }
+
+        .education-tips .section-header p {
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            font-size: 1.25rem;
+            color: var(--muted);
+            max-width: 700px;
+            margin: 0 auto 50px;
+            line-height: 1.7;
+        }
+
         .video-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 32px;
-            max-width: 1100px;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            width: 90%;
+            max-width: 1250px;
             margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .education-banner {
-            max-width: 900px;
-            margin: 50px auto 60px;
-            padding: 0 20px;
-        }
-
-        .education-banner img {
-            width: 100%;
-            height: 350px;
-            object-fit: cover;
-            object-position: center 40%;
-            border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-md);
-            display: block;
-            border: 1px solid rgba(127, 154, 135, 0.15);
-            transition: 0.5s ease;
-        }
-
-        .education-banner:hover img {
-            box-shadow: var(--shadow-lg);
-            transform: scale(1.01);
+            padding: 0;
         }
 
         .video-card {
             background: var(--white);
             border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            transition: 0.4s;
-            border: 1px solid var(--beige-light);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.4s ease;
+            border: 1px solid rgba(127, 154, 135, 0.1);
             display: flex;
             flex-direction: column;
             text-align: left;
-            height: fit-content; 
         }
-        .video-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+        }
 
         .video-wrapper {
             position: relative;
@@ -487,7 +581,6 @@
             padding-top: 56.25%;
             background: #000;
             overflow: hidden;
-            border-bottom: 1px solid rgba(127, 154, 135, 0.1);
         }
 
         .video-wrapper iframe {
@@ -497,12 +590,214 @@
             width: 100%;
             height: 100%;
             border: none;
-            transition: filter 0.3s ease;
         }
 
-        .video-content { padding: 24px; } 
-        .video-content h3 { font-size: 1.25rem; margin-bottom: 12px; color: var(--text-dark); letter-spacing: -0.2px; }
-        .video-content p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.55; font-weight: 400; margin-bottom: 0; } 
+        /* Fine-tuning typography for a clean, medium-scale UI */
+        .video-content {
+            padding: 22px;
+        }
+
+        .video-content h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--deep-brown);
+            letter-spacing: -0.2px;
+            line-height: 1.35;
+        }
+
+        .video-content p {
+            font-size: 0.92rem;
+            color: #2A362F;
+            line-height: 1.6;
+            font-weight: 400;
+            margin-bottom: 0;
+        }
+
+        /* // Implementing the holistic health section to educate users beyond products */
+        .holistic-section {
+            padding: 90px 5% 100px;
+            background: #FFFFFF;
+            overflow: hidden;
+        }
+
+        /* // Finalizing font scales for maximum visual impact during the project presentation */
+        .holistic-quote {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 60px;
+        }
+        .holistic-quote h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3rem;
+            font-weight: 600;
+            color: #2C2C2C;
+            line-height: 1.3;
+            margin-bottom: 18px;
+        }
+        .holistic-quote p {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 400;
+            color: #333333;
+            line-height: 1.7;
+            max-width: 750px;
+            margin: 0 auto;
+        }
+
+        /* // Aligning video sections with the health section for visual symmetry */
+        .holistic-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: stretch;
+            width: 90%;
+            max-width: 1250px;
+            margin: 0 auto;
+        }
+
+        /* // Restoring the correct lifestyle-themed image (Healthy food tray) to match the section's context. */
+        /* // Ensuring clean white background and perfect symmetry between image and info cards. */
+        .holistic-img-wrap {
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            box-shadow: 0 10px 36px rgba(42, 54, 47, 0.09);
+            height: 100%;
+            display: flex;
+            width: 100%;
+        }
+
+        .holistic-img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.6s ease;
+        }
+
+        .holistic-img-wrap:hover img {
+            transform: scale(1.03);
+        }
+
+        /* // Slimming down cards for a more professional, medium-scale appearance */
+        .holistic-cards-col {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .holistic-mini {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 20px 24px;
+            background: #FFFFFF;
+            border-radius: 20px;
+            border: 1px solid rgba(200, 190, 175, 0.15);
+            box-shadow: 0 3px 14px rgba(42, 54, 47, 0.04);
+            transition: 0.3s ease;
+        }
+        .holistic-mini:hover {
+            transform: translateX(6px);
+            box-shadow: 0 8px 28px rgba(42, 54, 47, 0.09);
+        }
+
+        /* Customizing icon colors for the new anti-green theme */
+        .holistic-mini .mini-icon {
+            flex-shrink: 0;
+            width: 46px;
+            height: 46px;
+            border-radius: 13px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+        .holistic-mini:nth-child(1) .mini-icon { background: #6AADCF; } /* Sky Blue for Sleep */
+        .holistic-mini:nth-child(2) .mini-icon { background: #C8956C; } /* Terracotta for Diet */
+        .holistic-mini:nth-child(3) .mini-icon { background: #C9A84C; } /* Golden Amber for Myth */
+
+        /* // Final typography polish: Increasing font sizes for maximum accessibility */
+        .holistic-mini-body { flex: 1; }
+        .holistic-mini-body h4 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #2C2C2C;
+            margin-bottom: 6px;
+        }
+        .holistic-mini-body p {
+            font-size: 1.05rem;
+            color: #333333;
+            line-height: 1.65;
+            margin-bottom: 12px;
+        }
+
+        /* // Switching from black buttons to a vibrant, thematic color palette */
+        .holistic-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'Jost', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #FFFFFF;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            margin-top: 5px;
+        }
+        
+        .holistic-mini:nth-child(1) .holistic-link { background-color: #6AADCF; }
+        .holistic-mini:nth-child(2) .holistic-link { background-color: #C8956C; }
+        .holistic-mini:nth-child(3) .holistic-link { background-color: #C9A84C; }
+
+        /* // Adding interactive hover effects for a more engaging user experience */
+        .holistic-mini:nth-child(1) .holistic-link:hover { 
+            background-color: #7BBDE0; 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(106, 173, 207, 0.4);
+        }
+        .holistic-mini:nth-child(2) .holistic-link:hover { 
+            background-color: #DFA67A; 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(200, 149, 108, 0.4);
+        }
+        .holistic-mini:nth-child(3) .holistic-link:hover { 
+            background-color: #E2BD58; 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(201, 168, 76, 0.4);
+        }
+
+        /* Slide-in animation for the image */
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        /* Fade-in animation for the cards */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .holistic-section.visible .holistic-img-wrap {
+            animation: slideInLeft 0.8s ease forwards;
+        }
+        .holistic-section.visible .holistic-mini:nth-child(1) {
+            animation: fadeInUp 0.6s 0.2s ease forwards; opacity: 0;
+        }
+        .holistic-section.visible .holistic-mini:nth-child(2) {
+            animation: fadeInUp 0.6s 0.4s ease forwards; opacity: 0;
+        }
+        .holistic-section.visible .holistic-mini:nth-child(3) {
+            animation: fadeInUp 0.6s 0.6s ease forwards; opacity: 0;
+        }
+        @media (max-width: 768px) {
+            .holistic-split { grid-template-columns: 1fr; width: 95%; gap: 32px; }
+            .holistic-img-wrap, .holistic-img-wrap img { max-height: 350px; }
+            .holistic-section { padding: 60px 5% 70px; }
+            .holistic-quote blockquote { font-size: 1.25rem; }
+        }
 
         footer {
             background-color: #2a342e;
@@ -511,7 +806,10 @@
             padding: 45px 5%;
         }
 
-        footer h2.serif { color: #f2f6f3; }
+        footer h2.serif {
+            color: #f2f6f3;
+        }
+
         footer p {
             color: #d5dfd8;
             margin-top: 10px;
@@ -538,16 +836,16 @@
             background: var(--surface);
             border: none;
             cursor: pointer;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
             display: flex;
             align-items: center;
             justify-content: center;
             transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        #fab-main:hover { 
-            transform: scale(1.05) rotate(90deg); 
-            box-shadow: 0 10px 28px rgba(0,0,0,0.1);
+        #fab-main:hover {
+            transform: scale(1.05) rotate(90deg);
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.1);
         }
 
         .fab-menu {
@@ -573,7 +871,7 @@
             background: var(--surface);
             border: none;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -581,25 +879,57 @@
             color: var(--dark);
         }
 
-        .fab-item:hover { 
-            transform: scale(1.1); 
-            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+        .fab-item:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
             background: var(--bg);
         }
 
         /* Arabic RTL layout fixes */
-        body.rtl { direction: rtl; text-align: right; }
-        body.rtl header { padding-left: 100px; padding-right: 4%; }
-        body.rtl .fab-container { left: 32px; right: auto; }
-        body.rtl .video-card { text-align: right; }
-        body.rtl .mf-card { text-align: right; }
-        body.rtl .step p { text-align: center; }
-        body.rtl .nav-links { flex-direction: row-reverse; }
+        body.rtl {
+            direction: rtl;
+            text-align: right;
+        }
+
+        body.rtl header {
+            padding-left: 100px;
+            padding-right: 4%;
+        }
+
+        body.rtl .fab-container {
+            left: 32px;
+            right: auto;
+        }
+
+        body.rtl .video-card {
+            text-align: right;
+        }
+
+        body.rtl .mf-card {
+            text-align: right;
+        }
+
+        body.rtl .step p {
+            text-align: center;
+        }
+
+        body.rtl .nav-links {
+            flex-direction: row-reverse;
+        }
 
         @media (max-width: 900px) {
-            .hero { padding: 0; }
-            .hero-img-wrapper { border-radius: 0; }
-            .massive-text { font-size: 19vw; line-height: 0.9; }
+            .hero {
+                padding: 0;
+            }
+
+            .hero-img-wrapper {
+                border-radius: 0;
+            }
+
+            .massive-text {
+                font-size: 19vw;
+                line-height: 0.9;
+            }
 
             .hero-bottom-content {
                 flex-direction: column;
@@ -609,8 +939,14 @@
                 bottom: 28px;
             }
 
-            .steps-container { flex-direction: column; gap: 58px; }
-            .steps-container::before { display: none; }
+            .steps-container {
+                flex-direction: column;
+                gap: 58px;
+            }
+
+            .steps-container::before {
+                display: none;
+            }
 
             .features {
                 flex-direction: column;
@@ -618,16 +954,36 @@
                 padding: 72px 5%;
             }
 
-            .nav-links { display: none; }
-            .mf-card { min-height: auto; }
+            .nav-links {
+                display: none;
+            }
+
+            .mf-card {
+                min-height: auto;
+            }
         }
-        
+
         @media (max-width: 768px) {
-            .video-grid { grid-template-columns: 1fr; gap: 32px; }
-            .education-tips { padding: 80px 5% 90px; }
+            .video-grid {
+                grid-template-columns: 1fr;
+                gap: 28px;
+                width: 95%;
+            }
+            .education-banner {
+                width: 95%;
+            }
+
+            .education-tips {
+                padding: 80px 5% 90px;
+            }
+
+
         }
+
+
     </style>
 </head>
+
 <body>
     <header>
         <a href="/" class="logo">AI SkinCare Safety Analyzer</a>
@@ -644,12 +1000,9 @@
 
     <section class="hero">
         <div class="hero-img-wrapper">
-            
-            <img
-                src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?q=80&w=1600&auto=format&fit=crop"
-                class="main-background"
-                alt="Natural skincare routine"
-            />
+
+            <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?q=80&w=1600&auto=format&fit=crop"
+                class="main-background" alt="Natural skincare routine" />
             <div class="hero-overlay"></div>
 
             <div class="massive-text">
@@ -658,7 +1011,8 @@
 
             <div class="hero-bottom-content">
                 <p class="hero-desc">
-                Analyze skincare ingredients for ultimate safety. Not sure of your skin type? Upload a photo for an instant AI scan and get personalized recommendations.
+                    Analyze skincare ingredients for ultimate safety. Not sure of your skin type? Upload a photo for an
+                    instant AI scan and get personalized recommendations.
                 </p>
                 <a href="{% url 'analyzer' %}" class="btn-main">Analyze My Skin</a>
             </div>
@@ -690,7 +1044,8 @@
             <div class="step reveal" style="transition-delay: 0.1s;">
                 <div class="step-icon"><i class="material-icons-outlined">camera_enhance</i></div>
                 <h3 class="serif">1. Set Your Profile</h3>
-                <p>Select your skin type manually, or upload a photo for an instant AI scan to detect it automatically.</p>
+                <p>Select your skin type manually, or upload a photo for an instant AI scan to detect it automatically.
+                </p>
             </div>
             <div class="step reveal" style="transition-delay: 0.3s;">
                 <div class="step-icon"><i class="material-icons-outlined">memory</i></div>
@@ -707,8 +1062,11 @@
 
     <section class="features">
         <div class="mf-text reveal">
-            <h2 class="serif">Safety meets<br />smart beauty.</h2>
-            <p>We blend advanced machine learning with ingredient analysis to ensure your skincare is perfectly safe and suited to your unique profile.</p>
+            <div class="mf-text-box">
+                <h2 class="serif">Safety meets<br />smart beauty.</h2>
+                <p>We blend advanced machine learning with ingredient analysis to ensure your skincare is perfectly safe and
+                    suited to your unique profile.</p>
+            </div>
         </div>
 
         <div class="mf-grid">
@@ -730,51 +1088,110 @@
             <div class="mf-card reveal" style="transition-delay: 0.5s;">
                 <i class="material-icons-outlined">spa</i>
                 <h3 class="serif">Safe Catalog</h3>
-                <p>Explore a comprehensive database of skincare products, instantly filtered to guarantee safety for your specific skin type.</p>
+                <p>Explore a comprehensive database of skincare products, instantly filtered to guarantee safety for
+                    your specific skin type.</p>
             </div>
         </div>
     </section>
 
+    <!-- // UI Cleanup: Removing the static stats section to streamline the user experience and focus on core features. -->
+
     <section class="education-tips">
         <div class="section-header reveal">
             <h2 class="serif">Skincare Education & Tips</h2>
-            <p>From identifying your skin type to decoding ingredients, master every step of your personal care routine.</p>
-        </div>
-
-        <div class="education-banner reveal" style="transition-delay: 0.1s;">
-            <!-- Main educational banner image -->
-            <img src="{% static 'image/education_banner.png' %}" alt="AI SkinCare Safety Analyzer Professional Banner">
-            
+            <p>From identifying your skin type to decoding ingredients, master every step of your personal care routine.
+            </p>
         </div>
 
         <div class="video-grid">
             <div class="video-card reveal" style="transition-delay: 0.1s;">
                 <div class="video-wrapper">
-                    <iframe width="560" height="315" src="https://www.youtube.com/embed/h5bQiVNkUkM?si=2UCxOzoVuiKLUTdg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/h5bQiVNkUkM?si=2UCxOzoVuiKLUTdg"
+                        title="YouTube video player" frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                 </div>
                 <div class="video-content">
                     <h3 class="serif">Simple Skincare Routine for Teens</h3>
-                    <p>A beginner-friendly guide to the essential steps of a daily skincare routine. Hosted by beauty experts, it breaks down how to layer products correctly for the best results.</p>
+                    <p>A beginner-friendly guide to the essential steps of a daily skincare routine. Hosted by beauty
+                        experts, it breaks down how to layer products correctly for the best results.</p>
                 </div>
             </div>
 
             <div class="video-card reveal" style="transition-delay: 0.2s;">
                 <div class="video-wrapper">
-                    <iframe width="560" height="315" src="https://www.youtube.com/embed/gyCA2Mbfdos?si=qwP-pn8Y-aU4AjbR" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/gyCA2Mbfdos?si=qwP-pn8Y-aU4AjbR"
+                        title="YouTube video player" frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                 </div>
                 <div class="video-content">
                     <h3 class="serif">Know Your Skin Type</h3>
-                    <p>A practical guide to identifying your skin type from home. This video explains the main differences between oily, dry, and combination skin to help you choose what fits you best.</p>
+                    <p>A practical guide to identifying your skin type from home. This video explains the main
+                        differences between oily, dry, and combination skin to help you choose what fits you best.</p>
                 </div>
             </div>
 
             <div class="video-card reveal" style="transition-delay: 0.3s;">
                 <div class="video-wrapper">
-                    <iframe width="560" height="315" src="https://www.youtube.com/embed/7Or2e2yAei0?si=U1rPGHDy3FtPyrpI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/7Or2e2yAei0?si=U1rPGHDy3FtPyrpI"
+                        title="YouTube video player" frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                 </div>
                 <div class="video-content">
                     <h3 class="serif">Essential Skincare Ingredients Explained</h3>
-                    <p>A beginner-friendly guide to the most popular ingredients in the skincare world. Hosted by a cosmetic chemist, it breaks down what common buzzwords actually do for your skin.</p>
+                    <p>A beginner-friendly guide to the most popular ingredients in the skincare world. Hosted by a
+                        cosmetic chemist, it breaks down what common buzzwords actually do for your skin.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- // Implementing the holistic health section to educate users beyond products -->
+    <section class="holistic-section" id="holistic-observer">
+        <!-- // Updating the core philosophy: AI helps, but health is the foundation -->
+        <div class="holistic-quote reveal">
+            <h2 class="serif" id="holistic-quote-text">Beyond the Bottle: Real Safety Starts Within</h2>
+            <p id="holistic-quote-sub">Even the smartest AI analyzer cannot fix what a poor lifestyle breaks. Your skin’s safety is a reflection of your health, not just your shelf.</p>
+        </div>
+
+        <div class="holistic-split">
+            <!-- // Ensuring card dimensions are balanced and responsive -->
+            <div class="holistic-img-wrap">
+                <img src="{% static 'images/holistic_lifestyle.png' %}" alt="Healthy lifestyle foods for glowing skin">
+            </div>
+
+            <div class="holistic-cards-col">
+                <!-- Sleep card with sky blue icon -->
+                <div class="holistic-mini">
+                    <div class="mini-icon"><i class="material-icons-outlined">bedtime</i></div>
+                    <div class="holistic-mini-body">
+                        <h4 class="holistic-h3">Stress & Sleep: The Restoration Phase</h4>
+                        <p class="holistic-p">Your skin repairs itself while you sleep. High stress increases cortisol, leading to breakouts and dullness.</p>
+                        <!-- // Verified medical links added for Harvard-level credibility -->
+                        <a href="https://www.mdcsnyc.com/post/how-sleep-stress-and-diet-impact-your-skin-health" target="_blank" rel="noopener" class="holistic-link holistic-btn-text">Read on MDCS Dermatology <i class="material-icons-outlined" style="font-size:14px">arrow_forward</i></a>
+                    </div>
+                </div>
+
+                <!-- Diet card with terracotta icon -->
+                <div class="holistic-mini">
+                    <div class="mini-icon"><i class="material-icons-outlined">restaurant</i></div>
+                    <div class="holistic-mini-body">
+                        <h4 class="holistic-h3">Nutrition: Your Natural Foundation</h4>
+                        <p class="holistic-p">Antioxidants and healthy fats from food build your collagen. Beauty truly starts in the kitchen.</p>
+                        <a href="https://www.healthline.com/nutrition/12-foods-for-healthy-skin" target="_blank" rel="noopener" class="holistic-link holistic-btn-text">Explore Healthline Guide <i class="material-icons-outlined" style="font-size:14px">arrow_forward</i></a>
+                    </div>
+                </div>
+
+                <!-- Myth card with golden amber icon -->
+                <div class="holistic-mini">
+                    <div class="mini-icon"><i class="material-icons-outlined">verified_user</i></div>
+                    <div class="holistic-mini-body">
+                        <h4 class="holistic-h3">The Luxury Product Trap</h4>
+                        <p class="holistic-p">Expensive price tags don't fix poor habits. Excessive chemicals can damage your natural skin barrier.</p>
+                        <a href="https://ancestralsupplements.com/blogs/news/skincare-myth" target="_blank" rel="noopener" class="holistic-link holistic-btn-text">Debunk the Myth <i class="material-icons-outlined" style="font-size:14px">arrow_forward</i></a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -823,13 +1240,13 @@
                 document.documentElement.setAttribute('dir', 'ltr');
                 document.documentElement.setAttribute('lang', 'en');
             }
-            
+
             // Navbar
             const logo = document.querySelector('.logo');
-            if(logo) logo.innerText = isRtl ? "مساعد العناية بالبشرة الذكي" : "AI Skin Care Assistant Analyzer";
-            
+            if (logo) logo.innerText = isRtl ? "مساعد العناية بالبشرة الذكي" : "AI Skin Care Assistant Analyzer";
+
             const navLinks = document.querySelectorAll('.nav-links a');
-            if(navLinks.length >= 3) {
+            if (navLinks.length >= 3) {
                 navLinks[0].innerText = isRtl ? "الرئيسية" : "Home";
                 navLinks[1].innerText = isRtl ? "الكتالوج" : "Catalog";
                 navLinks[2].innerText = isRtl ? "المحلل الذكي" : "AI Analyzer";
@@ -837,13 +1254,13 @@
 
             // Hero Section
             const massiveText = document.querySelector('.massive-text');
-            if(massiveText) massiveText.innerHTML = isRtl ? "ذكاء<br />العناية" : "ai<br />skincare.";
-            
+            if (massiveText) massiveText.innerHTML = isRtl ? "ذكاء<br />العناية" : "ai<br />skincare.";
+
             const heroDesc = document.querySelector('.hero-desc');
-            if(heroDesc) heroDesc.innerText = isRtl ? "حللي مكونات العناية بالبشرة لضمان الأمان التام. لست متأكدة من نوع بشرتك؟ ارفعي صورة لفحص فوري بالذكاء الاصطناعي واحصلي على توصيات مخصصة." : "Analyze skincare ingredients for ultimate safety. Not sure of your skin type? Upload a photo for an instant AI scan and get personalized recommendations.";
-            
+            if (heroDesc) heroDesc.innerText = isRtl ? "حللي مكونات العناية بالبشرة لضمان الأمان التام. لست متأكدة من نوع بشرتك؟ ارفعي صورة لفحص فوري بالذكاء الاصطناعي واحصلي على توصيات مخصصة." : "Analyze skincare ingredients for ultimate safety. Not sure of your skin type? Upload a photo for an instant AI scan and get personalized recommendations.";
+
             const btnMain = document.querySelector('.btn-main');
-            if(btnMain) btnMain.innerText = isRtl ? "تحليل بشرتي" : "Analyze My Skin";
+            if (btnMain) btnMain.innerText = isRtl ? "تحليل بشرتي" : "Analyze My Skin";
 
             // Marquee
             const marqueeSpans = document.querySelectorAll('.marquee-track span');
@@ -855,20 +1272,20 @@
 
             // How it works
             const sectionHeaders = document.querySelectorAll('.section-header');
-            if(sectionHeaders.length >= 1) {
+            if (sectionHeaders.length >= 1) {
                 sectionHeaders[0].querySelector('h2').innerText = isRtl ? "كيف يعمل" : "How it works";
                 sectionHeaders[0].querySelector('p').innerText = isRtl ? "ثلاث خطوات بسيطة لروتين عناية أذكى وأكثر أماناً" : "Three simple steps to smarter, safer skincare";
             }
 
             const stepH3s = document.querySelectorAll('.step h3');
             const stepPs = document.querySelectorAll('.step p');
-            if(stepH3s.length >= 3) {
+            if (stepH3s.length >= 3) {
                 stepH3s[0].innerText = isRtl ? "1. ملفك الشخصي" : "1. Set Your Profile";
                 stepPs[0].innerText = isRtl ? "اختاري نوع بشرتك يدوياً، أو ارفعي صورة لفحص الذكاء الاصطناعي." : "Select your skin type manually, or upload a photo for an instant AI scan to detect it automatically.";
-                
+
                 stepH3s[1].innerText = isRtl ? "2. تحليل المكونات" : "2. Ingredient Analysis";
                 stepPs[1].innerText = isRtl ? "نظامنا المتقدم يفحص المكونات لاكتشاف أي مهيجات أو مخاطر." : "Our advanced system screens cosmetic ingredients to detect potential irritants and safety risks.";
-                
+
                 stepH3s[2].innerText = isRtl ? "3. توصيات آمنة" : "3. Safe Recommendations";
                 stepPs[2].innerText = isRtl ? "احصلي على نتيجة واضحة واكتشفي منتجات آمنة ومناسبة لك." : "Get a clear safety verdict and discover perfectly matched, harmless products from our catalog.";
             }
@@ -876,34 +1293,34 @@
             // Features
             const mfTextH2 = document.querySelector('.mf-text h2');
             const mfTextP = document.querySelector('.mf-text p');
-            if(mfTextH2) mfTextH2.innerHTML = isRtl ? "الأمان يلتقي<br />بالجمال الذكي." : "Safety meets<br />smart beauty.";
-            if(mfTextP) mfTextP.innerText = isRtl ? "ندمج التعلم الآلي المتقدم مع تحليل المكونات لضمان أمان منتجاتك وملاءمتها لبشرتك." : "We blend advanced machine learning with ingredient analysis to ensure your skincare is perfectly safe and suited to your unique profile.";
+            if (mfTextH2) mfTextH2.innerHTML = isRtl ? "الأمان يلتقي<br />بالجمال الذكي." : "Safety meets<br />smart beauty.";
+            if (mfTextP) mfTextP.innerText = isRtl ? "ندمج التعلم الآلي المتقدم مع تحليل المكونات لضمان أمان منتجاتك وملاءمتها لبشرتك." : "We blend advanced machine learning with ingredient analysis to ensure your skincare is perfectly safe and suited to your unique profile.";
 
             const mfCardH3s = document.querySelectorAll('.mf-card h3');
             const mfCardPs = document.querySelectorAll('.mf-card p');
-            if(mfCardH3s.length >= 4) {
+            if (mfCardH3s.length >= 4) {
                 mfCardH3s[0].innerText = isRtl ? "فحص ذكي" : "Smart Scan";
                 mfCardPs[0].innerText = isRtl ? "اكتشفي نوع بشرتك الحقيقي في ثوانٍ." : "Detect your true skin type in seconds from just one photo.";
-                
+
                 mfCardH3s[1].innerText = isRtl ? "اكتشاف الأضرار" : "Harm Detection";
                 mfCardPs[1].innerText = isRtl ? "تجنبي المكونات التي قد تهيج بشرتك." : "Identify and avoid ingredients that might irritate your unique skin.";
-                
+
                 mfCardH3s[2].innerText = isRtl ? "تطابق مثالي" : "Perfect Matches";
                 mfCardPs[2].innerText = isRtl ? "احصلي على توصيات منتجات ستحبينها." : "Get personalized product recommendations you'll absolutely love.";
-                
+
                 mfCardH3s[3].innerText = isRtl ? "كتالوج آمن" : "Safe Catalog";
                 mfCardPs[3].innerText = isRtl ? "تصفحي قاعدة بيانات شاملة للمنتجات الآمنة لبشرتك." : "Explore a comprehensive database of skincare products, instantly filtered to guarantee safety for your specific skin type.";
             }
 
             // Education & Videos
-            if(sectionHeaders.length >= 2) {
+            if (sectionHeaders.length >= 2) {
                 sectionHeaders[1].querySelector('h2').innerText = isRtl ? "نصائح وتعليمات العناية بالبشرة" : "Skincare Education & Tips";
                 sectionHeaders[1].querySelector('p').innerText = isRtl ? "من تحديد نوع بشرتك إلى فهم المكونات، أتقني كل خطوة في روتين عنايتك الشخصي." : "From identifying your skin type to decoding ingredients, master every step of your personal care routine.";
             }
 
             const vidH3s = document.querySelectorAll('.video-content h3');
             const vidPs = document.querySelectorAll('.video-content p');
-            if(vidH3s.length >= 3) {
+            if (vidH3s.length >= 3) {
                 vidH3s[0].innerText = isRtl ? "روتين بسيط للمراهقين" : "Simple Skincare Routine for Teens";
                 vidPs[0].innerText = isRtl ? "دليل مبسط للخطوات الأساسية لروتين العناية اليومي." : "A beginner-friendly guide to the essential steps of a daily skincare routine. Hosted by beauty experts, it breaks down how to layer products correctly for the best results.";
 
@@ -914,11 +1331,35 @@
                 vidPs[2].innerText = isRtl ? "دليل مبسط لأشهر المكونات في عالم العناية بالبشرة وفوائدها." : "A beginner-friendly guide to the most popular ingredients in the skincare world. Hosted by a cosmetic chemist, it breaks down what common buzzwords actually do for your skin.";
             }
 
+            // Counter labels
+            const sl1 = document.getElementById('stat-label-1');
+            const sl2 = document.getElementById('stat-label-2');
+            const sl3 = document.getElementById('stat-label-3');
+            if (sl1) sl1.innerText = isRtl ? "منتجات تم تحليلها" : "Products Analyzed";
+            if (sl2) sl2.innerText = isRtl ? "دقة الذكاء الاصطناعي" : "AI Accuracy";
+            if (sl3) sl3.innerText = isRtl ? "أنواع بشرة مدعومة" : "Skin Types Supported";
+
+            // Holistic section
+            const holisticQuote = document.getElementById('holistic-quote-text');
+            const holisticSub = document.getElementById('holistic-quote-sub');
+            if(holisticQuote) holisticQuote.innerText = isRtl ? "ما وراء العبوة: الأمان الحقيقي يبدأ من الداخل" : "Beyond the Bottle: Real Safety Starts Within";
+            if(holisticSub) holisticSub.innerText = isRtl ? "حتى أذكى محلل ذكاء اصطناعي لا يمكنه إصلاح ما يفسده نمط الحياة السيء. أمان بشرتك هو انعكاس لصحتك، وليس فقط للمنتجات." : "Even the smartest AI analyzer cannot fix what a poor lifestyle breaks. Your skin’s safety is a reflection of your health, not just your shelf.";
+            const hH3 = document.querySelectorAll('.holistic-h3');
+            const hP = document.querySelectorAll('.holistic-p');
+            if(hH3.length >= 3) {
+                hH3[0].innerText = isRtl ? "الإجهاد والنوم: مرحلة الترميم" : "Stress & Sleep: The Restoration Phase";
+                hP[0].innerText = isRtl ? "تقوم بشرتك بإصلاح نفسها أثناء النوم. الإجهاد المرتفع يزيد من الكورتيزول، مما يؤدي إلى ظهور البثور والبهتان." : "Your skin repairs itself while you sleep. High stress increases cortisol, leading to breakouts and dullness.";
+                hH3[1].innerText = isRtl ? "التغذية: أساسك الطبيعي" : "Nutrition: Your Natural Foundation";
+                hP[1].innerText = isRtl ? "تبني مضادات الأكسدة والدهون الصحية من الطعام الكولاجين الخاص بك. الجمال يبدأ حقًا في المطبخ." : "Antioxidants and healthy fats from food build your collagen. Beauty truly starts in the kitchen.";
+                hH3[2].innerText = isRtl ? "فخ المنتجات الفاخرة" : "The Luxury Product Trap";
+                hP[2].innerText = isRtl ? "لا تعمل الأسعار الباهظة على إصلاح العادات السيئة. يمكن للمواد الكيميائية المفرطة أن تدمر حاجز بشرتك الطبيعي." : "Expensive price tags don't fix poor habits. Excessive chemicals can damage your natural skin barrier.";
+            }
+
             // Footer
             const footerH2 = document.querySelector('footer h2');
             const footerP = document.querySelector('footer p');
-            if(footerH2) footerH2.innerText = isRtl ? "✦ محلل سلامة العناية بالبشرة" : "✦ AI SkinCare Safety Analyzer";
-            if(footerP) footerP.innerHTML = isRtl ? "مشروع التخرج - الجامعة العربية المفتوحة، مصر <br /> &copy; 2026 إنجي نبيل صفوت" : "Final Year Project - Arab Open University, Egypt <br /> &copy; 2026 Engy Nabil Safwat";
+            if (footerH2) footerH2.innerText = isRtl ? "✦ محلل سلامة العناية بالبشرة" : "✦ AI SkinCare Safety Analyzer";
+            if (footerP) footerP.innerHTML = isRtl ? "مشروع التخرج - الجامعة العربية المفتوحة، مصر <br /> &copy; 2026 إنجي نبيل صفوت" : "Final Year Project - Arab Open University, Egypt <br /> &copy; 2026 Engy Nabil Safwat";
         }
 
         // toggling dark mode on/off
@@ -938,9 +1379,9 @@
         if (localStorage.getItem("darkMode") === "on") {
             document.body.classList.add("dark-mode");
             const icon = document.getElementById("fab-dm-icon");
-            if(icon) icon.innerText = "☀️";
+            if (icon) icon.innerText = "☀️";
         }
-        
+
         // cycling through font sizes for accessibility
         let fontSizeState = 1;
         function toggleTextSize() {
@@ -948,6 +1389,14 @@
             fontSizeState = (fontSizeState + 1) % 3;
             document.documentElement.style.fontSize = sizes[fontSizeState];
         }
+
+        // triggering holistic section animations on scroll
+        const holisticObs = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+        }, { threshold: 0.2 });
+        const holisticEl = document.getElementById('holistic-observer');
+        if (holisticEl) holisticObs.observe(holisticEl);
     </script>
 </body>
+
 </html>

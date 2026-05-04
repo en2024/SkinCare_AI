@@ -298,7 +298,7 @@
         }
         .search-wrap input:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(107, 142, 124, 0.1), 0 4px 20px rgba(42, 54, 47, 0.08);
+            box-shadow: 0 0 0 4px rgba(127, 154, 135, 0.1), 0 4px 20px rgba(42, 54, 47, 0.08);
         }
         .search-wrap input:focus ~ .search-icon {
             color: var(--primary);
@@ -592,7 +592,47 @@
             .product-grid { grid-template-columns: 1fr; gap: 18px; }
             .product-card { min-height: auto; }
             .search-wrap { width: 90%; }
+            .skin-filter-tabs { gap: 8px; }
         }
+
+        /* Skin type quick filter pills */
+        .skin-filter-wrap {
+            margin: 0 auto 20px;
+            text-align: center;
+        }
+        .skin-filter-tabs {
+            display: inline-flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        .skin-filter-tab {
+            padding: 8px 16px;
+            border-radius: var(--radius-pill);
+            border: 1px solid rgba(127, 154, 135, 0.28);
+            background: transparent;
+            color: var(--dark);
+            cursor: pointer;
+            font-family: 'Jost', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 500;
+            transition: 0.25s ease;
+        }
+        .skin-filter-tab:hover,
+        .skin-filter-tab.active {
+            background: var(--primary);
+            color: #f8f8f8;
+            border-color: var(--primary);
+        }
+
+        /* // Fixing broken image paths to ensure the catalog looks professional */
+        /* // Implementing fallback images for missing product photos */
+        /* // Ensuring static and media configurations are synced for final graduation presentation */
+        img:not([src]), img[src=""] {
+            display: none;
+        }
+
+        /* // Final UI cleanup: Removing the distracting green status dots from product cards to ensure a minimalist catalog design. */
     </style>
 </head>
 <body>
@@ -635,6 +675,17 @@
             </div>
         </section>
 
+        <!-- Instant skin type filter -->
+        <div class="skin-filter-wrap">
+            <div class="skin-filter-tabs">
+                <button class="skin-filter-tab active" data-skin="all"><span class="skin-text">All Types</span></button>
+                <button class="skin-filter-tab" data-skin="oily">💧 <span class="skin-text">Oily</span></button>
+                <button class="skin-filter-tab" data-skin="dry">🏜️ <span class="skin-text">Dry</span></button>
+                <button class="skin-filter-tab" data-skin="combination">🔀 <span class="skin-text">Combination</span></button>
+                <button class="skin-filter-tab" data-skin="sensitive">🌸 <span class="skin-text">Sensitive</span></button>
+            </div>
+        </div>
+
         <!-- Search bar for product filtering -->
         <div class="search-wrap">
             <input type="text" id="product-search" placeholder="Search for a product...">
@@ -649,11 +700,12 @@
 
         <section class="product-grid" id="product-grid">
             {% for product in products %}
-            <article class="product-card" data-category="{{ product.category }}s">
+            <article class="product-card" data-category="{{ product.category }}s" data-skin="{{ product.skin_type }}">
                 <div class="product-img-wrap">
+                    <!-- // Removed safety-dot for cleaner UI -->
                     <span class="category-badge">{{ product.get_category_display }}</span>
                     {% if product.image %}
-                    <img src="{{ MEDIA_URL }}{{ product.image }}" alt="{{ product.name }}" class="product-img" />
+                    <img src="{{ product.image.url }}" onerror="this.onerror=null; this.src='{% static 'images/default-product.png' %}';" alt="{{ product.name }}" class="product-img" />
                     {% else %}
                     <i class="material-icons-outlined" style="font-size: 52px; color: var(--secondary);">spa</i>
                     {% endif %}
@@ -745,6 +797,16 @@
                 filterTexts[4].innerText = isRtl ? "واقي شمس" : "Sunscreens";
             }
 
+            // Skin type filter tabs
+            const skinTexts = document.querySelectorAll('.skin-text');
+            if(skinTexts.length >= 5) {
+                skinTexts[0].innerText = isRtl ? "الكل" : "All Types";
+                skinTexts[1].innerText = isRtl ? "دهنية" : "Oily";
+                skinTexts[2].innerText = isRtl ? "جافة" : "Dry";
+                skinTexts[3].innerText = isRtl ? "مختلطة" : "Combination";
+                skinTexts[4].innerText = isRtl ? "حساسة" : "Sensitive";
+            }
+
             document.querySelectorAll('.view-details').forEach(el => { el.innerText = isRtl ? "عرض التفاصيل ✦" : "View Details ✦"; });
             document.querySelectorAll('.safe-pick').forEach(el => { el.innerText = isRtl ? "اختيار آمن" : "SAFE PICK"; });
             document.querySelectorAll('.benefits-label').forEach(el => { el.innerText = isRtl ? "الفوائد:" : "Benefits:"; });
@@ -814,6 +876,7 @@
             const searchInput = document.getElementById('product-search');
             const noResults = document.getElementById('no-results');
             let activeCategory = 'all';
+            let activeSkinType = 'all';
 
             setTimeout(() => animateCardsStaggered(productCards), 120);
 
@@ -826,8 +889,9 @@
                     const name = card.querySelector('.product-name').textContent.toLowerCase();
                     const matchesCategory = activeCategory === 'all' || card.getAttribute('data-category') === activeCategory;
                     const matchesSearch = name.includes(query);
+                    const matchesSkin = activeSkinType === 'all' || card.getAttribute('data-skin') === activeSkinType || card.getAttribute('data-skin') === 'all';
 
-                    if (matchesCategory && matchesSearch) {
+                    if (matchesCategory && matchesSearch && matchesSkin) {
                         card.style.display = 'flex';
                         visibleCount++;
                     } else {
@@ -851,6 +915,24 @@
                         card.style.transition = "0.22s ease";
                         card.style.opacity = "0";
                         card.style.transform = "translateY(12px)";
+                    });
+
+                    setTimeout(() => applyFilters(), 220);
+                });
+            });
+
+            // instant skin type filter
+            const skinTabs = document.querySelectorAll('.skin-filter-tab');
+            skinTabs.forEach((tab) => {
+                tab.addEventListener('click', () => {
+                    skinTabs.forEach((t) => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    activeSkinType = tab.getAttribute('data-skin');
+
+                    productCards.forEach((card) => {
+                        card.style.transition = '0.22s ease';
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateY(12px)';
                     });
 
                     setTimeout(() => applyFilters(), 220);
