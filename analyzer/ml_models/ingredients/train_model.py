@@ -1,21 +1,5 @@
-"""
-Training Script for AI SkinCare Safety Analyzer
-================================================
-Trains a unified multi-output Random Forest model from cleaned_dataset.csv.
+# Training script for the skincare safety model
 
-The dataset has columns:
-  Ingredients, Combination, Dry, Normal, Oily, Sensitive
-where each skin-type column is binary (0 = unsafe, 1 = safe).
-
-This script:
-  1. Loads and preprocesses the CSV data.
-  2. Vectorises ingredient text using TF-IDF.
-  3. Trains a multi-output Random Forest classifier.
-  4. Saves the model + vectorizer as skincare_model.pkl.
-
-Run once before starting the Django server:
-  python analyzer/ml_models/ingredients/train_model.py
-"""
 
 import os
 import sys
@@ -31,19 +15,19 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 import pickle
 
-# ─── Paths ────────────────────────────────────────────────────────────────────────
+# file paths
+
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 CSV_PATH = os.path.join(SCRIPT_DIR, "cleaned_dataset.csv")
 MODEL_PATH = os.path.join(SCRIPT_DIR, "skincare_model.pkl")
 
-# These are the 5 skin type columns in our dataset.
-# Each column is binary: 1 = safe for this skin type, 0 = unsafe.
+# binary safety columns for skin types
+
 SKIN_TYPES = ["Combination", "Dry", "Normal", "Oily", "Sensitive"]
 
 
-# This function takes the raw ingredient data from the CSV and converts it
-# into a clean text string. The CSV stores ingredients as nested lists like
-# "[['water'], ['glycerin']]", so we parse that and join them into one string.
+# cleaning and flattening ingredient list
+
 def flatten_ingredients(raw: str) -> str:
     """
     Convert the raw ingredient cell (a nested list of strings) into a single
@@ -68,7 +52,8 @@ def main():
     print("  AI SkinCare Safety Analyzer — Model Training")
     print("=" * 60)
 
-    # ── 1. Load Dataset ──────────────────────────────────────────────────
+    # load csv data
+
     if not os.path.exists(CSV_PATH):
         print(f"[ERROR] Dataset not found at: {CSV_PATH}")
         sys.exit(1)
@@ -77,7 +62,8 @@ def main():
     print(f"\n✅ Dataset loaded: {df.shape[0]} rows × {df.shape[1]} columns")
     print(f"   Columns: {list(df.columns)}")
 
-    # ── 2. Preprocess Ingredients Text ────────────────────────────────────
+    # clean ingredient text
+
     print("\n🔄 Preprocessing ingredient text ...")
     df["clean_text"] = df["Ingredients"].apply(flatten_ingredients)
 
@@ -85,7 +71,8 @@ def main():
     df = df[df["clean_text"].str.len() > 0].reset_index(drop=True)
     print(f"   Rows after cleaning: {df.shape[0]}")
 
-    # ── 3. TF-IDF Vectorisation ──────────────────────────────────────────
+    # tf-idf vectorization
+
     print("🔄 Vectorising with TF-IDF ...")
     vectorizer = TfidfVectorizer(max_features=3000, ngram_range=(1, 2))
     X = vectorizer.fit_transform(df["clean_text"])
@@ -94,13 +81,15 @@ def main():
     print(f"   Feature matrix: {X.shape}")
     print(f"   Label matrix:   {y.shape}")
 
-    # ── 4. Train/Test Split ──────────────────────────────────────────────
+    # split data for testing
+
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42
     )
     print(f"\n📊 Split → Train: {X_train.shape[0]}  |  Test: {X_test.shape[0]}")
 
-    # ── 5. Train Multi-Output Random Forest ──────────────────────────────
+    # train the model
+
     print("\n🚀 Training Multi-Output Random Forest ...")
     base_rf = RandomForestClassifier(
         n_estimators=200,
@@ -115,7 +104,8 @@ def main():
     model.fit(X_train, y_train)
     print("   Training complete.")
 
-    # ── 6. Evaluation ────────────────────────────────────────────────────
+    # check model accuracy
+
     y_pred = model.predict(X_test)
     print("\n📈 Per-skin-type Classification Report:\n")
     for idx, skin in enumerate(SKIN_TYPES):
@@ -132,7 +122,8 @@ def main():
     print("-" * 27)
     print(f"{'Average':<15} {avg_acc*100:>9.1f}%")
 
-    # ── 7. Save Model + Vectorizer ────────────────────────────────────────
+    # save final pkl file
+
     bundle = {
         "model": model,
         "vectorizer": vectorizer,

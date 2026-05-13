@@ -1,14 +1,4 @@
-"""
-Predictor Module for AI SkinCare Safety Analyzer
-=================================================
-Loads the trained skincare_model.pkl and provides a predict() function
-that Django views can call directly.
-
-Usage in Django views:
-    from analyzer.ml_models.ingredients.predictor import predict_safety
-    result = predict_safety(ingredients_text, skin_type)
-"""
-
+# Module to predict product safety using the trained ML model
 import os
 import re
 import ast
@@ -17,18 +7,15 @@ import logging
 
 logger = logging.getLogger("analyzer")
 
-# ─── Paths ────────────────────────────────────────────────────────────────────────
+# file paths
+
 _DIR = os.path.dirname(os.path.abspath(__file__))
 _MODEL_PATH = os.path.join(_DIR, "skincare_model.pkl")
 
-# ─── Singleton Cache ──────────────────────────────────────────────────────────────
-# We use a global variable to store the model so it's only loaded once.
-# Loading a .pkl file is expensive, so we cache it after the first call.
+# caching the model in memory
 _bundle = None
+# loads the pkl bundle
 
-
-# This function loads the trained model bundle (model + vectorizer) from disk.
-# It only does this once — after that, it returns the cached version.
 def _load_model():
     """Load the model bundle once and cache it in-process."""
     global _bundle
@@ -44,9 +31,8 @@ def _load_model():
     return _bundle
 
 
-# This function cleans up the raw ingredient text before feeding it to the model.
-# We lowercase everything and remove special characters so the TF-IDF vectorizer
-# can match the same format it was trained on.
+# cleaning text for the model
+
 def _clean_ingredients(raw_text: str) -> str:
     """
     Normalise raw ingredient text into a lowercase space-separated string
@@ -57,11 +43,8 @@ def _clean_ingredients(raw_text: str) -> str:
     text = re.sub(r"[^a-z\s\-]", " ", text)
     text = re.sub(r"\s+", " ", text).strip()
     return text
+# skin type mapping
 
-
-# This maps each skin type to its column index in the model's output array.
-# Our model predicts safety for all 5 skin types at once (multi-output),
-# so we need to know which index corresponds to which skin type.
 _SKIN_INDEX = {
     "combination": 0,
     "dry": 1,
@@ -69,8 +52,6 @@ _SKIN_INDEX = {
     "oily": 3,
     "sensitive": 4,
 }
-
-
 def predict_safety(ingredients_text: str, skin_type: str) -> dict:
     """
     Predict whether a product is safe for the given skin type.
@@ -102,18 +83,19 @@ def predict_safety(ingredients_text: str, skin_type: str) -> dict:
             f"Must be one of: {list(_SKIN_INDEX.keys())}"
         )
 
-    # Step 1: Clean the raw text so it matches our training data format
+    # normalize ingredients
+
     clean_text = _clean_ingredients(ingredients_text)
     if not clean_text:
         raise ValueError("Ingredients text is empty after cleaning.")
 
-    # Step 2: Convert the text into numbers using the same TF-IDF vectorizer
-    # that was used during training. This turns words into feature vectors.
+    # convert text to numbers
+
     X = vectorizer.transform([clean_text])
     predictions = model.predict(X)[0]  # shape: (5,)
 
-    # Step 3: Get the probability of being "safe" for each skin type.
-    # Each estimator in the multi-output model handles one skin type.
+    # calculate safety probabilities
+
     probabilities = []
     for estimator in model.estimators_:
         prob = estimator.predict_proba(X)[0]
@@ -124,7 +106,8 @@ def predict_safety(ingredients_text: str, skin_type: str) -> dict:
         else:
             probabilities.append(float(predictions[len(probabilities)]))
 
-    # Step 4: Build a dictionary with results for all 5 skin types
+    # build final result dict
+
     all_results = {}
     for i, st in enumerate(skin_types):
         all_results[st.lower()] = {

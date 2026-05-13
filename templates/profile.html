@@ -31,7 +31,8 @@
         h1, h2, h3, .serif { font-family: 'Cormorant Garamond', serif; }
         a { text-decoration: none; color: inherit; }
 
-        /* Header */
+        /* top header */
+
         .profile-header {
             background: var(--surface); border-bottom: 1px solid var(--border);
             padding: 24px 5%; padding-right: 100px; display: flex; align-items: center; justify-content: space-between;
@@ -43,7 +44,8 @@
         .back-link:hover { color: var(--dark); }
         body.rtl .back-link { flex-direction: row-reverse; }
 
-        /* Layout */
+        /* main layout */
+
         .profile-container { max-width: 800px; margin: 40px auto; padding: 0 5%; }
 
         .profile-avatar {
@@ -55,7 +57,8 @@
         .profile-name { text-align: center; font-size: 1.8rem; margin-bottom: 4px; }
         .profile-username { text-align: center; color: var(--muted); font-size: 0.9rem; margin-bottom: 32px; }
 
-        /* Cards */
+        /* section cards */
+
         .section-card {
             background: var(--surface); border: 1px solid var(--border);
             border-radius: 18px; padding: 28px; margin-bottom: 24px;
@@ -75,7 +78,8 @@
         }
         .section-title .material-icons-outlined { font-size: 18px; color: var(--primary); }
 
-        /* Form elements */
+        /* form styles */
+
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
         .form-input, .form-select {
@@ -99,7 +103,8 @@
         .btn-danger { background: transparent; border: 1px solid rgba(184,74,74,0.3); color: #b84a4a; }
         .btn-danger:hover { background: rgba(184,74,74,0.08); }
 
-        /* Skin type selector */
+        /* skin type options */
+
         .skin-type-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-bottom: 16px; }
         .skin-type-option {
             padding: 14px 12px; border: 2px solid var(--border); border-radius: 14px;
@@ -109,23 +114,10 @@
         .skin-type-option.selected { border-color: var(--primary); background: rgba(107,142,124,0.1); color: var(--primary); font-weight: 700; }
         .skin-type-option .type-icon { font-size: 1.5rem; margin-bottom: 6px; display: block; }
 
-        /* Favorites grid */
-        .fav-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
-        .fav-card {
-            background: var(--bg); border: 1px solid var(--border); border-radius: 14px;
-            overflow: hidden; transition: 0.25s;
-        }
-        .fav-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
-        .fav-card img { width: 100%; height: 140px; object-fit: cover; }
-        .fav-card-body { padding: 14px; }
-        .fav-card-body h4 { font-size: 0.9rem; margin-bottom: 4px; }
-        .fav-card-body p { font-size: 0.75rem; color: var(--muted); }
-        .fav-remove { margin-top: 8px; font-size: 0.78rem; cursor: pointer; color: #b84a4a; background: none; border: none; font-family: 'Jost', sans-serif; display: flex; align-items: center; gap: 4px; }
-        .fav-remove:hover { text-decoration: underline; }
-        .empty-state { text-align: center; padding: 32px; color: var(--muted); }
-        .empty-state .material-icons-outlined { font-size: 40px; margin-bottom: 8px; display: block; opacity: 0.4; }
 
-        /* Toast notification */
+
+        /* popup notifications */
+
         .toast {
             position: fixed; top: 24px; right: 24px; z-index: 9999;
             padding: 14px 24px; border-radius: 12px; font-size: 0.88rem;
@@ -208,38 +200,7 @@
         </form>
     </div>
 
-    <!-- 3. Favorite Products -->
-    <div class="section-card">
-        <div class="section-title"><i class="material-icons-outlined">favorite</i> <span id="prof-sec3">Favorite Products</span></div>
-        {% if favorites %}
-        <div class="fav-grid">
-            {% for product in favorites %}
-            <div class="fav-card">
-                {% if product.image %}
-                <img src="{{ product.image.url }}" alt="{{ product.name }}">
-                {% else %}
-                <div style="height:140px; background:var(--beige-light); display:flex; align-items:center; justify-content:center;"><i class="material-icons-outlined" style="font-size:32px; color:var(--muted);">spa</i></div>
-                {% endif %}
-                <div class="fav-card-body">
-                    <h4>{{ product.name }}</h4>
-                    <p>{{ product.get_category_display }} • {{ product.get_skin_type_display }}</p>
-                    <form method="POST" style="display:inline;">
-                        {% csrf_token %}
-                        <input type="hidden" name="action" value="remove_favorite">
-                        <input type="hidden" name="product_id" value="{{ product.id }}">
-                        <button type="submit" class="fav-remove"><i class="material-icons-outlined" style="font-size:14px;">close</i> <span class="prof-remove">Remove</span></button>
-                    </form>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="empty-state">
-            <i class="material-icons-outlined">favorite_border</i>
-            <p id="prof-no-fav">No favorites yet. Browse the <a href="{% url 'catalog' %}" style="color:var(--primary); text-decoration: underline;">Catalog</a> to add products!</p>
-        </div>
-        {% endif %}
-    </div>
+
 
     <!-- 4. Change Password -->
     <div class="section-card">
@@ -274,7 +235,8 @@
 </div>
 
 <script>
-    // translating profile page text to Arabic or English
+    /* translating page text */
+
     function applyLanguage(lang) {
         const isRtl = (lang === 'ar');
         if (isRtl) {
@@ -305,9 +267,7 @@
         setHtml('prof-skin-sens', isRtl ? 'حساسة' : 'Sensitive');
         setHtml('prof-btn-save2', isRtl ? 'تحديث نوع البشرة' : 'Update Skin Type');
         
-        setHtml('prof-sec3', isRtl ? 'المنتجات المفضلة' : 'Favorite Products');
-        document.querySelectorAll('.prof-remove').forEach(el => el.innerText = isRtl ? 'إزالة' : 'Remove');
-        setHtml('prof-no-fav', isRtl ? 'لا توجد مفضلة بعد. تصفحي <a href="{% url 'catalog' %}" style="color:var(--primary); text-decoration: underline;">الكتالوج</a> لإضافة منتجات!' : 'No favorites yet. Browse the <a href="{% url 'catalog' %}" style="color:var(--primary); text-decoration: underline;">Catalog</a> to add products!');
+
         
         setHtml('prof-sec4', isRtl ? 'تغيير كلمة المرور' : 'Change Password');
         setHtml('prof-label-curr', isRtl ? 'كلمة المرور الحالية' : 'Current Password');
@@ -318,18 +278,21 @@
         setHtml('prof-btn-signout', isRtl ? 'تسجيل خروج' : 'Sign Out');
     }
 
-    // selecting a skin type from the grid
+    /* picking skin type */
+
     function selectSkinType(type, el) {
         document.querySelectorAll('.skin-type-option').forEach(o => o.classList.remove('selected'));
         el.classList.add('selected');
         document.getElementById('skinTypeInput').value = type;
     }
 
-    // auto-dismiss the success/error toast after a few seconds
+    /* hiding toast after a while */
+
     const toast = document.querySelector('.toast');
     if (toast) setTimeout(() => toast.remove(), 3200);
 
-    // restoring dark mode from last visit
+    /* loading dark mode */
+
     if (localStorage.getItem('darkMode') === 'on') document.body.classList.add('dark-mode');
 </script>
 </body>

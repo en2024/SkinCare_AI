@@ -9,8 +9,9 @@
 
 ## ✨ Features
 
-### 🤖 AI Skin Type Detection
-Upload a face photo and our **ResNet-50** deep learning model instantly classifies your skin as **Oily**, **Dry**, or **Normal** — then recommends matching products from the catalog.
+### 🤖 AI Skin Type & Acne Detection
+Upload a face photo and our **ResNet-50** deep learning model instantly classifies your skin as **Oily**, **Dry**, or **Normal**. Simultaneously, a **YOLOv8** model detects acne spots, allowing for a more precise analysis and better product recommendations.
+
 
 ### 🔬 Ingredient Safety Analysis (Hybrid AI System)
 Analyze any skincare product's ingredients list in two ways:
@@ -44,11 +45,12 @@ Full English ↔ Arabic translation toggle on every page with proper RTL layout 
 |-------|-----------|
 | **Backend** | Django 6.0 (Python) |
 | **Database** | SQLite3 |
-| **Deep Learning** | PyTorch — ResNet-50 (fine-tuned for skin classification) |
-| **ML / NLP** | scikit-learn — TF-IDF Vectorizer + trained classifiers (per skin type) |
+| **Deep Learning** | PyTorch (ResNet-50) & Ultralytics (YOLOv8) |
+| **ML / NLP** | scikit-learn — TF-IDF Vectorizer + trained Random Forest classifiers |
 | **OCR** | Tesseract OCR via pytesseract |
-| **Image Processing** | Pillow, OpenCV, NumPy |
+| **Image Processing** | Pillow, OpenCV (Haar Cascades for face detection), NumPy |
 | **Frontend** | Vanilla HTML/CSS/JS with Google Fonts (Jost + Cormorant Garamond) |
+
 | **Icons** | Material Icons Outlined |
 
 ---
@@ -69,12 +71,10 @@ SkinCare_AI/
 │   ├── admin.py                # Django admin registration
 │   ├── model.pth               # Pre-trained ResNet-50 weights (~90 MB)
 │   └── ml_models/              # Trained sklearn classifiers & vectorizers
-│       ├── model_oily.pkl
-│       ├── model_dry.pkl
-│       ├── model_normal.pkl
-│       ├── model_sensitive.pkl
-│       ├── model_combination.pkl
-│       └── vectorizer_*.pkl
+│       ├── skincare_model.pkl  # Unified Random Forest model
+│       ├── train_model.py      # Script to train the safety model
+│       └── predictor.py        # Logic to load model and predict
+
 ├── templates/                  # Django HTML templates
 │   ├── index.html              # Home / landing page
 │   ├── analyzer.html           # AI analyzer (face scan + formula check)
@@ -168,7 +168,7 @@ SkinCare_AI/
 1. Navigate to **AI Analyzer** → **Formula Check** tab
 2. Select your skin type from the pills
 3. Either snap a photo of the product ingredient label **or** paste the ingredients text
-4. Click **"Analyze My Skin"** to get a safety score
+4. Click **"Analyze My Formula"** to get a safety score
 5. View the Safety Index, detected harmful/safe ingredients, and alternative product suggestions
 
 ### Admin Panel
@@ -187,12 +187,17 @@ SkinCare_AI/
 - **Normalization**: ImageNet mean/std
 - **File**: `analyzer/model.pth` (~90 MB)
 
+### Acne Detection Model
+- **Architecture**: YOLOv8 (Ultralytics)
+- **Features**: Detects acne spots and inflammatory marks
+- **File**: `analyzer/ml_models/acne_yolov8.pt`
+
 ### Ingredient Safety Classifiers
-- **Per skin type**: 5 separate models (oily, dry, normal, sensitive, combination)
+- **Architecture**: Multi-output Random Forest Classifier
 - **Feature extraction**: TF-IDF Vectorization
-- **Training**: Trained on labeled ingredient safety datasets
 - **Accuracy**: ~93% on test set
-- **Files**: `analyzer/ml_models/model_*.pkl` + `vectorizer_*.pkl`
+- **File**: `analyzer/ml_models/ingredients/skincare_model.pkl`
+
 
 ---
 
@@ -228,7 +233,9 @@ python-dotenv>=1.0.0
 torch>=2.0.0
 torchvision>=0.15.0
 scikit-learn>=1.3.0
+ultralytics>=8.0.0
 ```
+
 
 ---
 

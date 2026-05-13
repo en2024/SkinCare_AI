@@ -1,12 +1,7 @@
-# Here I'm importing all the libraries we need for the AI pipeline:
-# - cv2 (OpenCV) for image processing and face detection
-# - torch / torchvision for the deep learning models (ResNet50)
-# - pytesseract for OCR (reading text from product label images)
-# - PIL for opening and enhancing images before processing
+﻿# skin and product endpoints
 import logging
 import os
 import re
-
 import json
 import cv2
 import numpy as np
@@ -17,62 +12,46 @@ import torch.nn as nn
 from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from PIL import Image, ImageEnhance
+from PIL import Image, ImageEnhance, ImageFilter
 from torchvision import transforms, models
-
-from ..models import Product
+from ..models import Product, UserProfile
+from ..validators import validate_face_image, validate_ingredient_image
+from ..ml_models.ingredients.predictor import predict_safety
 
 logger = logging.getLogger('analyzer')
-
-# Setting up the path to Tesseract OCR engine on the system
-# We need this so Python knows where the OCR program is installed
+# set tesseract path
 pytesseract.pytesseract.tesseract_cmd = getattr(settings, 'TESSERACT_CMD', r'C:\Program Files\Tesseract-OCR\tesseract.exe')
 
-# ─── 1. Face Analysis Model (Vision AI) ──────────────────────────────────────
-# Here I'm loading the ResNet50 CNN model that we trained to classify skin types.
-# The model was trained on 5 classes: combination, dry, normal, oily, sensitive.
-# I replaced the last fully-connected layer to output 5 classes instead of
-# ImageNet's 1000, because we only care about skin types.
+# setup resnet50
 CLASS_NAMES = ['combination', 'dry', 'normal', 'oily', 'sensitive']
 face_model = models.resnet50(weights=None)
 face_model.fc = nn.Linear(face_model.fc.in_features, 5)
 face_model_path = os.path.join(settings.BASE_DIR, 'analyzer', 'ml_models', 'model_resnet50_5class.pth')
 
-# Loading the saved weights from our training session
-# map_location='cpu' ensures it works even without a GPU
-# .eval() switches the model to inference mode (no training)
 try:
     face_model.load_state_dict(torch.load(face_model_path, map_location=torch.device('cpu')), strict=False)
     face_model.eval()
-    logger.info('Face analysis model loaded successfully.')
+    logger.info('Face model loaded.')
 except Exception as e:
-    logger.error(f'Face Model Loading Error: {e}')
+    logger.error(f'Face model error: {e}')
 
-# ─── Load YOLOv8 Acne Detection Model ───
-# This is our second AI model — YOLOv8 for detecting acne spots on the face.
-# We use it to count acne and slightly adjust the skin type prediction.
-# If the library isn't installed or the model file is missing, we just skip it.
+# setup yolov8
 try:
     from ultralytics import YOLO
     yolo_model_path = os.path.join(settings.BASE_DIR, 'analyzer', 'ml_models', 'acne_yolov8.pt')
     if os.path.exists(yolo_model_path):
         acne_model = YOLO(yolo_model_path)
-        logger.info('YOLO acne detection model loaded.')
+        logger.info('YOLO loaded.')
     else:
         acne_model = None
 except ImportError:
     acne_model = None
-    logger.warning("Ultralytics not installed. YOLO detection disabled.")
+    logger.warning("YOLO disabled.")
 
-# ─── Face Detection Gate (OpenCV Haar Cascade) ───────────────────────────────
-# Before running the CNN, we first check if there's actually a face in the image
-# using OpenCV's built-in Haar Cascade detector. This prevents random images
-# from getting a skin type prediction.
+# load face cascade
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
-# These transforms prepare the image for ResNet50 — the model expects
-# 224x224 images normalized with ImageNet's mean and standard deviation.
-# This must match exactly what we used during training.
+# resnet transforms
 transform = transforms.Compose([
     transforms.Resize(256),
     transforms.CenterCrop(224),
@@ -80,16 +59,7 @@ transform = transforms.Compose([
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
-# ─── 2. Ingredients AI Logic (The Hybrid System) ─────────────────────────────
-# Here I'm importing the ingredient safety predictor (Random Forest model).
-# It's loaded as a "lazy singleton" — meaning the model file only gets
-# loaded into memory once, the first time someone uses it.
-from ..ml_models.ingredients.predictor import predict_safety
-
-
-# Rule-based safety shield — these are known harmful ingredients for each skin type.
-# Even if the ML model says "safe", finding these ingredients will lower the score.
-# This acts as a safety net on top of the AI prediction.
+# harmful ingredients
 HARMFUL_INGREDIENTS = {
     'oily': ['alcohol denat', 'isopropyl myristate', 'coconut oil', 'lanolin', 'mineral oil', 'cocoa butter', 'sodium lauryl sulfate'],
     'dry': ['alcohol denat', 'benzoyl peroxide', 'salicylic acid', 'fragrance', 'sulfates', 'isopropyl alcohol'],
@@ -98,8 +68,7 @@ HARMFUL_INGREDIENTS = {
     'combination': ['alcohol denat', 'coconut oil', 'mineral oil', 'isopropyl myristate'],
 }
 
-# And these are the good ingredients — finding them boosts the safety score.
-# This helps the system give bonus points when beneficial ingredients are present.
+# safe ingredients
 SAFE_INGREDIENTS = {
     'oily': ['salicylic acid', 'niacinamide', 'hyaluronic acid', 'zinc', 'tea tree'],
     'dry': ['hyaluronic acid', 'glycerin', 'ceramide', 'squalane', 'shea butter'],
@@ -108,46 +77,29 @@ SAFE_INGREDIENTS = {
     'combination': ['hyaluronic acid', 'niacinamide', 'ceramide', 'salicylic acid'],
 }
 
-
-# ─── 3. OCR Helper (Multi-pass pre-processing for product labels) ─────────────
-# This helper runs Tesseract OCR on a single image with specific settings.
-# psm=6 means "assume a single uniform block of text" which works well for labels.
+# run tesseract
 def _ocr_single_pass(pil_img, psm=6):
-    """Run Tesseract on a single pre-processed PIL image."""
     config = f'--oem 3 --psm {psm} -l eng'
     try:
         return pytesseract.image_to_string(pil_img, config=config)
     except Exception:
         return ""
 
-
-# This is the main OCR function — it tries 3 different image processing
-# techniques and picks whichever one extracts the most text.
-# The idea is that different label styles (dark background, glossy, etc.)
-# respond better to different preprocessing, so we try multiple approaches.
+# extract image text
 def extract_text_from_image(pil_image):
-    """
-    Multi-pass OCR extraction optimised for ingredient labels.
-    Tries 3 different pre-processing strategies and picks the longest
-    (most informative) result.
-    """
     orig = pil_image.convert('RGB')
     w, h = orig.size
-    # Up-scale small images so Tesseract gets more detail
     scale = max(1, 2000 // max(w, h))
     if scale > 1:
         orig = orig.resize((w * scale, h * scale), Image.LANCZOS)
 
     gray = orig.convert('L')
-
     candidates = []
 
-    # Pass 1: High-contrast grayscale
     enhanced = ImageEnhance.Contrast(gray).enhance(2.2)
     enhanced = ImageEnhance.Sharpness(enhanced).enhance(2.0)
     candidates.append(_ocr_single_pass(enhanced, psm=6))
 
-    # Pass 2: Adaptive threshold via OpenCV
     try:
         arr = np.array(gray)
         thresh = cv2.adaptiveThreshold(
@@ -157,7 +109,6 @@ def extract_text_from_image(pil_image):
     except Exception:
         pass
 
-    # Pass 3: Denoised + Otsu threshold
     try:
         arr = np.array(gray)
         denoised = cv2.fastNlMeansDenoising(arr, None, 12, 7, 21)
@@ -166,7 +117,6 @@ def extract_text_from_image(pil_image):
     except Exception:
         pass
 
-    # Pick the longest useful result
     best = ""
     for raw in candidates:
         cleaned = re.sub(r'[^a-zA-Z,\s\-&()./]', ' ', raw)
@@ -175,102 +125,77 @@ def extract_text_from_image(pil_image):
             best = cleaned
 
     if best:
-        logger.info(f'OCR extracted {len(best)} chars from image.')
+        logger.info(f'OCR extracted {len(best)} chars.')
     else:
-        logger.warning('OCR could not extract any text from the uploaded image.')
+        logger.warning('OCR failed.')
 
     return best
 
-
-# ─── Ingredient-text validation gate ──────────────────────────────────────────
-# This is a security layer — before we send OCR text to the AI model,
-# we check if it actually looks like a skincare ingredient list.
-# If someone uploads a random photo (like a cat), the OCR might extract
-# gibberish. We require at least 3 known skincare keywords to be present.
+# skincare keywords
 _INGREDIENT_KEYWORDS = [
-    # Common header words
     'ingredients', 'active ingredients', 'inactive ingredients', 'composition',
-    # Top INCI ingredients (appear on almost every label)
     'aqua', 'water', 'glycerin', 'glycerine', 'dimethicone', 'tocopherol',
     'panthenol', 'niacinamide', 'retinol', 'hyaluronic', 'squalane',
     'cetearyl', 'stearic', 'palmitic', 'caprylic', 'cetyl',
     'sodium', 'potassium', 'magnesium', 'zinc', 'titanium dioxide',
-    # Functional groups
     'acid', 'sulfate', 'sulphate', 'paraben', 'phenoxyethanol',
     'extract', 'oil', 'butter', 'wax', 'alcohol',
-    'fragrance', 'parfum', 'ci ',  # colour-index prefix
-    # Botanical / active markers
+    'fragrance', 'parfum', 'ci ',
     'aloe', 'chamomile', 'centella', 'ceramide', 'peptide',
     'collagen', 'keratin', 'salicylic', 'benzoyl', 'kojic',
     'ascorbic', 'lactic', 'citric', 'glycolic',
     'shea', 'jojoba', 'argan', 'rosehip', 'tea tree',
 ]
-_MIN_KEYWORD_HITS = 3  # At least this many must match
+_MIN_KEYWORD_HITS = 3
 
-
+# validate text
 def _validate_ingredients_text(text: str) -> tuple:
-    """
-    Check whether *text* looks like a genuine skincare ingredient list.
-
-    Returns
-    -------
-    (is_valid: bool, hits: list[str])
-        is_valid is True when >= _MIN_KEYWORD_HITS keywords are found.
-        hits contains the matched keywords (for logging / debugging).
-    """
     lower = text.lower()
     hits = [kw for kw in _INGREDIENT_KEYWORDS if kw in lower]
     return len(hits) >= _MIN_KEYWORD_HITS, hits
 
-
-# ─── 4. AI Endpoints ─────────────────────────────────────────────────────────
-# This is the main skin analysis endpoint — the core of our graduation project.
-# When a user uploads a face photo, this function runs the full AI pipeline.
-
-@require_POST
+# face scan endpoint
 def analyze_skin(request):
-    """
-    Multi-stage skin analysis pipeline:
-      1. YOLO detects acne bounding boxes
-      2. Acne regions are blurred out → ResNet sees clean skin texture
-      3. ResNet classifies skin type from the cleaned image
-      4. Acne count applies a minor secondary adjustment
-    """
     if request.FILES.get('image'):
         try:
             img = Image.open(request.FILES.get('image')).convert('RGB')
 
-            # ── Step 0: Face Detection & Patch Extraction ───────────────
+            # check image valid
+            is_valid, rejection = validate_face_image(img)
+            if not is_valid:
+                return JsonResponse({
+                    'no_face': True,
+                    'error': rejection.get('message', 'Invalid image.'),
+                }, status=400)
+
             img_cv = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
             gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
-            faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(60, 60))
+            gray_eq = cv2.equalizeHist(gray)
+
+            faces = face_cascade.detectMultiScale(gray_eq, scaleFactor=1.1, minNeighbors=4, minSize=(60, 60))
 
             if len(faces) == 0:
-                logger.info('Face detection gate: no face found in image.')
-                return JsonResponse({
-                    'error': 'No face detected. Please upload a clear photo of your face.',
-                    'no_face': True
-                }, status=200)
+                logger.info('Cascade missed. Using crop.')
+                img_w, img_h = img.size
+                cheek_w = int(img_w * 0.7)
+                cheek_h = int(img_h * 0.7)
+                cheek_x = (img_w - cheek_w) // 2
+                cheek_y = (img_h - cheek_h) // 2
+                skin_patch = img.crop((cheek_x, cheek_y, cheek_x + cheek_w, cheek_y + cheek_h))
+            else:
+                (x, y, w, h) = max(faces, key=lambda f: f[2] * f[3])
+                logger.info('Face detected.')
 
-            # Get largest face
-            (x, y, w, h) = max(faces, key=lambda f: f[2] * f[3])
-            logger.info('Face detected. Proceeding with analysis.')
+                cheek_x = x + int(w * 0.6)
+                cheek_y = y + int(h * 0.5)
+                cheek_w = int(w * 0.3)
+                cheek_h = int(h * 0.3)
+                
+                cheek_x = min(max(0, cheek_x), img.width - cheek_w)
+                cheek_y = min(max(0, cheek_y), img.height - cheek_h)
+                
+                skin_patch = img.crop((cheek_x, cheek_y, cheek_x + cheek_w, cheek_y + cheek_h))
 
-            # The ResNet model was trained on pure skin patches (zoomed in textures), 
-            # NOT full faces. We must crop a patch of the cheek to match the training data.
-            cheek_x = x + int(w * 0.6)
-            cheek_y = y + int(h * 0.5)
-            cheek_w = int(w * 0.3)
-            cheek_h = int(h * 0.3)
-            
-            # Ensure it's within image bounds
-            cheek_x = min(max(0, cheek_x), img.width - cheek_w)
-            cheek_y = min(max(0, cheek_y), img.height - cheek_h)
-            
-            skin_patch = img.crop((cheek_x, cheek_y, cheek_x + cheek_w, cheek_y + cheek_h))
-            logger.info('Extracted pure skin patch for ResNet analysis.')
-
-            # ── Step 1: YOLO detects acne locations on FULL face ─────────
             acne_count = 0
             acne_boxes = []
             if acne_model is not None:
@@ -280,17 +205,12 @@ def analyze_skin(request):
                         if acne_model.names[int(cls_id)] == 'acne':
                             acne_count += 1
                             acne_boxes.append(box.cpu().numpy().astype(int))
-                logger.info(f'YOLO detected {acne_count} acne spot(s).')
+                logger.info(f'Detected {acne_count} acne.')
 
-            # ── Step 2: Create a "clean" patch for ResNet ────────────────
-            # Blur out any acne that happens to fall inside our cheek patch
             clean_patch = skin_patch.copy()
             if acne_boxes:
-                from PIL import ImageFilter
                 blurred_patch = skin_patch.filter(ImageFilter.GaussianBlur(radius=15))
-                # Adjust acne boxes to patch coordinates
                 for (ax1, ay1, ax2, ay2) in acne_boxes:
-                    # Check if acne overlaps with our cheek patch
                     if not (ax2 < cheek_x or ax1 > cheek_x + cheek_w or ay2 < cheek_y or ay1 > cheek_y + cheek_h):
                         px1 = max(0, ax1 - cheek_x)
                         py1 = max(0, ay1 - cheek_y)
@@ -301,40 +221,29 @@ def analyze_skin(request):
                             acne_crop = blurred_patch.crop((px1, py1, px2, py2))
                             clean_patch.paste(acne_crop, (px1, py1, px2, py2))
 
-            # ── Step 3: ResNet classifies the CLEANED PATCH ──────────────
             output = face_model(transform(clean_patch).unsqueeze(0))
-            probabilities = F.softmax(output, dim=1).squeeze()  # shape: [5]
+            probabilities = F.softmax(output, dim=1).squeeze()
 
-            # ── Step 4: Minor secondary adjustment from acne evidence ────
-            # This is a SMALL nudge, NOT the main factor.
-            # The main classification already happened on clean skin above.
-            # CLASS_NAMES = ['combination', 'dry', 'normal', 'oily', 'sensitive']
-            # Indices:        0               1      2         3       4
             if acne_model is not None and acne_count > 0:
                 adjusted = probabilities.clone().detach()
 
                 if acne_count >= 3:
-                    # Noticeable acne presence → small boost to oily/sensitive
-                    adjusted[3] *= 1.08  # oily
-                    adjusted[4] *= 1.06  # sensitive
-                    adjusted[0] *= 1.04  # combination
+                    adjusted[3] *= 1.08
+                    adjusted[4] *= 1.06
+                    adjusted[0] *= 1.04
                 elif acne_count >= 1:
-                    # Minimal acne → very slight nudge
-                    adjusted[3] *= 1.04  # oily
-                    adjusted[4] *= 1.03  # sensitive
+                    adjusted[3] *= 1.04
+                    adjusted[4] *= 1.03
 
-                # Re-normalize
                 adjusted = adjusted / adjusted.sum()
                 probabilities = adjusted
 
-            # ── Pick the final winner ────────────────────────────────────
             confidence_val, predicted_idx = torch.max(probabilities, dim=0)
             confidence_pct = round(confidence_val.item() * 100, 1)
             skin_type = CLASS_NAMES[predicted_idx.item()]
 
-            # Confidence threshold check
             if confidence_pct < 55.0:
-                logger.info(f'Low confidence scan: {confidence_pct}% for {skin_type}')
+                logger.info('Low confidence scan.')
                 return JsonResponse({
                     'low_confidence': True,
                     'confidence': confidence_pct,
@@ -350,36 +259,36 @@ def analyze_skin(request):
                 'products': products_list
             })
         except Exception as e:
-            logger.error(f'Skin analysis error: {e}')
+            logger.error(f'Skin error: {e}')
             return JsonResponse({'error': str(e)}, status=500)
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
-
-# This endpoint handles ingredient safety analysis.
-# It can receive ingredients as text OR as a photo of a product label (OCR).
-# The flow: OCR (if image) → validate text → ML prediction → rule-based shield → final score
+# formula check endpoint
 @require_POST
 def analyze_product(request):
-    """Ingredient analysis using the unified ML model + rule-based safety shield."""
     skin_type = request.POST.get('skin_type', 'normal').lower()
     ingredients_text = request.POST.get('ingredients_text', '').strip()
-    input_source = 'text'  # Track whether input came from text or image
+    input_source = 'text'
 
-    # 1. OCR — extract text from uploaded product-label image
     if request.FILES.get('image'):
         input_source = 'image'
         try:
             pil_img = Image.open(request.FILES.get('image')).convert('RGB')
+
+            # check image valid
+            is_valid, rejection = validate_ingredient_image(pil_img)
+            if not is_valid:
+                return JsonResponse(rejection, status=400)
+
             ingredients_text = extract_text_from_image(pil_img)
         except Exception as e:
-            logger.error(f'Image processing error: {e}')
+            logger.error(f'Image error: {e}')
             return JsonResponse({
                 'error': 'Unable to process the uploaded image. Please try a different photo.',
                 'ocr_failed': True,
                 'input_source': input_source,
             }, status=400)
 
-    # 2. Validate that we have readable text
     if not ingredients_text:
         if input_source == 'image':
             return JsonResponse({
@@ -394,14 +303,10 @@ def analyze_product(request):
             'input_source': input_source,
         }, status=400)
 
-    # 2b. Keyword validation — only process genuine ingredient lists
     if input_source == 'image':
         is_valid, keyword_hits = _validate_ingredients_text(ingredients_text)
         if not is_valid:
-            logger.info(
-                f'Ingredient validation failed — only {len(keyword_hits)} keyword(s) '
-                f'matched: {keyword_hits}. Extracted text: "{ingredients_text[:120]}"'
-            )
+            logger.info('Validation failed.')
             return JsonResponse({
                 'error': ('We couldn\u2019t detect a valid ingredients list in this image. '
                           'Please ensure the label is clear and readable, '
@@ -411,19 +316,44 @@ def analyze_product(request):
                 'ocr_text': ingredients_text[:500],
             }, status=400)
 
-    # 3. AI Model Prediction via unified model (cached singleton)
     final_score = 50.0
     found_harmful = []
     found_safe = []
     try:
         result = predict_safety(ingredients_text, skin_type)
-        prediction = result['prediction']   # 1 = safe, 0 = unsafe
-        prob = result['probability']         # P(safe)
+        prediction = result['prediction']
+        prob = result['probability']
 
-        # 4. Rule-Based Safety Shield
         clean_txt = ingredients_text.lower()
         found_harmful = [ing.title() for ing in HARMFUL_INGREDIENTS.get(skin_type, []) if ing in clean_txt]
         found_safe = [ing.title() for ing in SAFE_INGREDIENTS.get(skin_type, []) if ing in clean_txt]
+
+        # check comedogenic
+        if skin_type in ['oily', 'combination']:
+            comedogenic_list = [
+                'beeswax', 'cera alba', 'mineral oil', 'paraffinum liquidum',
+                'coconut oil', 'cocos nucifera', 'olive oil', 'olea europaea',
+                'cocoa butter', 'theobroma cacao', 'isopropyl myristate',
+                'isopropyl palmitate', 'myristyl myristate', 'lanolin',
+                'algae extract', 'carrageenan', 'laureth-4', 'cetearyl alcohol'
+            ]
+            found_comedogenic = [ing.title() for ing in comedogenic_list if ing in clean_txt]
+            
+            for ing in found_comedogenic:
+                found_harmful.append(f"{ing} (Pore-Clogging Risk)")
+
+        # check irritants
+        if skin_type == 'sensitive':
+            irritants_list = [
+                'salicylic acid', 'glycolic acid', 'lactic acid', 
+                'melaleuca alternifolia', 'tea tree', 'cananga odorata', 
+                'fragrance', 'parfum', 'citrus', 'menthol', 
+                'peppermint', 'eucalyptus', 'alcohol denat', 'sd alcohol'
+            ]
+            found_irritants = [ing.title() for ing in irritants_list if ing in clean_txt]
+            
+            for ing in found_irritants:
+                found_harmful.append(f"{ing} (Harsh Irritant)")
 
         if found_harmful:
             final_score = 40.0 - (len(found_harmful) * 5)
@@ -433,12 +363,11 @@ def analyze_product(request):
             final_score = prob * 70
 
     except Exception as e:
-        logger.error(f'Prediction System Error: {e}')
+        logger.error(f'Prediction Error: {e}')
         final_score = 50.0
 
     final_score = round(max(5, min(100, final_score)), 1)
 
-    # Recommendations
     recs = Product.objects.filter(skin_type__in=[skin_type, 'all'])[:3] if final_score < 70 else []
     recommendations = [{'name': p.name, 'category': p.category, 'image': p.image.url if p.image else None} for p in recs]
 
@@ -452,24 +381,14 @@ def analyze_product(request):
         'ocr_text': ingredients_text[:500],
     })
 
-
-# ─── 5. Hybrid Skin Analysis (AI + Questionnaire) ────────────────────────────
-# This is the hybrid system — we combine the AI's prediction with the user's
-# answers to 3 skin-type questions. If the AI is very confident (>85%), it wins.
-# If the AI is moderately confident (75-84%), the questionnaire has more weight.
-# This way we get more reliable results by using both AI and human input.
-
-# Each answer maps to a skin type — we count the votes to find the quiz winner
+# quiz score mapping
 QUIZ_SCORING = {
-    # Q1: How does your skin feel 30 min after washing?
     'q1': {'a': 'oily', 'b': 'dry', 'c': 'normal', 'd': 'sensitive', 'e': 'combination'},
-    # Q2: How often does your face get shiny by midday?
     'q2': {'a': 'oily', 'b': 'dry', 'c': 'normal', 'd': 'sensitive', 'e': 'combination'},
-    # Q3: How does your skin react to new products?
     'q3': {'a': 'oily', 'b': 'dry', 'c': 'normal', 'd': 'sensitive', 'e': 'combination'},
 }
 
-# Friendly descriptions shown to the user after we determine their skin type
+# type descriptions
 SKIN_DESCRIPTIONS = {
     'oily': 'Your skin produces excess sebum, especially in the T-zone. Lightweight, oil-free products are ideal.',
     'dry': 'Your skin tends to feel tight and may flake. Rich, hydrating products with ceramides work best.',
@@ -478,10 +397,9 @@ SKIN_DESCRIPTIONS = {
     'combination': 'Your skin is oily in the T-zone but dry elsewhere. You may need to treat different areas differently.',
 }
 
-
+# hybrid analysis
 @require_POST
 def analyze_skin_hybrid(request):
-    """الجمع بين نتيجة الذكاء الاصطناعي وإجابات الاستبيان للحصول على نتيجة نهائية"""
     try:
         data = json.loads(request.body)
     except json.JSONDecodeError:
@@ -489,36 +407,31 @@ def analyze_skin_hybrid(request):
 
     ai_skin_type = data.get('ai_skin_type', '').lower()
     ai_confidence = float(data.get('ai_confidence', 0))
-    answers = data.get('answers', {})  # {'q1': 'a', 'q2': 'b', 'q3': 'c'}
+    answers = data.get('answers', {})
 
     if not ai_skin_type:
         return JsonResponse({'error': 'Missing AI result.'}, status=400)
 
-    # ── Questionnaire scoring ────────────────────────────────────────────
+    # get quiz scores
     quiz_scores = {'oily': 0, 'dry': 0, 'normal': 0, 'sensitive': 0, 'combination': 0}
     for q_key, mapping in QUIZ_SCORING.items():
         answer = answers.get(q_key, '')
         skin_type_vote = mapping.get(answer, '')
         if skin_type_vote:
-            quiz_scores[skin_type_vote] += 2  # Each answer worth 2 points
+            quiz_scores[skin_type_vote] += 2
 
     quiz_winner = max(quiz_scores, key=quiz_scores.get)
     quiz_max_score = quiz_scores[quiz_winner]
 
-    # ── Hybrid combination logic ─────────────────────────────────────────
-    # High AI confidence (>85%): AI wins unless quiz is unanimous against
-    # Medium AI confidence (75-85%): quiz wins on disagreement
+    # merge results
     if ai_confidence >= 85.0:
-        # AI is very confident — trust it unless quiz unanimously disagrees
         if quiz_winner != ai_skin_type and quiz_max_score == 6:
-            # All 3 answers point to a different type — quiz overrides
             final_type = quiz_winner
             method = 'questionnaire_override'
         else:
             final_type = ai_skin_type
             method = 'ai_dominant'
     else:
-        # AI is moderately confident (75-84%) — quiz has more influence
         if quiz_winner != ai_skin_type:
             final_type = quiz_winner
             method = 'questionnaire_preferred'
@@ -526,18 +439,13 @@ def analyze_skin_hybrid(request):
             final_type = ai_skin_type
             method = 'consensus'
 
-    # Final confidence = weighted average (AI weight based on its confidence)
     ai_weight = ai_confidence / 100.0
     quiz_confidence = (quiz_max_score / 6.0) * 100
     final_confidence = round((ai_weight * ai_confidence) + ((1 - ai_weight) * quiz_confidence), 1)
     final_confidence = min(99.0, max(50.0, final_confidence))
 
-    logger.info(
-        f'Hybrid analysis: AI={ai_skin_type}({ai_confidence}%) '
-        f'Quiz={quiz_winner}({quiz_confidence}%) → Final={final_type} via {method}'
-    )
+    logger.info(f'Hybrid final: {final_type}')
 
-    # Recommendations
     recs = Product.objects.filter(skin_type__in=[final_type, 'all'])[:4]
     products_list = [{
         'name': p.name, 'category': p.category,
@@ -555,15 +463,12 @@ def analyze_skin_hybrid(request):
         'products': products_list,
     })
 
-
-# Simple endpoint to add/remove a product from the user's favorites list
+# toggle favorite
 @require_POST
 def toggle_favorite(request):
-    """Toggle a product in the user's favorites list."""
     if not request.user.is_authenticated:
         return JsonResponse({'error': 'Login required.'}, status=401)
 
-    from ..models import Product, UserProfile
     try:
         data = json.loads(request.body)
         product_id = data.get('product_id')

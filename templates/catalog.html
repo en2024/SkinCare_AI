@@ -88,7 +88,8 @@
             margin-inline: auto;
         }
 
-        /* NAV */
+        /* navigation styling */
+
         .main-nav-wrap {
             position: sticky;
             top: 0;
@@ -167,7 +168,8 @@
             transform: translateY(-2px);
         }
 
-        /* HERO */
+        /* hero section */
+
         .shop-hero {
             position: relative;
             margin-top: 18px;
@@ -229,7 +231,8 @@
             color: #eff4f1;
         }
 
-        /* FILTERS */
+        /* filter buttons */
+
         .filter-wrap {
             margin: 34px auto 24px;
         }
@@ -266,7 +269,8 @@
             transform: translateY(-2px);
         }
 
-        /* Search bar */
+        /* search bar styles */
+
         .search-wrap {
             width: 80%;
             max-width: 800px;
@@ -323,7 +327,8 @@
         body.rtl .search-wrap .search-icon { left: auto; right: 20px; }
         body.rtl .search-wrap input { padding-left: 20px; padding-right: 54px; }
 
-        /* GRID */
+        /* product cards grid */
+
         .product-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
@@ -471,7 +476,8 @@
             box-shadow: var(--shadow-sm);
         }
 
-        /* FOOTER */
+        /* footer section */
+
         footer {
             background: #2a342e;
             color: #eaf0eb;
@@ -492,7 +498,8 @@
             font-size: 0.95rem;
         }
 
-        /* Floating settings button */
+        /* floating settings button */
+
         .fab-container {
             position: fixed;
             bottom: 32px;
@@ -560,7 +567,8 @@
             background: var(--bg);
         }
 
-        /* Arabic RTL layout fixes */
+        /* rtl layout fixes */
+
         body.rtl { direction: rtl; text-align: right; }
         body.rtl .main-nav { padding-left: 100px; padding-right: 20px; }
         body.rtl .fab-container { left: 32px; right: auto; }
@@ -595,7 +603,8 @@
             .skin-filter-tabs { gap: 8px; }
         }
 
-        /* Skin type quick filter pills */
+        /* skin type filter tabs */
+
         .skin-filter-wrap {
             margin: 0 auto 20px;
             text-align: center;
@@ -625,14 +634,13 @@
             border-color: var(--primary);
         }
 
-        /* // Fixing broken image paths to ensure the catalog looks professional */
-        /* // Implementing fallback images for missing product photos */
-        /* // Ensuring static and media configurations are synced for final graduation presentation */
+        /* fallback for missing images */
+
         img:not([src]), img[src=""] {
             display: none;
         }
 
-        /* // Final UI cleanup: Removing the distracting green status dots from product cards to ensure a minimalist catalog design. */
+
     </style>
 </head>
 <body>
@@ -702,7 +710,7 @@
             {% for product in products %}
             <article class="product-card" data-category="{{ product.category }}s" data-skin="{{ product.skin_type }}">
                 <div class="product-img-wrap">
-                    <!-- // Removed safety-dot for cleaner UI -->
+
                     <span class="category-badge">{{ product.get_category_display }}</span>
                     {% if product.image %}
                     <img src="{{ product.image.url }}" onerror="this.onerror=null; this.src='{% static 'images/default-product.png' %}';" alt="{{ product.name }}" class="product-img" />
@@ -744,12 +752,14 @@
 
 
     <script>
-        // opening/closing the floating settings menu
+        /* floating menu toggle */
+
         window.toggleFab = function() {
             document.getElementById('fab-menu').classList.toggle('active');
         };
 
-        // cycling through font sizes for accessibility
+        /* accessibility font size toggle */
+
         let fontSizeState = 1;
         window.toggleTextSize = function() {
             const sizes = ['14px', '16px', '18px'];
@@ -757,7 +767,8 @@
             document.documentElement.style.fontSize = sizes[fontSizeState];
         };
 
-        // translating all catalog text to Arabic or English
+        /* translating page content */
+
         window.applyLanguage = function(lang) {
             const isRtl = (lang === 'ar');
             if (isRtl) {

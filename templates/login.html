@@ -247,7 +247,8 @@
 
 
 <script>
-    // switching to the login tab
+    /* switching to login */
+
     function showLogin() {
         document.getElementById("login-section").style.display = "block";
         document.getElementById("register-section").style.display = "none";
@@ -255,7 +256,8 @@
         document.getElementById("tab-register").classList.remove("active");
         updateUIText();
     }
-    // switching to the register tab
+    /* switching to register */
+
     function showRegister() {
         document.getElementById("login-section").style.display = "none";
         document.getElementById("register-section").style.display = "block";
@@ -263,22 +265,26 @@
         document.getElementById("tab-register").classList.add("active");
         updateUIText();
     }
-    // if registration had an error, jump to register tab on load
+    /* handle reg errors */
+
     {% if reg_error %}
     document.addEventListener("DOMContentLoaded", function() {
         showRegister();
     });
     {% endif %}
-    // toggling dark mode on/off
+    /* dark mode toggle */
+
     function toggleDarkMode() {
         document.body.classList.toggle("dark-mode");
         const isDark = document.body.classList.contains("dark-mode");
         document.getElementById("fab-dm-icon").innerText = isDark ? "☀️" : "🌙";
         localStorage.setItem("darkMode", isDark ? "on" : "off");
     }
-    // restoring dark mode from last visit
+    /* loading dark mode */
+
     if(localStorage.getItem("darkMode") === "on") { document.body.classList.add("dark-mode"); document.getElementById("fab-dm-icon").innerText = "☀️"; }
-    // applying language (Arabic or English)
+    /* language switcher */
+
     function applyLanguage(lang) {
         const isRtl = (lang === 'ar');
         if (isRtl) {
@@ -290,7 +296,8 @@
         }
         updateUIText();
     }
-    // updating all text on the page based on current language
+    /* updating all text */
+
     function updateUIText() {
         const isRtl = document.body.classList.contains('rtl');
         const isLoginVisible = document.getElementById('login-section').style.display !== "none";

@@ -1,5 +1,5 @@
-# Authentication views — handles login, logout, registration, and profile.
-# These are the views that manage user accounts in our system.
+# Auth views for login, logout, registration, and profile
+
 import logging
 
 from django.contrib.auth import authenticate, login, logout
@@ -10,8 +10,8 @@ from django.shortcuts import render, redirect
 logger = logging.getLogger('analyzer')
 
 
-# Login view — checks the username and password against the database.
-# If valid, the user gets logged in and redirected to the home page.
+# login view - checks user and redirects
+
 def user_login(request):
     error = None
     if request.method == 'POST':
@@ -24,15 +24,15 @@ def user_login(request):
     return render(request, 'login.html', {'error': error})
 
 
-# Simple logout — ends the session and sends the user back to home.
+# simple logout
+
 def user_logout(request):
     logout(request)
     return redirect('home')
 
 
-# Registration view — creates a new user account.
-# It validates the form data (password match, minimum length, etc.),
-# saves the user's skin type to their profile, and auto-logs them in.
+# create new user account
+
 def register_user(request):
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
@@ -76,9 +76,8 @@ def register_user(request):
     return redirect('login')
 
 
-# Profile view — shows the user's account settings, skin type, and favorites.
-# Handles multiple POST actions: update info, change skin type,
-# change password, and remove favorites.
+# user profile settings
+
 def profile_view(request):
     """User profile page: account settings, skin type, favorites."""
     if not request.user.is_authenticated:

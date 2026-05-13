@@ -1,24 +1,18 @@
-# Admin views — these handle the product management dashboard.
-# Only staff users (admins) can access these pages.
-# They provide CRUD operations (Create, Read, Update, Delete) for products.
+# Admin views for product management
+
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 
 from ..models import Product
 
+# dashboard view for staff
 
-# Dashboard view — shows all products to the admin.
-# login_required ensures only logged-in users can access it.
-# We also check is_staff to make sure it's an admin, not a regular user.
 @login_required(login_url='login')
 def admin_dashboard(request):
     if not request.user.is_staff:
         return redirect('home')
     return render(request, 'admin.html', {'products': Product.objects.all()})
-
-
-# Add product — creates a new product from the form data.
-# The image is handled separately via request.FILES.
+# add new product
 @login_required(login_url='login')
 def add_product(request):
     if request.method == 'POST' and request.user.is_staff:
@@ -31,10 +25,8 @@ def add_product(request):
             image=request.FILES.get('image')
         )
     return redirect('/admin-dashboard/')
+# update product details
 
-
-# Edit product — updates an existing product's details.
-# Only replaces the image if a new one was uploaded.
 @login_required(login_url='login')
 def edit_product(request):
     if request.method == 'POST' and request.user.is_staff:
@@ -50,7 +42,8 @@ def edit_product(request):
     return redirect('/admin-dashboard/')
 
 
-# Delete product — removes a product from the database.
+# remove product
+
 @login_required(login_url='login')
 def delete_product(request):
     if request.method == 'POST' and request.user.is_staff:
