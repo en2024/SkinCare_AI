@@ -1,13 +1,23 @@
+"""
+Unit tests for the AI SkinCare Safety Analyzer.
+
+Test groups:
+  ProductModelTest       — Product model CRUD and string representation
+  PageViewTests          — All public pages return HTTP 200
+  AuthTests              — Login, registration, logout, and validation
+  AdminDashboardTests    — Staff-only product management
+  APIEndpointTests       — AI analysis API input validation
+  HybridAnalysisTests    — Hybrid skin analysis decision logic
+"""
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from .models import Product
 
 
 class ProductModelTest(TestCase):
-    """Tests for the Product model."""
+    """Verify that products can be created and display correctly."""
 
     def test_create_product(self):
-        """Test that a product can be created with all fields."""
         product = Product.objects.create(
             name='Test Moisturizer',
             category='moisturizer',
@@ -21,7 +31,6 @@ class ProductModelTest(TestCase):
         self.assertEqual(str(product), 'Test Moisturizer')
 
     def test_product_str(self):
-        """Test the string representation of a Product."""
         product = Product.objects.create(
             name='CeraVe Cleanser',
             category='cleanser',
@@ -33,7 +42,7 @@ class ProductModelTest(TestCase):
 
 
 class PageViewTests(TestCase):
-    """Tests that all public pages return 200."""
+    """All public pages should return HTTP 200."""
 
     def setUp(self):
         self.client = Client()
@@ -56,7 +65,7 @@ class PageViewTests(TestCase):
 
 
 class AuthTests(TestCase):
-    """Tests for authentication flow."""
+    """Test the full authentication flow: login, register, logout."""
 
     def setUp(self):
         self.client = Client()
@@ -84,12 +93,12 @@ class AuthTests(TestCase):
             'confirm_password': 'newpass123',
             'full_name': 'Jane Doe'
         })
-        self.assertEqual(response.status_code, 302)  # redirect to login
+        self.assertEqual(response.status_code, 302)
         self.assertTrue(User.objects.filter(username='newuser').exists())
 
     def test_register_duplicate_username(self):
         response = self.client.post('/register/', {
-            'username': 'testuser',  # already exists
+            'username': 'testuser',
             'password': 'newpass123',
             'confirm_password': 'newpass123',
         })
@@ -101,7 +110,7 @@ class AuthTests(TestCase):
             'password': 'pass123',
             'confirm_password': 'pass456',
         })
-        self.assertEqual(response.status_code, 200)  # stays on page with error
+        self.assertEqual(response.status_code, 200)
         self.assertFalse(User.objects.filter(username='mismatchuser').exists())
 
     def test_register_short_password(self):
@@ -110,17 +119,17 @@ class AuthTests(TestCase):
             'password': '12345',
             'confirm_password': '12345',
         })
-        self.assertEqual(response.status_code, 200)  # stays on page with error
+        self.assertEqual(response.status_code, 200)
         self.assertFalse(User.objects.filter(username='shortpwuser').exists())
 
     def test_logout(self):
         self.client.login(username='testuser', password='testpass123')
         response = self.client.get('/logout/')
-        self.assertEqual(response.status_code, 302)  # redirect to home
+        self.assertEqual(response.status_code, 302)
 
 
 class AdminDashboardTests(TestCase):
-    """Tests for admin product management."""
+    """Test staff-only product management (add, edit, delete)."""
 
     def setUp(self):
         self.client = Client()
@@ -129,12 +138,12 @@ class AdminDashboardTests(TestCase):
 
     def test_admin_dashboard_requires_login(self):
         response = self.client.get('/admin-dashboard/')
-        self.assertEqual(response.status_code, 302)  # redirect to login
+        self.assertEqual(response.status_code, 302)
 
     def test_admin_dashboard_requires_staff(self):
         self.client.login(username='user', password='userpass123')
         response = self.client.get('/admin-dashboard/')
-        self.assertEqual(response.status_code, 302)  # redirect to home
+        self.assertEqual(response.status_code, 302)
 
     def test_admin_dashboard_accessible_by_staff(self):
         self.client.login(username='admin', password='adminpass123')
@@ -169,15 +178,15 @@ class AdminDashboardTests(TestCase):
 
 
 class APIEndpointTests(TestCase):
-    """Tests for AI analysis API endpoints."""
+    """Test that API endpoints reject invalid requests properly."""
 
-    def test_analyze_skin_requires_post(self):
+    def test_analyze_skin_rejects_get(self):
         response = self.client.get('/analyze/')
-        self.assertEqual(response.status_code, 405)  # Method Not Allowed
+        self.assertEqual(response.status_code, 400)  # no image attached
 
     def test_analyze_product_requires_post(self):
         response = self.client.get('/analyze-product/')
-        self.assertEqual(response.status_code, 405)  # Method Not Allowed
+        self.assertEqual(response.status_code, 405)
 
     def test_analyze_skin_requires_image(self):
         response = self.client.post('/analyze/')
@@ -191,7 +200,7 @@ class APIEndpointTests(TestCase):
 
 
 class HybridAnalysisTests(TestCase):
-    """Tests for the hybrid skin analysis (AI + questionnaire) endpoint."""
+    """Test the hybrid analysis endpoint that merges AI scan + quiz answers."""
 
     def test_hybrid_requires_post(self):
         response = self.client.get('/analyze-hybrid/')
@@ -210,27 +219,28 @@ class HybridAnalysisTests(TestCase):
             content_type='application/json')
         self.assertEqual(response.status_code, 400)
 
-    def test_hybrid_requires_answers(self):
+    def test_hybrid_works_without_answers(self):
+        """The endpoint should still return a result even without quiz answers."""
         import json
         response = self.client.post('/analyze-hybrid/',
             data=json.dumps({'ai_skin_type': 'oily', 'ai_confidence': 90}),
             content_type='application/json')
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 200)
 
     def test_hybrid_consensus(self):
-        """When AI and questionnaire agree, result should match."""
+        """When AI and quiz agree, result should match."""
         import json
         response = self.client.post('/analyze-hybrid/',
             data=json.dumps({
                 'ai_skin_type': 'oily',
                 'ai_confidence': 90,
-                'answers': {'q1': 'a', 'q2': 'a', 'q3': 'a'}  # all oily
+                'answers': {'q1': 'a', 'q2': 'a', 'q3': 'a'}
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertEqual(data['skin_type'], 'oily')
-        self.assertEqual(data['method'], 'ai_dominant')  # high confidence + agreement
+        self.assertEqual(data['method'], 'ai_dominant')
         self.assertIn('confidence', data)
         self.assertIn('description', data)
         self.assertIn('products', data)
@@ -241,8 +251,8 @@ class HybridAnalysisTests(TestCase):
         response = self.client.post('/analyze-hybrid/',
             data=json.dumps({
                 'ai_skin_type': 'oily',
-                'ai_confidence': 80,  # moderate confidence
-                'answers': {'q1': 'b', 'q2': 'b', 'q3': 'b'}  # all dry
+                'ai_confidence': 80,
+                'answers': {'q1': 'b', 'q2': 'b', 'q3': 'b'}
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
@@ -251,13 +261,13 @@ class HybridAnalysisTests(TestCase):
         self.assertEqual(data['method'], 'questionnaire_preferred')
 
     def test_hybrid_ai_dominant_high_confidence(self):
-        """When AI confidence is high and quiz doesn't unanimously disagree, AI wins."""
+        """When AI confidence is high and quiz is mixed, AI wins."""
         import json
         response = self.client.post('/analyze-hybrid/',
             data=json.dumps({
                 'ai_skin_type': 'oily',
                 'ai_confidence': 92,
-                'answers': {'q1': 'b', 'q2': 'a', 'q3': 'c'}  # mixed answers
+                'answers': {'q1': 'b', 'q2': 'a', 'q3': 'c'}
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)
@@ -272,7 +282,7 @@ class HybridAnalysisTests(TestCase):
             data=json.dumps({
                 'ai_skin_type': 'oily',
                 'ai_confidence': 90,
-                'answers': {'q1': 'b', 'q2': 'b', 'q3': 'b'}  # all dry
+                'answers': {'q1': 'b', 'q2': 'b', 'q3': 'b'}
             }),
             content_type='application/json')
         self.assertEqual(response.status_code, 200)

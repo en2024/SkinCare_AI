@@ -1,28 +1,29 @@
-# This script trains the YOLOv8 model for acne detection.
-# YOLO (You Only Look Once) is an object detection model — it draws
-# bounding boxes around acne spots in face images.
-# We start from a pre-trained YOLOv8 nano model and fine-tune it
-# on our own labeled acne dataset.
+"""
+Training script for the YOLOv8 acne detection model.
+
+Fine-tunes YOLOv8 nano on a custom labeled acne dataset to detect
+and localize acne spots in face images.
+
+Usage:  python scripts/train_yolo.py
+"""
 import os
 from ultralytics import YOLO
 
+
 def train():
-    # Detect the absolute path to the dataset's data.yaml
+    # Path to the dataset config file
     dataset_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'acne-detection-yolo.v1i.yolov8'))
     yaml_path = os.path.join(dataset_dir, 'data.yaml')
-    
-    # Loading a pre-trained YOLOv8 nano model — 'nano' means it's the
-    # smallest and fastest variant, good for real-time detection.
+
+    # Start from a pretrained YOLOv8 nano model (small and fast)
     print("[*] Loading YOLOv8n model...")
-    model = YOLO('yolov8n.pt') 
-    
+    model = YOLO('yolov8n.pt')
+
     print(f"[*] Starting training using data from: {yaml_path}")
-    print("[*] Training will utilize your RTX 3050 automatically.")
-    
-    # Training config:
-    #   epochs=20: how many times to go through the entire dataset
-    #   imgsz=640: the input image size YOLO expects
-    #   batch=16: how many images to process at once
+
+    # epochs=20: full passes through the dataset
+    # imgsz=640: input image resolution
+    # batch=16: images processed at once
     results = model.train(
         data=yaml_path,
         epochs=20,
@@ -31,10 +32,9 @@ def train():
         workers=0,
         name='acne_detection_model'
     )
-    
+
     print("\n[*] Training complete!")
-    print(f"[*] Your trained model is saved in the 'runs/detect/acne_detection_model/weights/' folder.")
-    print("[*] The best weights file is named 'best.pt'.")
+    print("[*] Best weights saved in 'runs/detect/acne_detection_model/weights/best.pt'.")
 
 if __name__ == '__main__':
     train()

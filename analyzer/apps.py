@@ -1,3 +1,4 @@
+"""App configuration for the analyzer module."""
 from django.apps import AppConfig
 
 

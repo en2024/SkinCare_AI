@@ -1,4 +1,9 @@
-# Module to predict product safety using the trained ML model
+"""
+Ingredient safety predictor — uses a trained Random Forest model to determine
+whether a product's ingredients are safe for each of the 5 skin types.
+
+The model bundle (skincare_model.pkl) is loaded once and cached in memory.
+"""
 import os
 import re
 import ast
@@ -7,17 +12,17 @@ import logging
 
 logger = logging.getLogger("analyzer")
 
-# file paths
+# ── File paths ───────────────────────────────────────────────────────────────
 
 _DIR = os.path.dirname(os.path.abspath(__file__))
 _MODEL_PATH = os.path.join(_DIR, "skincare_model.pkl")
 
-# caching the model in memory
+# The model bundle is loaded once into memory on first use
 _bundle = None
-# loads the pkl bundle
+
 
 def _load_model():
-    """Load the model bundle once and cache it in-process."""
+    """Load the pkl bundle (model + vectorizer + skin types) and cache it."""
     global _bundle
     if _bundle is None:
         if not os.path.exists(_MODEL_PATH):
@@ -31,20 +36,19 @@ def _load_model():
     return _bundle
 
 
-# cleaning text for the model
-
 def _clean_ingredients(raw_text: str) -> str:
     """
-    Normalise raw ingredient text into a lowercase space-separated string
+    Normalize raw ingredient text into a lowercase, space-separated string
     suitable for the TF-IDF vectorizer.
     """
     text = raw_text.lower()
-    # Strip non-alphabetic noise (preserving hyphens for compound names)
+    # Keep only letters, spaces, and hyphens (for compound ingredient names)
     text = re.sub(r"[^a-z\s\-]", " ", text)
     text = re.sub(r"\s+", " ", text).strip()
     return text
-# skin type mapping
 
+
+# Maps skin type names to their column index in the model's output
 _SKIN_INDEX = {
     "combination": 0,
     "dry": 1,
@@ -52,6 +56,8 @@ _SKIN_INDEX = {
     "oily": 3,
     "sensitive": 4,
 }
+
+
 def predict_safety(ingredients_text: str, skin_type: str) -> dict:
     """
     Predict whether a product is safe for the given skin type.
@@ -83,31 +89,26 @@ def predict_safety(ingredients_text: str, skin_type: str) -> dict:
             f"Must be one of: {list(_SKIN_INDEX.keys())}"
         )
 
-    # normalize ingredients
-
+    # Clean and vectorize the ingredient text
     clean_text = _clean_ingredients(ingredients_text)
     if not clean_text:
         raise ValueError("Ingredients text is empty after cleaning.")
 
-    # convert text to numbers
-
+    # Convert text into TF-IDF feature vector and get predictions for all 5 skin types
     X = vectorizer.transform([clean_text])
     predictions = model.predict(X)[0]  # shape: (5,)
 
-    # calculate safety probabilities
-
+    # Extract the probability of being "safe" for each skin type
     probabilities = []
     for estimator in model.estimators_:
         prob = estimator.predict_proba(X)[0]
-        # prob might be shape (2,) for [unsafe_prob, safe_prob]
-        # or shape (1,) if only one class was seen during training
+        # prob is shape (2,) for [P(unsafe), P(safe)] or (1,) if only one class was seen
         if len(prob) == 2:
-            probabilities.append(float(prob[1]))  # P(safe)
+            probabilities.append(float(prob[1]))
         else:
             probabilities.append(float(predictions[len(probabilities)]))
 
-    # build final result dict
-
+    # Build a results dict for all skin types
     all_results = {}
     for i, st in enumerate(skin_types):
         all_results[st.lower()] = {
@@ -115,6 +116,7 @@ def predict_safety(ingredients_text: str, skin_type: str) -> dict:
             "probability": round(probabilities[i], 4),
         }
 
+    # Return the result for the requested skin type
     idx = _SKIN_INDEX[skin_type]
     return {
         "prediction": int(predictions[idx]),

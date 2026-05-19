@@ -1,9 +1,17 @@
+"""
+Seed script — populates the database with 40 curated skincare products.
+Run this once after migrating to fill the catalog.
+
+Usage:  python add_products.py
+"""
 import os
 import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 django.setup()
 
 from analyzer.models import Product
+
+# ── Product data (10 moisturizers, 10 cleansers, 10 serums, 10 sunscreens) ──
 
 products = [
     # Moisturizers
@@ -55,6 +63,8 @@ products = [
     {"name": "VICHY 50ml", "category": "sunscreen", "skin_type": "combination", "description": "Provides high UV protection with a mattifying, anti-shine finish and a natural BB tint to even skin tone.", "how_to_use": "Apply to the face and neck 15-20 minutes before sun exposure and reapply every 2 hours.", "image": "products image/VICHY sunscreen_.jpg"},
 ]
 
+# ── Insert products (skip duplicates) ────────────────────────────────────────
+
 for p in products:
     Product.objects.get_or_create(
         name=p['name'],
@@ -66,6 +76,6 @@ for p in products:
             'image': p['image'],
         }
     )
-    print(f"✓ {p['name']}")
+    print(f"+ {p['name']}")
 
-print("\nتم إضافة كل المنتجات بنجاح!")
+print(f"\nDone! {len(products)} products seeded.")

@@ -1,5 +1,6 @@
-# Auth views for login, logout, registration, and profile
-
+"""
+Authentication views — login, logout, registration, and user profile management.
+"""
 import logging
 
 from django.contrib.auth import authenticate, login, logout
@@ -10,9 +11,8 @@ from django.shortcuts import render, redirect
 logger = logging.getLogger('analyzer')
 
 
-# login view - checks user and redirects
-
 def user_login(request):
+    """Show the login form, or validate credentials and redirect to home."""
     error = None
     if request.method == 'POST':
         user = authenticate(request, username=request.POST.get('username'), password=request.POST.get('password'))
@@ -24,23 +24,21 @@ def user_login(request):
     return render(request, 'login.html', {'error': error})
 
 
-# simple logout
-
 def user_logout(request):
+    """Log the user out and send them back to the home page."""
     logout(request)
     return redirect('home')
 
 
-# create new user account
-
 def register_user(request):
+    """Create a new user account with optional full name and skin type."""
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
         password = request.POST.get('password', '')
         confirm_password = request.POST.get('confirm_password', '')
         full_name = request.POST.get('full_name', '').strip()
 
-        # Validation
+        # Basic validation
         if not username or not password:
             return render(request, 'login.html', {'reg_error': 'Username and password are required.'})
 
@@ -52,21 +50,22 @@ def register_user(request):
 
         try:
             user = User.objects.create_user(username=username, password=password)
-            # Save the full name if provided
+
+            # Split "Jane Doe" into first_name="Jane", last_name="Doe"
             if full_name:
                 parts = full_name.split(' ', 1)
                 user.first_name = parts[0]
                 user.last_name = parts[1] if len(parts) > 1 else ''
                 user.save()
-                
-            # Save skin_type to profile
+
+            # Save the skin type chosen during registration to their profile
             skin_type = request.POST.get('skin_type', '')
             if skin_type:
                 from ..models import UserProfile
                 profile, _ = UserProfile.objects.get_or_create(user=user)
                 profile.skin_type = skin_type
                 profile.save()
-                
+
             logger.info(f'New user registered: {username}')
             login(request, user)
             return redirect('home')
@@ -76,10 +75,11 @@ def register_user(request):
     return redirect('login')
 
 
-# user profile settings
-
 def profile_view(request):
-    """User profile page: account settings, skin type, favorites."""
+    """
+    User profile page — lets users manage their account, skin type,
+    favorite products, and password.
+    """
     if not request.user.is_authenticated:
         return redirect('login')
 
@@ -90,6 +90,7 @@ def profile_view(request):
     if request.method == 'POST':
         action = request.POST.get('action', '')
 
+        # Update display name
         if action == 'update_info':
             full_name = request.POST.get('full_name', '').strip()
             if full_name:
@@ -99,12 +100,14 @@ def profile_view(request):
                 request.user.save()
             message = 'Profile updated successfully.'
 
+        # Update skin type preference
         elif action == 'update_skin_type':
             skin_type = request.POST.get('skin_type', '')
             profile.skin_type = skin_type
             profile.save()
             message = 'Skin type updated successfully.'
 
+        # Change password (requires current password confirmation)
         elif action == 'change_password':
             current = request.POST.get('current_password', '')
             new_pw = request.POST.get('new_password', '')
@@ -121,6 +124,7 @@ def profile_view(request):
                 login(request, request.user)
                 message = 'Password changed successfully.'
 
+        # Remove a product from favorites
         elif action == 'remove_favorite':
             from ..models import Product
             pid = request.POST.get('product_id')

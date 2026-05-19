@@ -1,4 +1,9 @@
-﻿# image validators
+"""
+Image validators — pre-check uploaded images before sending them to AI models.
+
+validate_face_image()       → Ensures the upload contains a real human face or skin.
+validate_ingredient_image() → Ensures the upload contains readable ingredient text.
+"""
 import cv2
 import numpy as np
 import pytesseract
@@ -9,13 +14,15 @@ from django.conf import settings
 
 logger = logging.getLogger('analyzer')
 
-# set tesseract path
+# ── Tesseract OCR setup ──────────────────────────────────────────────────────
+
 pytesseract.pytesseract.tesseract_cmd = getattr(
     settings, 'TESSERACT_CMD',
     r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 )
 
-# load face cascades
+# ── OpenCV face and eye detectors ────────────────────────────────────────────
+
 _face_cascade = cv2.CascadeClassifier(
     cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
 )
@@ -23,7 +30,8 @@ _eye_cascade = cv2.CascadeClassifier(
     cv2.data.haarcascades + 'haarcascade_eye.xml'
 )
 
-# skincare keywords
+# ── Known skincare keywords (used to verify ingredient images) ───────────────
+
 _INGREDIENT_KEYWORDS = [
     'ingredients', 'active ingredients', 'inactive ingredients', 'composition',
     'aqua', 'water', 'glycerin', 'glycerine', 'dimethicone', 'tocopherol',
@@ -40,13 +48,15 @@ _INGREDIENT_KEYWORDS = [
 ]
 _MIN_KEYWORD_HITS = 3
 
-# generic reject response
+# Standard rejection payload returned when validation fails
 _REJECT = {
     "valid": False,
     "overridden_confidence": "0%",
 }
 
-# hsv skin ranges
+# ── Skin color detection ─────────────────────────────────────────────────────
+# HSV ranges that cover common human skin tones (light to dark).
+
 _SKIN_RANGES = [
     (np.array([0, 25, 50], dtype=np.uint8),
      np.array([25, 220, 255], dtype=np.uint8)),
@@ -54,11 +64,12 @@ _SKIN_RANGES = [
      np.array([40, 200, 255], dtype=np.uint8)),
 ]
 
+# At least 25% of the image must have skin-colored pixels to pass
 _MIN_SKIN_RATIO = 0.25
 
-# calculate skin ratio
+
 def _compute_skin_ratio(img_bgr):
-    hsv = cv2.cvtColor(img_bgr, cv2.COLOR_HSV) # Wait, it was BGR2HSV
+    """Calculate what fraction of the image has skin-like colors using HSV masking."""
     hsv = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2HSV)
     combined_mask = np.zeros(hsv.shape[:2], dtype=np.uint8)
 
@@ -70,16 +81,20 @@ def _compute_skin_ratio(img_bgr):
     logger.info(f'Skin ratio: {ratio:.1%}')
     return ratio
 
-# verify organic texture
+
 def _has_skin_texture(img_bgr):
+    """
+    Check if the image has organic skin-like texture (not a solid color or random noise).
+    Uses Laplacian variance for overall detail and a Gabor filter for fine texture.
+    """
     gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
     resized = cv2.resize(gray, (256, 256))
 
-    # laplacian variance
+    # Laplacian variance measures overall image detail
     laplacian = cv2.Laplacian(resized, cv2.CV_64F)
     texture_var = laplacian.var()
 
-    # gabor filter
+    # Gabor filter picks up fine, repeating patterns (like skin pores)
     kernel = cv2.getGaborKernel(
         (21, 21), sigma=3.0, theta=0, lambd=8.0, gamma=0.5
     )
@@ -88,17 +103,21 @@ def _has_skin_texture(img_bgr):
 
     logger.info(f'Texture var: {texture_var:.1f}, Gabor: {gabor_energy:.1f}')
 
+    # Too flat (< 10) = solid color or blank image
     if texture_var < 10:
         logger.info('Texture too flat.')
         return False
+
+    # Too complex (> 3000) = busy scene, not a face close-up
     if texture_var > 3000:
         logger.info('Texture too complex.')
         return False
 
     return True
 
-# check face size
+
 def _face_is_reasonable_size(face_rect, img_shape):
+    """Reject faces that are too tiny relative to the image (likely false positives)."""
     (x, y, w, h) = face_rect
     img_h, img_w = img_shape[:2]
     face_area = w * h
@@ -108,19 +127,31 @@ def _face_is_reasonable_size(face_rect, img_shape):
     logger.info(f'Face area ratio: {ratio:.2%}')
     return ratio >= 0.02
 
-# validate face
+
+# ── Face image validation ────────────────────────────────────────────────────
+
 def validate_face_image(pil_image):
+    """
+    Validate that a PIL image contains a human face or skin close-up.
+
+    Checks in order:
+      1. Face detection with OpenCV (two passes: strict then relaxed)
+      2. Skin color ratio (at least 25% skin-colored pixels)
+      3. Skin texture analysis (must look organic, not solid/noisy)
+
+    Returns: (is_valid, rejection_dict_or_None)
+    """
     img_array = np.array(pil_image.convert('RGB'))
     img_bgr = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
     gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
     gray_eq = cv2.equalizeHist(gray)
 
-    # detect faces
+    # First pass: standard face detection
     faces = _face_cascade.detectMultiScale(
         gray_eq, scaleFactor=1.1, minNeighbors=3, minSize=(50, 50)
     )
 
-    # retry detection
+    # Second pass: more lenient settings if the first pass found nothing
     if len(faces) == 0:
         faces = _face_cascade.detectMultiScale(
             gray_eq, scaleFactor=1.05, minNeighbors=2, minSize=(30, 30)
@@ -135,12 +166,11 @@ def validate_face_image(pil_image):
         else:
             logger.info('Face too small.')
 
-    # color check
+    # No face found — check if the image at least looks like a skin close-up
     logger.info('Running color check.')
     skin_ratio = _compute_skin_ratio(img_bgr)
 
     if skin_ratio >= _MIN_SKIN_RATIO:
-        # texture check
         logger.info('Running texture check.')
 
         if _has_skin_texture(img_bgr):
@@ -156,7 +186,7 @@ def validate_face_image(pil_image):
                 ),
             }
 
-    # validation failed
+    # Nothing detected — reject
     logger.warning('Validation failed.')
     return False, {
         **_REJECT,
@@ -167,11 +197,23 @@ def validate_face_image(pil_image):
         ),
     }
 
-# validate ingredients
+
+# ── Ingredient image validation ──────────────────────────────────────────────
+
 def validate_ingredient_image(pil_image):
+    """
+    Validate that a PIL image contains readable skincare ingredient text.
+
+    Steps:
+      1. Enhance contrast and sharpness for better OCR
+      2. Run OCR to extract text
+      3. Check if the text contains enough skincare keywords
+
+    Returns: (is_valid, rejection_dict_or_None)
+    """
     gray = pil_image.convert('L')
 
-    # enhance image
+    # Boost contrast and sharpness so OCR can read small label text
     enhanced = ImageEnhance.Contrast(gray).enhance(2.2)
     enhanced = ImageEnhance.Sharpness(enhanced).enhance(2.0)
 
@@ -189,7 +231,7 @@ def validate_ingredient_image(pil_image):
     except Exception:
         raw_text = ""
 
-    # clean text
+    # Strip out non-text noise
     cleaned = re.sub(r'[^a-zA-Z,\s\-&()./]', ' ', raw_text)
     cleaned = re.sub(r'\s+', ' ', cleaned).strip()
 
@@ -203,7 +245,7 @@ def validate_ingredient_image(pil_image):
             ),
         }
 
-    # count keywords
+    # Verify the text actually contains skincare keywords (not just random text)
     lower = cleaned.lower()
     hits = [kw for kw in _INGREDIENT_KEYWORDS if kw in lower]
 

@@ -1,6 +1,12 @@
-# Training script for the skincare safety model
+"""
+Training script for the skincare ingredient safety model.
 
+Reads a labeled CSV dataset, vectorizes ingredient text with TF-IDF,
+trains a Multi-Output Random Forest classifier, and saves the model bundle
+as a .pkl file for use by the predictor module.
 
+Usage:  python analyzer/ml_models/ingredients/train_model.py
+"""
 import os
 import sys
 import ast
@@ -15,25 +21,21 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 import pickle
 
-# file paths
+# ── File paths ───────────────────────────────────────────────────────────────
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 CSV_PATH = os.path.join(SCRIPT_DIR, "cleaned_dataset.csv")
 MODEL_PATH = os.path.join(SCRIPT_DIR, "skincare_model.pkl")
 
-# binary safety columns for skin types
-
+# One binary column per skin type (1 = safe, 0 = unsafe)
 SKIN_TYPES = ["Combination", "Dry", "Normal", "Oily", "Sensitive"]
 
-
-# cleaning and flattening ingredient list
 
 def flatten_ingredients(raw: str) -> str:
     """
     Convert the raw ingredient cell (a nested list of strings) into a single
-    space-separated lowercase string for TF-IDF vectorisation.
-    Example:
-        "[['water'], ['glycerin'], ...]"  →  "water glycerin ..."
+    space-separated lowercase string for TF-IDF vectorization.
+    Example:  "[['water'], ['glycerin'], ...]"  →  "water glycerin ..."
     """
     try:
         parsed = ast.literal_eval(raw)
@@ -52,7 +54,7 @@ def main():
     print("  AI SkinCare Safety Analyzer — Model Training")
     print("=" * 60)
 
-    # load csv data
+    # ── Load dataset ─────────────────────────────────────────────────────
 
     if not os.path.exists(CSV_PATH):
         print(f"[ERROR] Dataset not found at: {CSV_PATH}")
@@ -62,16 +64,16 @@ def main():
     print(f"\n✅ Dataset loaded: {df.shape[0]} rows × {df.shape[1]} columns")
     print(f"   Columns: {list(df.columns)}")
 
-    # clean ingredient text
+    # ── Preprocess ingredient text ───────────────────────────────────────
 
     print("\n🔄 Preprocessing ingredient text ...")
     df["clean_text"] = df["Ingredients"].apply(flatten_ingredients)
 
-    # Drop rows with empty text after cleaning
+    # Drop rows that ended up empty after cleaning
     df = df[df["clean_text"].str.len() > 0].reset_index(drop=True)
     print(f"   Rows after cleaning: {df.shape[0]}")
 
-    # tf-idf vectorization
+    # ── TF-IDF vectorization ─────────────────────────────────────────────
 
     print("🔄 Vectorising with TF-IDF ...")
     vectorizer = TfidfVectorizer(max_features=3000, ngram_range=(1, 2))
@@ -81,14 +83,14 @@ def main():
     print(f"   Feature matrix: {X.shape}")
     print(f"   Label matrix:   {y.shape}")
 
-    # split data for testing
+    # ── Train/test split ─────────────────────────────────────────────────
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42
     )
     print(f"\n📊 Split → Train: {X_train.shape[0]}  |  Test: {X_test.shape[0]}")
 
-    # train the model
+    # ── Model training ───────────────────────────────────────────────────
 
     print("\n🚀 Training Multi-Output Random Forest ...")
     base_rf = RandomForestClassifier(
@@ -104,7 +106,7 @@ def main():
     model.fit(X_train, y_train)
     print("   Training complete.")
 
-    # check model accuracy
+    # ── Evaluation ───────────────────────────────────────────────────────
 
     y_pred = model.predict(X_test)
     print("\n📈 Per-skin-type Classification Report:\n")
@@ -112,7 +114,7 @@ def main():
         print(f"--- {skin} ---")
         print(classification_report(y_test[:, idx], y_pred[:, idx], zero_division=0))
 
-    # Overall accuracy per output
+    # Print a summary accuracy table
     accuracies = [(y_test[:, i] == y_pred[:, i]).mean() for i in range(len(SKIN_TYPES))]
     avg_acc = np.mean(accuracies)
     print(f"{'Skin Type':<15} {'Accuracy':>10}")
@@ -122,7 +124,7 @@ def main():
     print("-" * 27)
     print(f"{'Average':<15} {avg_acc*100:>9.1f}%")
 
-    # save final pkl file
+    # ── Save the model bundle ────────────────────────────────────────────
 
     bundle = {
         "model": model,

@@ -1,4 +1,11 @@
-﻿# train resnet50 model
+"""
+Training script for the ResNet50 skin type classifier.
+
+Fine-tunes a pretrained ResNet50 on the 5-class skin type dataset
+(oily, dry, normal, combination, sensitive) and saves the best weights.
+
+Usage:  python scripts/train_skin_model.py
+"""
 import os
 import torch
 import torch.nn as nn
@@ -7,12 +14,16 @@ from torchvision import datasets, models, transforms
 from torch.utils.data import DataLoader
 import copy
 
+
 def train_model():
-    # detect gpu
+    # Use GPU if available, otherwise fall back to CPU
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(f"[*] Training on: {device}")
 
-    # augment data
+    # ── Data augmentation and preprocessing ──────────────────────────────
+    # Training images are randomly cropped and flipped for augmentation.
+    # Validation images are simply resized and center-cropped.
+
     data_transforms = {
         'Train': transforms.Compose([
             transforms.RandomResizedCrop(224),
@@ -29,41 +40,46 @@ def train_model():
     }
 
     data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Skin Type Identification Research'))
-    
-    # load datasets
+
+    # ── Load datasets from folder structure ──────────────────────────────
+    # Expects: data_dir/Train/{class_name}/*.jpg
+    #          data_dir/Validation/{class_name}/*.jpg
+
     image_datasets = {
         x: datasets.ImageFolder(os.path.join(data_dir, x), data_transforms[x])
         for x in ['Train', 'Validation']
     }
-    
+
     dataloaders = {
         x: DataLoader(image_datasets[x], batch_size=32, shuffle=True, num_workers=0)
         for x in ['Train', 'Validation']
     }
-    
+
     dataset_sizes = {x: len(image_datasets[x]) for x in ['Train', 'Validation']}
     class_names = image_datasets['Train'].classes
-    
+
     print(f"[*] Found {dataset_sizes['Train']} train, {dataset_sizes['Validation']} val.")
     print(f"[*] Classes: {class_names}")
 
     num_classes = len(class_names)
 
-    # load resnet50
+    # ── Model setup ──────────────────────────────────────────────────────
+    # Start with a pretrained ResNet50 and replace the final layer
+    # to output 5 classes instead of ImageNet's 1000.
+
     model = models.resnet50(weights=models.ResNet50_Weights.DEFAULT)
-    
-    # replace fc layer
     num_ftrs = model.fc.in_features
     model.fc = nn.Linear(num_ftrs, num_classes)
     model = model.to(device)
 
-    # setup optimizer
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
-    
+
     num_epochs = 5
     best_model_wts = copy.deepcopy(model.state_dict())
     best_acc = 0.0
+
+    # ── Training loop ────────────────────────────────────────────────────
 
     print("[*] Starting training...")
     for epoch in range(num_epochs):
@@ -85,7 +101,7 @@ def train_model():
 
                 optimizer.zero_grad()
 
-                # forward pass
+                # Only compute gradients during training, not validation
                 with torch.set_grad_enabled(phase == 'Train'):
                     outputs = model(inputs)
                     _, preds = torch.max(outputs, 1)
@@ -103,7 +119,7 @@ def train_model():
 
             print(f'{phase} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
 
-            # save best weights
+            # Keep the weights from the epoch with the best validation accuracy
             if phase == 'Validation' and epoch_acc > best_acc:
                 best_acc = epoch_acc
                 best_model_wts = copy.deepcopy(model.state_dict())
@@ -111,12 +127,13 @@ def train_model():
         print()
     print(f'[*] Best val acc: {best_acc:4f}')
 
-    # save final model
+    # ── Save the best model ──────────────────────────────────────────────
+
     model.load_state_dict(best_model_wts)
-    
+
     output_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'analyzer', 'ml_models', 'model_resnet50_5class.pth'))
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
+
     torch.save(model.state_dict(), output_path)
     print(f'[*] Saved model: {output_path}')
 
