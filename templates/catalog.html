@@ -640,6 +640,86 @@
             display: none;
         }
 
+        /* favorite heart button */
+
+        .fav-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(6px);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.09);
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 3;
+        }
+        body.dark-mode .fav-btn {
+            background: rgba(36, 43, 39, 0.85);
+        }
+        .fav-btn:hover {
+            transform: scale(1.15);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
+        }
+        .fav-btn .heart-icon {
+            font-size: 20px;
+            color: var(--muted);
+            transition: 0.3s;
+            line-height: 1;
+        }
+        .fav-btn.is-fav .heart-icon {
+            color: #d4636f;
+        }
+        .fav-btn.pulse {
+            animation: favPulse 0.45s ease;
+        }
+        @keyframes favPulse {
+            0%   { transform: scale(1); }
+            30%  { transform: scale(1.35); }
+            60%  { transform: scale(0.95); }
+            100% { transform: scale(1); }
+        }
+        body.rtl .fav-btn { right: auto; left: 12px; }
+
+        /* login toast notification */
+
+        .fav-toast {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: var(--surface);
+            border: 1px solid var(--border, rgba(107,142,124,0.2));
+            border-radius: 14px;
+            padding: 12px 22px;
+            font-family: 'Jost', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: var(--dark);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            z-index: 10001;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.35s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .fav-toast.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+        .fav-toast .material-icons-outlined {
+            font-size: 18px;
+            color: var(--primary);
+        }
 
     </style>
 </head>
@@ -708,10 +788,13 @@
 
         <section class="product-grid" id="product-grid">
             {% for product in products %}
-            <article class="product-card" data-category="{{ product.category }}s" data-skin="{{ product.skin_type }}">
+            <article class="product-card" data-category="{{ product.category }}s" data-skin="{{ product.skin_type }}" data-product-id="{{ product.id }}">
                 <div class="product-img-wrap">
 
                     <span class="category-badge">{{ product.get_category_display }}</span>
+                    <button class="fav-btn{% if product.id in favorite_ids %} is-fav{% endif %}" data-id="{{ product.id }}" onclick="toggleFav(this, {{ product.id }})" title="Add to favorites">
+                        <span class="heart-icon">{% if product.id in favorite_ids %}❤️{% else %}🤍{% endif %}</span>
+                    </button>
                     {% if product.image %}
                     <img src="{{ product.image.url }}" onerror="this.onerror=null; this.src='{% static 'images/default-product.png' %}';" alt="{{ product.name }}" class="product-img" />
                     {% else %}
@@ -749,7 +832,11 @@
         </p>
     </footer>
 
-
+    <!-- Toast notification for favorites -->
+    <div class="fav-toast" id="fav-toast">
+        <i class="material-icons-outlined">info</i>
+        <span id="fav-toast-text"></span>
+    </div>
 
     <script>
         /* floating menu toggle */
@@ -950,6 +1037,57 @@
                 });
             });
         });
+
+        /* ── Favorite toggle ── */
+
+        function showFavToast(msg) {
+            const toast = document.getElementById('fav-toast');
+            const text = document.getElementById('fav-toast-text');
+            text.innerText = msg;
+            toast.classList.add('show');
+            clearTimeout(window._favToastTimer);
+            window._favToastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+        }
+
+        function toggleFav(btn, productId) {
+            const isLoggedIn = {{ request.user.is_authenticated|yesno:"true,false" }};
+            if (!isLoggedIn) {
+                const isRtl = document.body.classList.contains('rtl');
+                showFavToast(isRtl ? 'سجّلي دخولك أولاً لإضافة المفضلات' : 'Please sign in to add favorites');
+                return;
+            }
+
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value
+                || '{{ csrf_token }}';
+
+            fetch('/toggle-favorite/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+                body: JSON.stringify({ product_id: productId }),
+            })
+            .then(r => r.json())
+            .then(data => {
+                const heart = btn.querySelector('.heart-icon');
+                const isRtl = document.body.classList.contains('rtl');
+                if (data.status === 'added') {
+                    btn.classList.add('is-fav');
+                    heart.textContent = '❤️';
+                    showFavToast(isRtl ? 'تمت الإضافة إلى المفضلة ♡' : 'Added to favorites ♡');
+                } else {
+                    btn.classList.remove('is-fav');
+                    heart.textContent = '🤍';
+                    showFavToast(isRtl ? 'تمت الإزالة من المفضلة' : 'Removed from favorites');
+                }
+                btn.classList.add('pulse');
+                setTimeout(() => btn.classList.remove('pulse'), 500);
+            })
+            .catch(() => {
+                showFavToast('Something went wrong. Try again.');
+            });
+        }
     </script>
 
 </body>

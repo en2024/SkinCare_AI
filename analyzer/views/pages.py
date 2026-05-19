@@ -16,4 +16,13 @@ def analyzer_page(request):
 
 def catalog(request):
     products = Product.objects.all()
-    return render(request, 'catalog.html', {'products': products, 'MEDIA_URL': settings.MEDIA_URL})
+    favorite_ids = set()
+    if request.user.is_authenticated:
+        from ..models import UserProfile
+        profile, _ = UserProfile.objects.get_or_create(user=request.user)
+        favorite_ids = set(profile.favorite_products.values_list('id', flat=True))
+    return render(request, 'catalog.html', {
+        'products': products,
+        'MEDIA_URL': settings.MEDIA_URL,
+        'favorite_ids': favorite_ids,
+    })
