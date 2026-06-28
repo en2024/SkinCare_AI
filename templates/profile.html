@@ -1,17 +1,10 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile | AI SkinCare Safety Analyzer</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
-    <style>
+
+{% block extra_styles %}
+<style>
         :root {
-            --cream: #FBFCFB; --beige-light: #F0F4F1; --beige: #DCE5DF; --sand: #A3B8AD;
+            --cream: #FFFFFF; --beige-light: #F0F4F1; --beige: #DCE5DF; --sand: #A3B8AD;
             --brown: #6B8E7C; --deep-brown: #3C4F45; --rose-nude: #8FA89A; --blush: #E8EFEA;
             --white: #FFFFFF; --text-dark: #2A362F; --text-muted: #5C7365;
             --primary: var(--brown); --bg: var(--cream); --surface: var(--white);
@@ -282,9 +275,10 @@
             .fav-grid { grid-template-columns: 1fr; }
         }
     </style>
-</head>
-<body>
-{% include '_floating_menu.html' %}
+{% endblock %}
+
+{% block body %}
+    {% include 'includes/_navbar.html' %}
 <div class="profile-header">
     <a href="/" class="brand"><div class="brand-dot"></div> <span id="prof-brand">AI SkinCare Safety Analyzer</span></a>
     <a href="/" class="back-link"><i class="material-icons-outlined" style="font-size:18px;">arrow_back</i> <span id="prof-back">Back to Home</span></a>
@@ -422,7 +416,12 @@
         </button>
     </div>
 </div>
+    {% include '_floating_menu.html' %}
+    {% include 'chatbot.html' %}
+    {% include 'includes/_footer.html' %}
+{% endblock %}
 
+{% block extra_scripts %}
 <script>
     /* translating page text */
 
@@ -499,5 +498,4 @@
 
     if (localStorage.getItem('darkMode') === 'on') document.body.classList.add('dark-mode');
 </script>
-</body>
-</html>
+{% endblock %}

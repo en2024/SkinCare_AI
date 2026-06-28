@@ -1,0 +1,210 @@
+{% load static %}
+<!-- AI Skincare Safety Analyzer Chatbot — Cream Luxury Modern -->
+<link rel="stylesheet" href="{% static 'css/chatbot.css' %}">
+
+<!-- Toggle Button -->
+<button class="chat-toggle" id="chatToggle" onclick="toggleChat()" title="AI Skin Care Assistant">
+    <i class="material-icons-outlined" id="chatToggleIcon">smart_toy</i>
+</button>
+
+<!-- Chat Panel -->
+<div class="chat-panel" id="chatPanel">
+    <!-- Header -->
+    <div class="chat-header">
+        <div class="chat-header-avatar">
+            <i class="material-icons-outlined">smart_toy</i>
+        </div>
+        <div class="chat-header-info">
+            <div class="chat-header-title" id="chatTitle">AI Skin Care Assistant</div>
+            <div class="chat-header-status">
+                <span class="chat-status-dot"></span>
+                <span id="chatStatus">Online</span>
+            </div>
+        </div>
+        <button class="chat-header-close" onclick="clearChat()" title="New Chat" style="margin-right: 4px;">
+            <i class="material-icons-outlined" style="font-size:18px;">refresh</i>
+        </button>
+        <button class="chat-header-close" onclick="toggleChat()">
+            <i class="material-icons-outlined">close</i>
+        </button>
+    </div>
+
+    <!-- Messages -->
+    <div class="chat-messages" id="chatMessages">
+        <!-- AI Welcome -->
+        <div class="chat-msg ai" style="animation-delay:0.1s">
+            <div class="chat-msg-avatar"><i class="material-icons-outlined" style="font-size:16px">smart_toy</i></div>
+            <div>
+                <div class="chat-bubble" id="chatWelcome">
+                    {% if user.is_authenticated and user.profile.skin_type %}
+                    Hello! 👋 I see your skin type is <strong>{{ user.profile.skin_type }}</strong>. I'll personalize my recommendations for your skin type.
+                    {% else %}
+                    Hello! 👋 I'm your AI Skin Care Assistant. I highly recommend using the <strong>Face Scan</strong> feature to discover your skin type so I can give you personalized advice! How can I help you today?
+                    {% endif %}
+                </div>
+                <div class="chat-msg-time">Just now</div>
+            </div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div class="chat-typing" id="chatTyping" style="display:none">
+            <div class="chat-typing-avatar">
+                <i class="material-icons-outlined">smart_toy</i>
+            </div>
+            <div class="chat-typing-dots">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Replies -->
+    <div class="chat-quick-replies">
+        <button class="chat-quick-btn" onclick="sendQuickReply(this)">Routine</button>
+        <button class="chat-quick-btn" onclick="sendQuickReply(this)">Ingredients</button>
+        <button class="chat-quick-btn" onclick="sendQuickReply(this)">Acne</button>
+        <button class="chat-quick-btn" onclick="sendQuickReply(this)">Sensitive Skin</button>
+        <button class="chat-quick-btn" onclick="sendQuickReply(this)">SPF Tips</button>
+        <button class="chat-quick-btn" onclick="sendQuickReply(this)">Hydration</button>
+    </div>
+
+    <!-- Input -->
+    <div class="chat-input-area">
+        <input type="text" class="chat-input" id="chatInput" placeholder="Ask about skincare..."
+            onkeydown="if(event.key==='Enter')sendChatMessage()">
+        <button class="chat-send-btn" onclick="sendChatMessage()" title="Send">
+            <i class="material-icons-outlined">send</i>
+        </button>
+    </div>
+</div>
+
+<script>
+    /* ── AI Skincare Safety Analyzer Chatbot — AI Backend Integration ── */
+
+    const DERMAI_SKIN_TYPE = '{{ profile.skin_type|default:"not set" }}';
+
+    /* Toggle chatbot panel */
+    function toggleChat() {
+        const panel = document.getElementById('chatPanel');
+        const btn = document.getElementById('chatToggle');
+        const icon = document.getElementById('chatToggleIcon');
+        const isOpen = panel.classList.toggle('open');
+        btn.classList.toggle('active', isOpen);
+        icon.textContent = isOpen ? 'close' : 'smart_toy';
+        if (isOpen) {
+            const msgs = document.getElementById('chatMessages');
+            msgs.scrollTop = msgs.scrollHeight;
+        }
+    }
+
+    /* Send user message to the backend */
+    async function sendChatMessage() {
+        const input = document.getElementById('chatInput');
+        const sendBtn = document.querySelector('.chat-send-btn');
+        const text = input.value.trim();
+        
+        if (!text || input.disabled) return;
+        
+        input.value = '';
+        input.disabled = true;
+        sendBtn.disabled = true;
+        sendBtn.style.opacity = '0.6';
+        
+        appendMessage('user', text);
+        showTyping();
+
+        try {
+            const response = await fetch('/api/chat/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: text
+                })
+            });
+
+            const data = await response.json();
+            
+            hideTyping();
+            
+            if (response.ok) {
+                appendMessage('ai', data.response);
+            } else {
+                appendMessage('ai', "I'm sorry, I encountered an error: " + (data.error || "Unknown error"));
+                console.error("Chat API Error:", data.error);
+            }
+        } catch (error) {
+            hideTyping();
+            appendMessage('ai', "Internet connection problem. Please check your connection and try again.");
+            console.error("Fetch error:", error);
+        } finally {
+            input.disabled = false;
+            sendBtn.disabled = false;
+            sendBtn.style.opacity = '1';
+            input.focus();
+        }
+    }
+
+    /* Clear chat history */
+    async function clearChat() {
+        try {
+            await fetch('/api/chat/clear/', { method: 'POST' });
+        } catch(e) {}
+        
+        // Remove all current messages
+        document.querySelectorAll('.chat-msg').forEach(el => el.remove());
+        
+        // Re-append personalized welcome message
+        const isAuth = '{{ user.is_authenticated }}' === 'True';
+        const skinType = '{{ user.profile.skin_type|default:"" }}';
+        let welcomeText = isAuth && skinType 
+            ? `Hello! 👋 I see your skin type is **${skinType}**. I'll personalize my recommendations for your skin type.`
+            : `Hello! 👋 I'm your AI Skin Care Assistant. I highly recommend using the **Face Scan** feature to discover your skin type so I can give you personalized advice! How can I help you today?`;
+            
+        appendMessage('ai', welcomeText);
+    }
+
+    /* Quick reply buttons */
+    function sendQuickReply(btn) {
+        const input = document.getElementById('chatInput');
+        input.value = btn.textContent;
+        sendChatMessage();
+    }
+
+    /* Append message bubble */
+    function appendMessage(type, text) {
+        const msgs = document.getElementById('chatMessages');
+        const typing = document.getElementById('chatTyping');
+        const wrapper = document.createElement('div');
+        wrapper.className = 'chat-msg ' + type;
+        const avatarContent = type === 'ai'
+            ? '<i class="material-icons-outlined" style="font-size:16px">smart_toy</i>'
+            : (document.querySelector('.chat-msg.user .chat-msg-avatar')?.textContent?.trim() || 'U');
+        
+        // Parse Markdown formatting to HTML cleanly
+        let formattedText = text;
+        if (type === 'ai') {
+            formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            formattedText = formattedText.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            formattedText = formattedText.replace(/^\d+\.\s+(.*)$/gm, '<div style="margin-left:15px; margin-bottom:5px;"><strong>&bull;</strong> $1</div>');
+            formattedText = formattedText.replace(/^[\*-]\s+(.*)$/gm, '<div style="margin-left:15px; margin-bottom:5px;">&bull; $1</div>');
+            formattedText = formattedText.replace(/\n\n/g, '<br><br>');
+            formattedText = formattedText.replace(/\n/g, '<br>');
+        }
+
+        wrapper.innerHTML =
+            '<div class="chat-msg-avatar">' + avatarContent + '</div>' +
+            '<div><div class="chat-bubble">' + formattedText + '</div>' +
+            '<div class="chat-msg-time">Just now</div></div>';
+        msgs.insertBefore(wrapper, typing);
+        msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    /* Typing indicator */
+    function showTyping() {
+        const t = document.getElementById('chatTyping');
+        t.style.display = 'flex';
+        document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+    }
+    function hideTyping() { document.getElementById('chatTyping').style.display = 'none'; }
+</script>

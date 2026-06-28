@@ -1,16 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | AI SkinCare Analyzer</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Jost:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
-    <style>
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_styles %}
+<style>
         :root {
-            --cream: #FBFCFB;
+            --cream: #FFFFFF;
             --beige-light: #F0F4F1;
             --beige: #DCE5DF;
             --sand: #A3B8AD;
@@ -324,18 +318,11 @@
             direction: rtl;
         }
     </style>
-</head>
-<body>
+{% endblock %}
 
+{% block body %}
 <div class="nav-wrap">
-    <nav class="nav">
-        <a class="home serif" href="/">✦ AI SkinCare Safety Analyzer</a>
-        <div class="nav-actions">
-            <a class="btn btn-line" href="{% url 'catalog' %}">Catalog</a>
-            <a class="btn btn-line" href="{% url 'analyzer' %}">Analyzer</a>
-            <a class="btn btn-go" href="{% url 'logout' %}">Log out</a>
-        </div>
-    </nav>
+    
 </div>
 
 <div class="shell">
@@ -488,7 +475,12 @@
 </div>
 
 {{ catalog|json_script:"catalog-data" }}
+    {% include '_floating_menu.html' %}
+    {% include 'chatbot.html' %}
+    {% include 'includes/_footer.html' %}
+{% endblock %}
 
+{% block extra_scripts %}
 <script>
     // toggling dark mode on/off
     function toggleDarkMode() {
@@ -560,5 +552,4 @@
         });
     });
 </script>
-</body>
-</html>
+{% endblock %}

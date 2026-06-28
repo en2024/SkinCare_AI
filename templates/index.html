@@ -1,21 +1,10 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Home | AI SkinCare Safety Analyzer</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Jost:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800;900&family=Inter:wght@300;400;500;600&display=swap"
-        rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
-
-    <style>
+{% block extra_styles %}
+<style>
         :root {
-            --cream: #FBFCFB;
+            --cream: #FFFFFF;
             --beige-light: #F0F4F1;
             --beige: #DCE5DF;
             --sand: #A3B8AD;
@@ -816,23 +805,7 @@
             .holistic-quote blockquote { font-size: 1.25rem; }
         }
 
-        footer {
-            background-color: #2a342e;
-            color: #eaf0eb;
-            text-align: center;
-            padding: 45px 5%;
-        }
 
-        footer h2.serif {
-            color: #f2f6f3;
-        }
-
-        footer p {
-            color: #d5dfd8;
-            margin-top: 10px;
-            font-weight: 400;
-            line-height: 1.6;
-        }
 
         /* Floating settings button */
         .fab-container {
@@ -999,10 +972,11 @@
 
 
     </style>
-</head>
+{% endblock %}
 
-<body>
-    <header>
+{% block body %}
+    {% include 'includes/_navbar.html' %}
+<header>
         <a href="/" class="logo">AI SkinCare Safety Analyzer</a>
         <div class="nav-links">
             <a href="/">Home</a>
@@ -1013,7 +987,7 @@
             {% endif %}
     </header>
 
-    {% include '_floating_menu.html' %}
+    
 
     <section class="hero">
         <div class="hero-img-wrapper">
@@ -1217,18 +1191,13 @@
             </div>
         </div>
     </section>
+    {% include '_floating_menu.html' %}
+    {% include 'chatbot.html' %}
+    {% include 'includes/_footer.html' %}
+{% endblock %}
 
-    <footer>
-        <h2 class="serif">✦ AI SkinCare Safety Analyzer</h2>
-        <p>
-            Final Year Project - Arab Open University, Egypt <br />
-            &copy; 2026 Engy Nabil Safwat
-        </p>
-    </footer>
-
-
-
-    <script>
+{% block extra_scripts %}
+<script>
         // showing elements with fade-in when user scrolls down
         function reveal() {
             var reveals = document.querySelectorAll(".reveal");
@@ -1376,11 +1345,7 @@
                 hP[2].innerText = isRtl ? "لا تعمل الأسعار الباهظة على إصلاح العادات السيئة. يمكن للمواد الكيميائية المفرطة أن تدمر حاجز بشرتك الطبيعي." : "Expensive price tags don't fix poor habits. Excessive chemicals can damage your natural skin barrier.";
             }
 
-            // Footer
-            const footerH2 = document.querySelector('footer h2');
-            const footerP = document.querySelector('footer p');
-            if (footerH2) footerH2.innerText = isRtl ? "✦ محلل سلامة العناية بالبشرة" : "✦ AI SkinCare Safety Analyzer";
-            if (footerP) footerP.innerHTML = isRtl ? "مشروع التخرج - الجامعة العربية المفتوحة، مصر <br /> &copy; 2026 إنجي نبيل صفوت" : "Final Year Project - Arab Open University, Egypt <br /> &copy; 2026 Engy Nabil Safwat";
+
         }
 
         // toggling dark mode on/off
@@ -1418,6 +1383,4 @@
         const holisticEl = document.getElementById('holistic-observer');
         if (holisticEl) holisticObs.observe(holisticEl);
     </script>
-</body>
-
-</html>
+{% endblock %}

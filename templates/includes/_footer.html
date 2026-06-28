@@ -1,0 +1,179 @@
+<style>
+    .global-footer {
+        background: #2A362F;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 70px 5% 30px;
+        color: #DCE5DF;
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    body.dark-mode .global-footer {
+        background: #151A18;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        color: #A0A0A0;
+    }
+
+    .footer-wrapper {
+        width: min(1200px, 100%);
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr;
+        gap: 60px;
+        margin-bottom: 16px;
+    }
+
+    .footer-brand .footer-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #FBFCFB;
+        text-decoration: none;
+        display: inline-block;
+        margin-bottom: 16px;
+    }
+    
+    body.dark-mode .footer-brand .footer-title { color: #FFFFFF; }
+    .footer-brand .footer-title span { color: #8FA89A; font-style: italic; }
+
+    .footer-desc {
+        font-size: 0.95rem;
+        line-height: 1.7;
+        color: #A3B8AD;
+        max-width: 380px;
+        margin-bottom: 24px;
+    }
+    body.dark-mode .footer-desc { color: #888888; }
+
+
+    .footer-col-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #FBFCFB;
+        margin-bottom: 24px;
+        letter-spacing: 0.5px;
+    }
+    body.dark-mode .footer-col-title { color: #FFFFFF; }
+
+    .footer-nav-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .footer-nav-list a {
+        color: #DCE5DF;
+        text-decoration: none;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    body.dark-mode .footer-nav-list a { color: #A0A0A0; }
+    
+    .footer-nav-list a i {
+        font-size: 16px;
+        opacity: 0.5;
+        transition: 0.3s;
+    }
+
+    .footer-nav-list a:hover {
+        color: #FBFCFB;
+        transform: translateX(6px);
+    }
+    .footer-nav-list a:hover i {
+        opacity: 1;
+    }
+
+    .footer-bottom-bar {
+        width: min(1200px, 100%);
+        margin: 0 auto;
+        padding-top: 16px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    body.dark-mode .footer-bottom-bar { border-top-color: rgba(255, 255, 255, 0.05); }
+
+    .footer-copyright {
+        font-size: 0.85rem;
+        color: #8FA89A;
+    }
+    
+    .footer-socials {
+        display: flex;
+        gap: 16px;
+    }
+    .footer-socials a {
+        color: #8FA89A;
+        text-decoration: none;
+        transition: 0.3s;
+    }
+    .footer-socials a:hover {
+        color: #FBFCFB;
+    }
+
+    @media (max-width: 900px) {
+        .footer-wrapper {
+            grid-template-columns: 1fr;
+            gap: 40px;
+            text-align: left;
+        }
+        .footer-desc {
+            max-width: 100%;
+        }
+        .footer-bottom-bar {
+            flex-direction: column;
+            gap: 16px;
+            text-align: center;
+        }
+    }
+</style>
+
+<footer class="global-footer">
+    <div class="footer-wrapper">
+        <div class="footer-brand">
+            <a href="/" class="footer-title">AI SkinCare <span>Safety Analyzer</span></a>
+            <p class="footer-desc">An intelligent, AI-powered assistant designed to analyze skin conditions and decode ingredients, helping you build a healthier, safer skincare routine.</p>
+
+        </div>
+
+        <div class="footer-nav">
+            <h4 class="footer-col-title">Navigation</h4>
+            <ul class="footer-nav-list">
+                <li><a href="{% url 'home' %}"><i class="material-icons-outlined">chevron_right</i> Home</a></li>
+                <li><a href="{% url 'catalog' %}"><i class="material-icons-outlined">chevron_right</i> Product Catalog</a></li>
+                <li><a href="{% url 'analyzer' %}"><i class="material-icons-outlined">chevron_right</i> AI Analyzer</a></li>
+                <li><a href="{% url 'clinical_scan' %}"><i class="material-icons-outlined">chevron_right</i> Clinical Scan</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-nav">
+            <h4 class="footer-col-title">Account</h4>
+            <ul class="footer-nav-list">
+                <li><a href="{% url 'profile' %}"><i class="material-icons-outlined">chevron_right</i> My Profile</a></li>
+                {% if request.user.is_authenticated %}
+                <li><a href="{% url 'logout' %}"><i class="material-icons-outlined">chevron_right</i> Log Out</a></li>
+                {% else %}
+                <li><a href="{% url 'login' %}"><i class="material-icons-outlined">chevron_right</i> Login / Register</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer-bottom-bar">
+        <div class="footer-copyright">
+            &copy; 2026 Engy Nabil Safwat. All rights reserved.
+        </div>
+        <div class="footer-socials">
+            <a href="#"><i class="material-icons-outlined">language</i></a>
+            <a href="#"><i class="material-icons-outlined">mail_outline</i></a>
+            <a href="#"><i class="material-icons-outlined">code</i></a>
+        </div>
+    </div>
+</footer>

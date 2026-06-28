@@ -1,18 +1,11 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Account | AI SkinCare Safety Analyzer</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
-    <style>
+
+{% block extra_styles %}
+<style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --cream: #FBFCFB;
+            --cream: #FFFFFF;
             --beige-light: #F5F7F5;
             --sage: #6B8E7C;
             --white: #FFFFFF;
@@ -178,9 +171,10 @@
         body.rtl .fab-container { left: 28px; right: auto; }
         @media (max-width: 480px) { .card { padding: 1.5rem; } .nav-container { gap: 1rem; padding: 0.4rem 1.2rem; } }
     </style>
-</head>
-<body>
+{% endblock %}
 
+{% block body %}
+    {% include 'includes/_navbar.html' %}
 <div class="header-section">
     <h1 class="main-logo-title" id="proj-title">AI SkinCare Safety Analyzer</h1>
     <div class="nav-container">
@@ -194,7 +188,7 @@
     </div>
 </div>
 
-{% include '_floating_menu.html' %}
+
 
 <div class="container">
     <div class="card">
@@ -244,8 +238,12 @@
         </div>
     </div>
 </div>
+    {% include '_floating_menu.html' %}
+    {% include 'chatbot.html' %}
+    {% include 'includes/_footer.html' %}
+{% endblock %}
 
-
+{% block extra_scripts %}
 <script>
     /* switching to login */
 
@@ -354,5 +352,4 @@
     updateUIText();
 
 </script>
-</body>
-</html>
+{% endblock %}

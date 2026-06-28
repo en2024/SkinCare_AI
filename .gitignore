@@ -184,3 +184,13 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+# Django / Project Specific
+media/
+staticfiles/
+__pycache__/
+*.pt
+*.pth
+*.h5
+*.onnx
+temp_*.html

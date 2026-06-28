@@ -1,0 +1,616 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_styles %}
+<style>
+    .clinical-container {
+        max-width: 1200px;
+        margin: 60px auto;
+        padding: 0 5%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    @media (max-width: 900px) {
+        .clinical-container {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Left Column */
+    .clinical-title {
+        font-size: 2.2rem;
+        color: var(--dark, #2A362F);
+        margin-bottom: 12px;
+        font-weight: 500;
+    }
+
+    body.dark-mode .clinical-title { color: #FFFFFF; }
+
+    .clinical-desc {
+        color: var(--muted, #5C7365);
+        font-size: 1rem;
+        line-height: 1.6;
+        margin-bottom: 24px;
+    }
+    
+    body.dark-mode .clinical-desc { color: #A3B8AD; }
+
+    .alert-box {
+        background: #FFF5F5;
+        border-radius: 12px;
+        padding: 16px;
+        color: #C53030;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 32px;
+    }
+    
+    body.dark-mode .alert-box { background: rgba(197, 48, 48, 0.1); color: #FC8181; }
+
+    .alert-box i { font-size: 20px; }
+
+    .scan-card {
+        background: var(--surface, #FFFFFF);
+        border: 1px solid var(--border, rgba(107, 142, 124, 0.2));
+        border-radius: 24px;
+        padding: 24px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+        position: relative;
+    }
+    
+    body.dark-mode .scan-card {
+        background: #1A1F1C;
+        border-color: rgba(255,255,255,0.05);
+    }
+
+    .upload-zone {
+        border: 2px dashed var(--border, rgba(107, 142, 124, 0.3));
+        border-radius: 16px;
+        min-height: 350px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: 0.3s;
+        margin-bottom: 20px;
+        overflow: hidden;
+        position: relative;
+        background: #FAFAF9;
+    }
+    body.dark-mode .upload-zone { background: #111315; border-color: rgba(255,255,255,0.1); }
+
+    .upload-zone:hover {
+        border-color: var(--primary, #6B8E7C);
+        background: rgba(107, 142, 124, 0.03);
+    }
+
+    .upload-zone input[type="file"] { display: none; }
+
+    .preview-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: none;
+    }
+
+    #uploadPlaceholder {
+        text-align: center;
+        color: var(--muted);
+    }
+    #uploadPlaceholder i { font-size: 48px; color: var(--primary); margin-bottom: 12px; opacity: 0.7;}
+
+    .run-scan-btn {
+        width: 100%;
+        padding: 18px;
+        background: #3C4F45;
+        color: #FFFFFF;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: 0.3s;
+        margin-bottom: 24px;
+    }
+    
+    .run-scan-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .run-scan-btn:hover:not(:disabled) { background: #2A362F; }
+
+    /* Results Area */
+    .results-area {
+        display: none;
+        border-top: 1px solid var(--border);
+        padding-top: 24px;
+    }
+
+    .analysis-status {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--muted);
+        margin-bottom: 4px;
+    }
+    
+    .analysis-sub {
+        font-size: 0.9rem;
+        color: #333333;
+        margin-bottom: 16px;
+    }
+    body.dark-mode .analysis-sub { color: #CCCCCC; }
+
+    .condition-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+    }
+
+    .condition-name {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #7C3AED;
+        margin: 0;
+    }
+
+    .confidence-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #F5F3FF;
+        color: #7C3AED;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        border: 1px solid #EDE9FE;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-bottom: 32px;
+    }
+
+    .stat-box {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 8px;
+    }
+    
+    .stat-box i { color: #8CA38D; font-size: 18px; }
+    
+    .stat-label {
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--muted);
+        letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--dark);
+    }
+    body.dark-mode .stat-value { color: #FFFFFF; }
+
+    .recommendations-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    body.dark-mode .recommendations-title { color: #FFFFFF; }
+
+    .rec-item {
+        background: #FAFAF9;
+        border-radius: 12px;
+        padding: 16px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 12px;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: #444444;
+    }
+    body.dark-mode .rec-item { background: #111315; color: #CCCCCC; }
+
+    .rec-item.do i { color: #7C3AED; }
+    .rec-item.avoid i { color: #9F7AEA; } /* slightly different purple */
+
+    /* Right Column */
+    .hero-img {
+        width: 100%;
+        height: 280px;
+        object-fit: cover;
+        border-radius: 24px;
+        margin-bottom: 32px;
+    }
+
+    .info-box {
+        border-radius: 24px;
+        padding: 32px;
+        margin-bottom: 24px;
+    }
+
+    .tips-box {
+        background: #F4FAF6;
+    }
+    body.dark-mode .tips-box { background: rgba(107, 142, 124, 0.08); }
+
+    .next-box {
+        background: #F9F5FF;
+    }
+    body.dark-mode .next-box { background: rgba(124, 58, 237, 0.05); }
+
+    .info-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 24px;
+    }
+
+    .tips-box .info-title { color: #3C4F45; }
+    body.dark-mode .tips-box .info-title { color: #A3B8AD; }
+    
+    .next-box .info-title { color: #5B21B6; }
+    body.dark-mode .next-box .info-title { color: #9F7AEA; }
+
+    .info-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+    .info-item:last-child { margin-bottom: 0; }
+
+    .tips-box .info-item i {
+        color: #48BB78;
+        font-size: 22px;
+        margin-top: 2px;
+    }
+
+    .next-box .step-number {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: transparent;
+        border: 2px solid #8B5CF6;
+        color: #8B5CF6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 700;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    .info-item-text strong {
+        display: block;
+        font-size: 0.95rem;
+        color: #333333;
+        margin-bottom: 4px;
+    }
+    body.dark-mode .info-item-text strong { color: #EEEEEE; }
+
+    .info-item-text p {
+        font-size: 0.85rem;
+        color: #666666;
+        margin: 0;
+        line-height: 1.5;
+    }
+    body.dark-mode .info-item-text p { color: #AAAAAA; }
+    
+    .spinner-overlay {
+        display: none;
+        text-align: center;
+        padding: 40px;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid var(--border, #E5E7EB);
+        border-top-color: var(--primary, #6B8E7C);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .error-msg {
+        color: #b84a4a;
+        background: rgba(184, 74, 74, 0.08);
+        padding: 16px;
+        border-radius: 12px;
+        margin-bottom: 24px;
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+    {% include 'includes/_navbar.html' %}
+
+<div class="clinical-container">
+    <!-- Left Column -->
+    <div class="clinical-left">
+        <h1 class="clinical-title serif">Clinical Dermatology Scan</h1>
+        <p class="clinical-desc">Experiencing severe skin pain or unusual discomfort? It might be an underlying skin condition. Upload a clear photo of your face, and our AI will help identify it.</p>
+        
+        <div class="alert-box">
+            <i class="material-icons-outlined">warning_amber</i>
+            <div>
+                <strong>Important:</strong> This is an AI analysis, not a medical diagnosis. Please make sure to consult a certified dermatologist for professional advice and treatment.
+            </div>
+        </div>
+        
+        <div class="scan-card">
+            <div class="upload-zone" id="uploadZone" onclick="document.getElementById('faceInput').click()">
+                <input type="file" id="faceInput" accept="image/*" onchange="previewImage(this)">
+                <img class="preview-img" id="previewImg">
+                <div id="uploadPlaceholder">
+                    <i class="material-icons-outlined">add_photo_alternate</i>
+                    <p>Click to upload a close-up photo</p>
+                </div>
+            </div>
+            
+            <button class="run-scan-btn" id="scanBtn" onclick="runScan()" disabled>
+                <i class="material-icons-outlined">psychology</i> RUN CLINICAL SCAN
+            </button>
+            
+            <div class="spinner-overlay" id="spinner">
+                <div class="spinner"></div>
+                <p>AI is analyzing your skin...</p>
+            </div>
+            
+            <div class="error-msg" id="errorMsg"></div>
+            
+            <div class="results-area" id="resultsArea">
+                <p class="analysis-status">ANALYSIS COMPLETE</p>
+                <p class="analysis-sub">AI detected the following condition:</p>
+                <div class="condition-header">
+                    <h2 class="condition-name" id="resultName">Eczema</h2>
+                    <span class="confidence-badge"><i class="material-icons-outlined">verified</i> <span id="resultConfidence">40.1%</span></span>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <i class="material-icons-outlined">medical_information</i>
+                        <span class="stat-label">SEVERITY</span>
+                        <span class="stat-value">Clinical Eval</span>
+                    </div>
+                    <div class="stat-box">
+                        <i class="material-icons-outlined">face</i>
+                        <span class="stat-label">DETECTED AREA</span>
+                        <span class="stat-value">Facial Skin</span>
+                    </div>
+                    <div class="stat-box">
+                        <i class="material-icons-outlined">tag</i>
+                        <span class="stat-label">ANALYSIS ID</span>
+                        <span class="stat-value" id="analysisId">#SCN-8291</span>
+                    </div>
+                </div>
+                
+                <h3 class="recommendations-title"><i class="material-icons-outlined">auto_awesome</i> AI Care Recommendations</h3>
+                <div class="rec-item do">
+                    <i class="material-icons-outlined">favorite</i>
+                    <div>
+                        <strong>Do:</strong> <span id="recDo">Use rich, fragrance-free moisturizers with Ceramides, Colloidal Oatmeal, and Hyaluronic Acid.</span>
+                    </div>
+                </div>
+                <div class="rec-item avoid">
+                    <i class="material-icons-outlined">favorite</i>
+                    <div>
+                        <strong>Avoid:</strong> <span id="recAvoid">Hot showers, strong soaps, and known irritants or allergens.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Column -->
+    <div class="clinical-right">
+        <img src="https://images.unsplash.com/photo-1596755389378-c31d21fd1273?q=80&w=800&auto=format&fit=crop" alt="Skincare routine" class="hero-img">
+        
+        <div class="info-box tips-box">
+            <h3 class="info-title"><i class="material-icons-outlined">spa</i> Pre-Scan Tips</h3>
+            
+            <div class="info-item">
+                <i class="material-icons-outlined">check_circle_outline</i>
+                <div class="info-item-text">
+                    <strong>Clean Skin</strong>
+                    <p>Remove makeup, sunscreen, and heavy moisturizers.</p>
+                </div>
+            </div>
+            
+            <div class="info-item">
+                <i class="material-icons-outlined">light_mode</i>
+                <div class="info-item-text">
+                    <strong>Natural Lighting</strong>
+                    <p>Use bright natural light and avoid shadows.</p>
+                </div>
+            </div>
+            
+            <div class="info-item">
+                <i class="material-icons-outlined">center_focus_strong</i>
+                <div class="info-item-text">
+                    <strong>Focus on the Affected Area</strong>
+                    <p>Capture a clear close-up of the skin condition.</p>
+                </div>
+            </div>
+            
+            <div class="info-item">
+                <i class="material-icons-outlined">block</i>
+                <div class="info-item-text">
+                    <strong>No Accessories</strong>
+                    <p>Remove glasses, masks, or anything covering the area.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-box next-box">
+            <h3 class="info-title"><i class="material-icons-outlined">insights</i> What Happens Next?</h3>
+            
+            <div class="info-item">
+                <div class="step-number">1</div>
+                <div class="info-item-text">
+                    <strong>Image Analysis</strong>
+                    <p>Our AI analyzes your uploaded image.</p>
+                </div>
+            </div>
+            
+            <div class="info-item">
+                <div class="step-number">2</div>
+                <div class="info-item-text">
+                    <strong>Condition Detection</strong>
+                    <p>Possible skin conditions are identified.</p>
+                </div>
+            </div>
+            
+            <div class="info-item">
+                <div class="step-number">3</div>
+                <div class="info-item-text">
+                    <strong>Results & Recommendations</strong>
+                    <p>Show confidence score and personalized skincare advice.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'includes/_footer.html' %}
+{% include 'chatbot.html' %}
+{% include '_floating_menu.html' %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function previewImage(input) {
+        const file = input.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.getElementById('previewImg');
+                img.src = e.target.result;
+                img.style.display = 'block';
+                document.getElementById('uploadPlaceholder').style.display = 'none';
+                document.getElementById('scanBtn').disabled = false;
+                
+                // Hide results if re-uploading
+                document.getElementById('resultsArea').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    async function runScan() {
+        const input = document.getElementById('faceInput');
+        if (!input.files || input.files.length === 0) return;
+
+        const btn = document.getElementById('scanBtn');
+        const spinner = document.getElementById('spinner');
+        const resultsArea = document.getElementById('resultsArea');
+        const errorMsg = document.getElementById('errorMsg');
+
+        btn.style.display = 'none';
+        spinner.style.display = 'block';
+        resultsArea.style.display = 'none';
+        errorMsg.style.display = 'none';
+
+        const formData = new FormData();
+        formData.append('image', input.files[0]);
+
+        try {
+            const csrfMatch = document.cookie.match(/csrftoken=([^;]+)/);
+            const csrfToken = csrfMatch ? csrfMatch[1] : (document.querySelector('[name=csrfmiddlewaretoken]')?.value || '');
+            
+            const response = await fetch('/analyze/', {
+                method: 'POST',
+                headers: csrfToken ? {'X-CSRFToken': csrfToken} : {},
+                body: formData,
+            });
+
+            const data = await response.json();
+            spinner.style.display = 'none';
+            btn.style.display = 'flex';
+
+            if (data.error || data.no_face) {
+                errorMsg.textContent = data.error || 'Could not detect a face. Please try again.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            if (data.low_confidence) {
+                errorMsg.textContent = 'Low confidence result. ' + (data.error || 'Please upload a clearer photo.');
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            if (data.skin_type) {
+                resultsArea.style.display = 'block';
+                
+                // Map API data to the new UI layout
+                const condition = data.acne_detected > 0 ? data.skin_type + " & Acne" : data.skin_type;
+                const confText = data.confidence ? data.confidence + '%' : 'N/A';
+                
+                document.getElementById('resultName').innerText = condition;
+                document.getElementById('resultConfidence').innerText = confText;
+                
+                // Random ID
+                const randId = Math.floor(Math.random() * 9000) + 1000;
+                document.getElementById('analysisId').innerText = '#SCN-' + randId;
+                
+                // Dynamic Recommendations
+                if(condition.toLowerCase().includes('acne') || condition.toLowerCase().includes('oily')) {
+                    document.getElementById('recDo').innerText = "Use Salicylic Acid or Benzoyl Peroxide. Keep skin clean and moisturized with oil-free products.";
+                    document.getElementById('recAvoid').innerText = "Popping pimples, touching your face, and using heavy comedogenic oils.";
+                } else {
+                    document.getElementById('recDo').innerText = "Use rich, fragrance-free moisturizers with Ceramides, Colloidal Oatmeal, and Hyaluronic Acid.";
+                    document.getElementById('recAvoid').innerText = "Hot showers, strong soaps, and known irritants or allergens.";
+                }
+
+                resultsArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        } catch (err) {
+            spinner.style.display = 'none';
+            btn.style.display = 'flex';
+            errorMsg.textContent = 'Network error. Please try again.';
+            errorMsg.style.display = 'block';
+            console.error(err);
+        }
+    }
+</script>
+{% endblock %}

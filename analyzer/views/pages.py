@@ -9,6 +9,12 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from ..models import Product
 
 
+@ensure_csrf_cookie
+def clinical_scan_view(request):
+    """Clinical skin scan page."""
+    return render(request, 'clinical_scan.html')
+
+
 def home(request):
     """Landing page."""
     return render(request, 'index.html')

@@ -1,0 +1,273 @@
+<style>
+    .global-navbar {
+        position: sticky !important;
+        top: 0;
+        z-index: 1000;
+        background: #FFFFFF !important;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 5%;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    body.dark-mode .global-navbar {
+        background: #111315 !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    }
+
+    .nav-brand-logo {
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: #333333;
+        text-decoration: none;
+        letter-spacing: 0.5px;
+    }
+
+    body.dark-mode .nav-brand-logo {
+        color: #FFFFFF;
+    }
+
+    .nav-brand-logo span {
+        color: #8CA38D;
+    }
+
+    .nav-center-links {
+        display: flex;
+        gap: 36px;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .nav-center-links a {
+        text-decoration: none;
+        color: #555555;
+        font-weight: 500;
+        font-size: 1.05rem;
+        transition: color 0.3s ease;
+        position: relative;
+    }
+
+    body.dark-mode .nav-center-links a {
+        color: #A0A0A0;
+    }
+
+    .nav-center-links a:hover,
+    .nav-center-links a.active {
+        color: #8CA38D;
+        font-weight: 600;
+    }
+
+    .nav-center-links a.active::after {
+        content: '';
+        position: absolute;
+        bottom: -6px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 18px;
+        height: 2px;
+        background-color: #8CA38D;
+        border-radius: 2px;
+    }
+
+    .nav-right-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    /* Floating Menu Styles Moved to Navbar */
+    .fm-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: transparent;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.3s;
+    }
+    .fm-btn:hover {
+        background: rgba(0, 0, 0, 0.05);
+        transform: translateY(-2px);
+    }
+    .fm-btn .material-icons-outlined {
+        color: #333333;
+        font-size: 20px;
+    }
+    body.dark-mode .fm-btn { border-color: rgba(255, 255, 255, 0.1); }
+    body.dark-mode .fm-btn .material-icons-outlined { color: #FFFFFF; }
+
+    .fm-dropdown {
+        position: absolute;
+        top: 70px;
+        right: 5%;
+        z-index: 10000;
+        width: 280px;
+        max-height: 80vh;
+        overflow-y: auto;
+        background: #FFFFFF;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 16px;
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.1);
+        padding: 12px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-12px);
+        transition: all 0.3s ease;
+    }
+    body.dark-mode .fm-dropdown {
+        background: #181A1F;
+        border-color: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+    }
+    .fm-dropdown.active {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+    .fm-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(2px);
+        opacity: 0;
+        visibility: hidden;
+        transition: 0.3s;
+    }
+    .fm-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    .fm-section { padding: 6px 8px; }
+    .fm-section-title {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #888888;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+    .fm-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        font-size: 1rem;
+        color: #333333;
+        text-decoration: none;
+        transition: 0.2s;
+        cursor: pointer;
+        background: transparent;
+        border: none;
+        width: 100%;
+        text-align: left;
+    }
+    body.dark-mode .fm-link { color: #FFFFFF; }
+    .fm-link:hover { background: #F3F4F6; }
+    .fm-link.active { 
+        background: #F3F4F6; 
+        color: #8CA38D; 
+        font-weight: 600; 
+    }
+    body.dark-mode .fm-link:hover,
+    body.dark-mode .fm-link.active { background: #2A2D35; }
+    body.dark-mode .fm-link.active { color: #8CA38D; }
+    
+    .fm-divider {
+        height: 1px;
+        background: rgba(0,0,0,0.05);
+        margin: 8px 0;
+    }
+    body.dark-mode .fm-divider { background: rgba(255,255,255,0.05); }
+
+    @media (max-width: 900px) {
+        .nav-center-links {
+            display: none;
+        }
+    }
+</style>
+
+<header class="global-navbar">
+    <a href="/" class="nav-brand-logo">AI SkinCare <span>Safety Analyzer</span></a>
+    
+    <nav class="nav-center-links">
+        <a href="{% url 'home' %}" {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}>Home</a>
+        <a href="{% url 'catalog' %}" {% if request.resolver_match.url_name == 'catalog' %}class="active"{% endif %}>Catalog</a>
+        <a href="{% url 'analyzer' %}" {% if request.resolver_match.url_name == 'analyzer' %}class="active"{% endif %}>AI Analyzer</a>
+        <a href="{% url 'clinical_scan' %}" {% if request.resolver_match.url_name == 'clinical_scan' %}class="active"{% endif %}>Clinical Scan</a>
+        {% if request.user.is_staff %}
+        <a href="{% url 'admin_dashboard' %}" {% if request.resolver_match.url_name == 'admin_dashboard' %}class="active"{% endif %}>Admin</a>
+        {% endif %}
+    </nav>
+    
+    <div class="nav-right-actions">
+        <!-- Move floating menu logic here -->
+        <button class="fm-btn" id="navMenuToggle" onclick="toggleNavMenu()">
+            <i class="material-icons-outlined">menu</i>
+        </button>
+    </div>
+</header>
+
+<div class="fm-overlay" id="navMenuOverlay" onclick="toggleNavMenu()"></div>
+<div class="fm-dropdown" id="navMenuDropdown">
+    <div class="fm-section">
+        <div class="fm-section-title">Navigation</div>
+        <a href="{% url 'home' %}" class="fm-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}"><i class="material-icons-outlined">home</i> Home</a>
+        <a href="{% url 'catalog' %}" class="fm-link {% if request.resolver_match.url_name == 'catalog' %}active{% endif %}"><i class="material-icons-outlined">storefront</i> Catalog</a>
+        <a href="{% url 'analyzer' %}" class="fm-link {% if request.resolver_match.url_name == 'analyzer' %}active{% endif %}"><i class="material-icons-outlined">science</i> AI Analyzer</a>
+        <a href="{% url 'clinical_scan' %}" class="fm-link {% if request.resolver_match.url_name == 'clinical_scan' %}active{% endif %}"><i class="material-icons-outlined">face</i> Clinical Scan</a>
+    </div>
+    
+    <div class="fm-divider"></div>
+    
+    <div class="fm-section">
+        <div class="fm-section-title">Preferences</div>
+        <button class="fm-link" onclick="toggleTheme()"><i class="material-icons-outlined">dark_mode</i> Dark Mode</button>
+    </div>
+    
+    <div class="fm-divider"></div>
+
+    <div class="fm-section">
+        <div class="fm-section-title">Account</div>
+        {% if request.user.is_authenticated %}
+        <a href="{% url 'profile' %}" class="fm-link"><i class="material-icons-outlined">person</i> My Profile</a>
+        {% if request.user.is_staff %}
+        <a href="{% url 'admin_dashboard' %}" class="fm-link"><i class="material-icons-outlined">dashboard</i> Admin</a>
+        {% endif %}
+        <a href="{% url 'logout' %}" class="fm-link" style="color: #E57373;"><i class="material-icons-outlined">logout</i> Logout</a>
+        {% else %}
+        <a href="{% url 'login' %}" class="fm-link"><i class="material-icons-outlined">login</i> Login / Register</a>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    function toggleNavMenu() {
+        const dd = document.getElementById('navMenuDropdown');
+        const overlay = document.getElementById('navMenuOverlay');
+        const btn = document.getElementById('navMenuToggle');
+        const isOpen = dd.classList.contains('active');
+        
+        if (isOpen) {
+            dd.classList.remove('active');
+            overlay.classList.remove('active');
+            btn.querySelector('i').textContent = 'menu';
+        } else {
+            dd.classList.add('active');
+            overlay.classList.add('active');
+            btn.querySelector('i').textContent = 'close';
+        }
+    }
+
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        // If you have a backend theme preference saving logic, put it here.
+    }
+</script>

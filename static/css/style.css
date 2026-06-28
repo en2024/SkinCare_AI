@@ -1,0 +1,92 @@
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: "Jost", sans-serif;
+            background-color: #FFFFFF;
+            color: #333333;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, .serif { font-family: "Cormorant Garamond", serif; }
+
+        /* Global Navbar */
+        .global-navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 5%;
+            background-color: #FFFFFF;
+            border-bottom: 1px solid #E5E7EB;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-brand {
+            font-weight: 700;
+            font-size: 1.25rem;
+            text-decoration: none;
+            color: #333333;
+            flex: 1;
+        }
+        
+        .nav-brand span {
+            color: #8CA38D;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex: 2;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #555555;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #8CA38D;
+        }
+
+        .nav-right {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            flex: 1;
+            gap: 15px;
+        }
+
+        .menu-icon {
+            cursor: pointer;
+            color: #333333;
+        }
+
+        /* Global Footer */
+        .global-footer {
+            margin-top: auto;
+            background-color: #FFFFFF;
+            border-top: 1px solid #E5E7EB;
+            padding: 24px 5%;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #666666;
+        }
+        
+        main {
+            flex: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+        }
+    

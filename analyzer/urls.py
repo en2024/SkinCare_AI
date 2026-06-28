@@ -35,6 +35,13 @@ urlpatterns = [
     path('admin-dashboard/add/', views.add_product, name='add_product'),
     path('admin-dashboard/edit/', views.edit_product, name='edit_product'),
     path('admin-dashboard/delete/', views.delete_product, name='delete_product'),
+
+    # ── Clinical scan ────────────────────────────────────────────────────
+    path('clinical/', views.clinical_scan_view, name='clinical_scan'),
+
+    # ── Chatbot API ──────────────────────────────────────────────────────
+    path('api/chat/', views.chat_api, name='chat_api'),
+    path('api/chat/clear/', views.clear_chat, name='clear_chat'),
 ]
 
 # Serve uploaded media files during development
